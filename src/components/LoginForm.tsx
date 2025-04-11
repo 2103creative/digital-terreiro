@@ -47,8 +47,11 @@ const LoginForm = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-card rounded-lg shadow-sm animate-slide-up">
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold">Entrar</h1>
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold mb-1">Ylê Axé Xangô & Oxum</h1>
+        <p className="text-sm text-muted-foreground mb-6">Seu terreiro na palma da mão</p>
+        
+        <h2 className="text-xl font-bold">Entrar</h2>
         <p className="text-muted-foreground">Acesse sua conta espiritual</p>
       </div>
       

@@ -1,7 +1,8 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, Users, BookMarked } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Book, Users, Calendar, Star, BookOpen } from "lucide-react";
 
 const DashboardHighlights = () => {
   // Get user from localStorage (in a real app, this would come from a proper auth system)
@@ -11,88 +12,102 @@ const DashboardHighlights = () => {
   const firstName = user.name.split(" ")[0];
 
   return (
-    <div className="space-y-6 pb-16">
-      <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16 border-2 border-primary">
+    <div className="space-y-4 pb-16">
+      <div className="flex flex-col items-center">
+        <h1 className="text-xl font-bold mb-0.5">Ylê Umbanda</h1>
+        <div className="flex justify-between w-full max-w-md">
+          <span className="font-medium">Destaques</span>
+          <div className="flex gap-2">
+            <span>Eventos</span>
+            <span>Giras</span>
+            <span>Mensagens</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-3 mt-3">
+        <Avatar className="h-12 w-12 border-2 border-primary">
           <AvatarImage src={user.avatar} alt={user.name} />
           <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div>
-          <h2 className="text-2xl font-semibold">Bem-vindo(a), {firstName}</h2>
-          <p className="text-muted-foreground">Seu caminho espiritual continua</p>
+          <p className="font-semibold">Bem-vindo(a), {firstName}</p>
+          <p className="text-sm text-muted-foreground">Médium em Desenvolvimento</p>
         </div>
       </div>
 
-      <section>
-        <h3 className="text-lg font-semibold mb-3">Próximos Eventos</h3>
-        <div className="grid gap-4">
-          {[
-            { title: "Gira de Pretos Velhos", date: "15/10 - 20h", icon: Users },
-            { title: "Desenvolvimento Mediúnico", date: "22/10 - 19h", icon: Users },
-          ].map((event, index) => (
-            <Card key={index} className="card-hover">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-secondary">
-                  <CalendarDays className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">{event.title}</p>
-                  <p className="text-sm text-muted-foreground">{event.date}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h3 className="text-lg font-semibold mb-3">Atividades Recentes</h3>
-        <div className="grid gap-4">
-          {[
-            { title: "Fundamentos da Umbanda", subtitle: "Você concluiu a leitura", icon: BookMarked },
-            { title: "Gira de Caboclos", subtitle: "Você participou desta gira", icon: Users },
-          ].map((activity, index) => (
-            <Card key={index} className="card-hover">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-secondary">
-                  <activity.icon className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">{activity.title}</p>
-                  <p className="text-sm text-muted-foreground">{activity.subtitle}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h3 className="text-lg font-semibold mb-3">Desenvolvimento Espiritual</h3>
-        <div className="grid gap-4">
-          <Card className="card-hover">
-            <CardHeader>
-              <CardTitle className="text-base">Obrigação de Mata</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">Mesas apresentadas: 3/7</p>
-              <div className="w-full h-2 bg-secondary rounded-full mt-2">
-                <div className="h-full w-[42%] bg-primary rounded-full"></div>
+      <div className="mt-6">
+        <h2 className="font-semibold mb-1">Próximos Eventos</h2>
+        <Separator className="mb-2" />
+        
+        <div className="space-y-2">
+          <Card className="border-0 shadow-none">
+            <CardContent className="p-2 flex justify-between items-center">
+              <div>
+                <p className="font-medium">Gira de Pretos Velhos</p>
+                <p className="text-xs text-muted-foreground">Sábado, 20 de Maio • 20:00</p>
               </div>
+              <Calendar className="h-5 w-5" />
             </CardContent>
           </Card>
           
-          <Card className="card-hover">
-            <CardHeader>
-              <CardTitle className="text-base">Obrigação de Santo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">Tipo de obrigação: Cabeça</p>
-              <p className="text-sm text-muted-foreground mt-1">Data prevista: 05/12/2025</p>
+          <Card className="border-0 shadow-none">
+            <CardContent className="p-2 flex justify-between items-center">
+              <div>
+                <p className="font-medium">Desenvolvimento Mediúnico</p>
+                <p className="text-xs text-muted-foreground">Terça, 23 de Maio • 20:00</p>
+              </div>
+              <Calendar className="h-5 w-5" />
             </CardContent>
           </Card>
         </div>
-      </section>
+      </div>
+
+      <div className="mt-4">
+        <h2 className="font-semibold mb-1">Atividades Recentes</h2>
+        <Separator className="mb-2" />
+        
+        <div className="space-y-2">
+          <Card className="border-0 shadow-none">
+            <CardContent className="p-2 flex justify-between items-center">
+              <div>
+                <p className="font-medium">Leitura concluída</p>
+                <p className="text-xs text-muted-foreground">Fundamentos da Umbanda</p>
+              </div>
+              <BookOpen className="h-5 w-5" />
+            </CardContent>
+          </Card>
+          
+          <Card className="border-0 shadow-none">
+            <CardContent className="p-2 flex justify-between items-center">
+              <div>
+                <p className="font-medium">Participação em Gira</p>
+                <p className="text-xs text-muted-foreground">Gira de Caboclos</p>
+              </div>
+              <Users className="h-5 w-5" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <h2 className="font-semibold mb-1">Desenvolvimento Espiritual</h2>
+        <Separator className="mb-3" />
+        
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="py-3 px-4 text-center">
+            <Star className="mx-auto h-5 w-5 mb-1" />
+            <p className="text-xl font-bold">12</p>
+            <p className="text-xs text-muted-foreground">Giras</p>
+          </Card>
+          
+          <Card className="py-3 px-4 text-center">
+            <Book className="mx-auto h-5 w-5 mb-1" />
+            <p className="text-xl font-bold">5</p>
+            <p className="text-xs text-muted-foreground">Estudos</p>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

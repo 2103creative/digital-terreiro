@@ -36,7 +36,7 @@ const DashboardHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-30 flex items-center justify-between p-4 bg-background/95 backdrop-blur">
       <div className="flex items-center">
         <h1 className="text-xl font-bold">Ylê Axé Xangô & Oxum</h1>
       </div>
