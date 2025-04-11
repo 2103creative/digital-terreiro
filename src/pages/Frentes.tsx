@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import FrentesContent from "@/components/FrentesContent";
 import MobileNav from "@/components/MobileNav";
+import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 
 const Frentes = () => {
@@ -24,13 +25,17 @@ const Frentes = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
-      <DashboardHeader />
+    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
+      <DesktopSidebar />
       
-      <main className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">Frentes</h1>
-        <FrentesContent />
-      </main>
+      <div className="flex-1">
+        <DashboardHeader />
+        
+        <main className="container mx-auto px-4 py-6">
+          <h1 className="text-2xl font-bold mb-6">Frentes</h1>
+          <FrentesContent />
+        </main>
+      </div>
       
       <MobileNav />
     </div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import DashboardHighlights from "@/components/DashboardHighlights";
 import MobileNav from "@/components/MobileNav";
+import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
@@ -24,12 +25,16 @@ const Dashboard = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
-      <DashboardHeader />
+    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
+      <DesktopSidebar />
       
-      <main className="container mx-auto px-4 py-6">
-        <DashboardHighlights />
-      </main>
+      <div className="flex-1">
+        <DashboardHeader />
+        
+        <main className="container mx-auto px-4 py-6">
+          <DashboardHighlights />
+        </main>
+      </div>
       
       <MobileNav />
     </div>

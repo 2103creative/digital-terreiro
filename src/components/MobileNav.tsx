@@ -1,6 +1,6 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Calendar, BookOpen, MessageSquare, Users } from "lucide-react";
+import { Home, User, LayersIcon, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MobileNav = () => {
@@ -9,35 +9,30 @@ const MobileNav = () => {
   
   const tabs = [
     {
-      label: "Destaques",
+      label: "Início",
       icon: Home,
       path: "/dashboard",
     },
     {
-      label: "Eventos",
-      icon: Calendar,
-      path: "/eventos",
-    },
-    {
-      label: "Leitura",
-      icon: BookOpen,
-      path: "/leitura",
+      label: "Perfil",
+      icon: User,
+      path: "/profile",
     },
     {
       label: "Frentes",
-      icon: Users,
+      icon: LayersIcon,
       path: "/frentes",
     },
     {
-      label: "Mensagens",
-      icon: MessageSquare,
-      path: "/mensagens",
+      label: "Sobre",
+      icon: Info,
+      path: "/sobre",
     },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t md:hidden">
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-4">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
           

@@ -1,103 +1,104 @@
 
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Mail, Phone } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DashboardHeader from "@/components/DashboardHeader";
+import MobileNav from "@/components/MobileNav";
+import DesktopSidebar from "@/components/DesktopSidebar";
+import { useToast } from "@/hooks/use-toast";
+import { Heart, Users, Mail, Phone, MapPin } from "lucide-react";
 
 const About = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    // Check if user is authenticated
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    if (!isAuthenticated) {
+      navigate("/login");
+      toast({
+        title: "Acesso negado",
+        description: "Por favor, faça login para acessar esta página",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast]);
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="py-4 px-6 border-b">
-        <div className="container mx-auto flex items-center">
-          <Link to="/" className="mr-4">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold">Sobre</h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
+      <DesktopSidebar />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto space-y-8">
-          <section>
-            <h2 className="text-2xl font-bold mb-4">Ylê Axé Xangô & Oxum</h2>
-            <p className="text-muted-foreground mb-4">
-              O Terreiro Ylê Axé Xangô & Oxum é um espaço sagrado dedicado à prática da Umbanda e Nação,
-              onde buscamos o desenvolvimento espiritual e a conexão com as forças divinas.
+      <div className="flex-1">
+        <DashboardHeader />
+        
+        <main className="container mx-auto px-4 py-6 md:py-8 max-w-3xl">
+          <div className="mb-8">
+            <div className="relative h-48 md:h-64 w-full mb-4 rounded-xl overflow-hidden">
+              <img 
+                src="/lovable-uploads/458caf45-805c-4f1d-a605-86b417e8b369.png" 
+                alt="Ylê Umbanda" 
+                className="w-full h-full object-cover brightness-75"
+              />
+              <h1 className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">
+                Sobre Ylê Umbanda
+              </h1>
+            </div>
+          </div>
+          
+          <section className="mb-8">
+            <h2 className="text-xl font-bold mb-3">Nossa Missão</h2>
+            <p className="text-muted-foreground">
+              Conectar e fortalecer a comunidade Umbanda através da tecnologia, preservando nossa rica 
+              tradição espiritual enquanto abraçamos a modernidade.
             </p>
           </section>
           
-          <section>
-            <h3 className="text-xl font-semibold mb-3">Nossa Missão</h3>
-            <p className="mb-4">
-              Servir como um canal de luz e acolhimento, oferecendo orientação espiritual
-              e promovendo os ensinamentos sagrados que unem as tradições afro-brasileiras.
-            </p>
-          </section>
-          
-          <section>
-            <h3 className="text-xl font-semibold mb-3">Valores</h3>
-            <ul className="list-disc list-inside space-y-2 mb-4">
-              <li>Respeito às tradições e à ancestralidade</li>
-              <li>Igualdade e inclusão para todos os filhos</li>
-              <li>Caridade e assistência espiritual</li>
-              <li>Desenvolvimento mediúnico responsável</li>
-              <li>Preservação dos conhecimentos sagrados</li>
-            </ul>
-          </section>
-          
-          <section>
-            <h3 className="text-xl font-semibold mb-3">Contato</h3>
-            <div className="grid gap-4">
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Endereço</p>
-                    <p className="text-sm text-muted-foreground">
-                      Rua dos Orixás, 123 - Jardim Espiritual, São Paulo - SP
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+          <section className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Nossos Valores</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Heart className="h-5 w-5 text-primary" />
+                  <h3 className="font-medium">Respeito</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Honramos todas as formas de expressão espiritual
+                </p>
+              </div>
               
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">
-                      contato@yleaxexangoeoxum.com.br
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Telefone</p>
-                    <p className="text-sm text-muted-foreground">
-                      (11) 98765-4321
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <h3 className="font-medium">Comunidade</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Unidos em nossa jornada espiritual
+                </p>
+              </div>
             </div>
           </section>
-        </div>
-      </main>
+          
+          <section>
+            <h2 className="text-xl font-bold mb-4">Contato</h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                <span>contato@yleumbanda.com</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-muted-foreground" />
+                <span>(11) 99999-9999</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <span>São Paulo, SP</span>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
       
-      <footer className="py-6 border-t">
-        <div className="container mx-auto text-center text-sm text-muted-foreground">
-          <p>Ylê Axé Xangô & Oxum &copy; {new Date().getFullYear()}</p>
-          <Link to="/" className="hover:underline">
-            Voltar ao início
-          </Link>
-        </div>
-      </footer>
+      <MobileNav />
     </div>
   );
 };
