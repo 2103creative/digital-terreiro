@@ -1,7 +1,6 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Book, Users, Calendar, Star, BookOpen } from "lucide-react";
 
 const DashboardHighlights = () => {
@@ -38,7 +37,6 @@ const DashboardHighlights = () => {
 
       <div className="mt-6">
         <h2 className="font-semibold mb-1">Próximos Eventos</h2>
-        <Separator className="mb-2" />
         
         <div className="space-y-2">
           <Card className="border-0 shadow-none">
@@ -65,7 +63,6 @@ const DashboardHighlights = () => {
 
       <div className="mt-4">
         <h2 className="font-semibold mb-1">Atividades Recentes</h2>
-        <Separator className="mb-2" />
         
         <div className="space-y-2">
           <Card className="border-0 shadow-none">
@@ -92,7 +89,6 @@ const DashboardHighlights = () => {
 
       <div className="mt-4">
         <h2 className="font-semibold mb-1">Desenvolvimento Espiritual</h2>
-        <Separator className="mb-3" />
         
         <div className="grid grid-cols-2 gap-4">
           <Card className="py-3 px-4 text-center">

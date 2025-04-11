@@ -1,12 +1,10 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 
 const ProfileContent = () => {
@@ -34,7 +32,6 @@ const ProfileContent = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -103,8 +100,6 @@ const ProfileContent = () => {
                 </div>
               </div>
             </div>
-            
-            <Separator />
             
             <div>
               <h2 className="font-semibold mb-2">Informações Espirituais</h2>
@@ -186,8 +181,6 @@ const ProfileContent = () => {
                 </div>
               </div>
             </div>
-            
-            <Separator />
             
             <div>
               <h2 className="font-semibold mb-2">Informações Espirituais</h2>
