@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import Reading from "./pages/Reading";
 import Messages from "./pages/Messages";
+import Frentes from "./pages/Frentes";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/eventos" element={<Events />} />
           <Route path="/leitura" element={<Reading />} />
           <Route path="/mensagens" element={<Messages />} />
+          <Route path="/frentes" element={<Frentes />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/sobre" element={<About />} />
           <Route path="*" element={<NotFound />} />
