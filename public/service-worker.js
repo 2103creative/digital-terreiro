@@ -1,4 +1,3 @@
-
 /* eslint-disable no-restricted-globals */
 
 // This service worker can be customized to your app's needs
@@ -10,6 +9,17 @@ const urlsToCache = [
   '/index.html',
   '/manifest.json',
   '/service-worker.js',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch/apple-icon-180.png',
+  '/offline.html',
+  '/dashboard',
+  '/eventos',
+  '/leitura',
+  '/mensagens',
+  '/frentes',
+  '/profile',
+  '/sobre'
 ];
 
 // Install a service worker
@@ -22,6 +32,8 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
   );
+  // Activate worker immediately
+  self.skipWaiting();
 });
 
 // Cache and return requests
@@ -33,7 +45,11 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        return fetch(event.request).then(
+
+        // Clone the request because it's a stream and can only be consumed once
+        const fetchRequest = event.request.clone();
+
+        return fetch(fetchRequest).then(
           (response) => {
             // Check if we received a valid response
             if(!response || response.status !== 200 || response.type !== 'basic') {
@@ -53,7 +69,12 @@ self.addEventListener('fetch', (event) => {
 
             return response;
           }
-        );
+        ).catch(() => {
+          // If the network is unavailable and we have no cache, try to serve the offline page
+          if (event.request.mode === 'navigate') {
+            return caches.match('/offline.html');
+          }
+        });
       })
   );
 });
@@ -71,6 +92,9 @@ self.addEventListener('activate', (event) => {
           return null;
         })
       );
+    }).then(() => {
+      // Ativa o service worker imediatamente em todas as páginas
+      return self.clients.claim();
     })
   );
 });

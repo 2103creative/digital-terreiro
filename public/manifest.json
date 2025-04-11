@@ -1,4 +1,3 @@
-
 {
   "name": "Ylê Axé Xangô & Oxum",
   "short_name": "Ylê Axé",
@@ -7,6 +6,9 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -19,6 +21,18 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Próximos Eventos",
+      "url": "/eventos",
+      "description": "Veja os próximos eventos do terreiro"
+    },
+    {
+      "name": "Leitura",
+      "url": "/leitura",
+      "description": "Acesse materiais de estudo e leitura"
     }
   ]
 }

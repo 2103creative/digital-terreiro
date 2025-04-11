@@ -40,7 +40,7 @@ const About = () => {
                 className="w-full h-full object-cover brightness-75"
               />
               <h1 className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">
-                Sobre Ylê Umbanda
+                Sobre Ylê Axé Xangô & Oxum
               </h1>
             </div>
           </div>

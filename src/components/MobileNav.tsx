@@ -1,6 +1,5 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User, LayersIcon, Info } from "lucide-react";
+import { Home, User, BookOpen, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MobileNav = () => {
@@ -20,7 +19,7 @@ const MobileNav = () => {
     },
     {
       label: "Frentes",
-      icon: LayersIcon,
+      icon: BookOpen,
       path: "/frentes",
     },
     {
@@ -31,7 +30,7 @@ const MobileNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-background md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-gray-200 md:hidden">
       <div className="grid grid-cols-4">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
@@ -40,7 +39,7 @@ const MobileNav = () => {
             <button
               key={tab.path}
               className={cn(
-                "mobile-tab py-2",
+                "flex flex-col items-center py-3",
                 isActive ? "text-primary" : "text-muted-foreground"
               )}
               onClick={() => navigate(tab.path)}

@@ -1,26 +1,45 @@
-
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Book, Users, Calendar, Star, BookOpen } from "lucide-react";
 
 const DashboardHighlights = () => {
+  const navigate = useNavigate();
   // Get user from localStorage (in a real app, this would come from a proper auth system)
   const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : { name: "Usuário", avatar: "/placeholder.svg" };
+  const user = userString ? JSON.parse(userString) : { name: "Maria", avatar: "/placeholder.svg" };
   
   const firstName = user.name.split(" ")[0];
 
   return (
     <div className="space-y-4 pb-16">
-      <div className="flex flex-col items-center">
-        <h1 className="text-xl font-bold mb-0.5">Ylê Umbanda</h1>
-        <div className="flex justify-between w-full max-w-md">
-          <span className="font-medium">Destaques</span>
-          <div className="flex gap-2">
-            <span>Eventos</span>
-            <span>Giras</span>
-            <span>Mensagens</span>
-          </div>
+      <div>
+        <div className="flex justify-center gap-4 border-b pb-1">
+          <button 
+            className="font-medium text-primary border-b-2 border-primary pb-1 px-1"
+            onClick={() => navigate("/dashboard")}
+          >
+            Destaques
+          </button>
+          <button 
+            className="text-muted-foreground"
+            onClick={() => navigate("/eventos")}
+          >
+            Eventos
+          </button>
+          <button 
+            className="text-muted-foreground"
+            onClick={() => navigate("/leitura")}
+          >
+            Leitura
+          </button>
+          <button 
+            className="text-muted-foreground"
+            onClick={() => navigate("/mensagens")}
+          >
+            Mensagens
+          </button>
         </div>
       </div>
       
@@ -36,69 +55,69 @@ const DashboardHighlights = () => {
       </div>
 
       <div className="mt-6">
-        <h2 className="font-semibold mb-1">Próximos Eventos</h2>
+        <h2 className="font-semibold mb-2">Próximos Eventos</h2>
         
-        <div className="space-y-2">
-          <Card className="border-0 shadow-none">
-            <CardContent className="p-2 flex justify-between items-center">
+        <div className="space-y-3">
+          <Card className="rounded-lg border shadow-sm">
+            <CardContent className="p-3 flex justify-between items-center">
               <div>
                 <p className="font-medium">Gira de Pretos Velhos</p>
-                <p className="text-xs text-muted-foreground">Sábado, 20 de Maio • 20:00</p>
+                <p className="text-xs text-muted-foreground">Sábado, 20 de Maio • 9:00</p>
               </div>
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-5 w-5 text-gray-400" />
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-none">
-            <CardContent className="p-2 flex justify-between items-center">
+          <Card className="rounded-lg border shadow-sm">
+            <CardContent className="p-3 flex justify-between items-center">
               <div>
                 <p className="font-medium">Desenvolvimento Mediúnico</p>
                 <p className="text-xs text-muted-foreground">Terça, 23 de Maio • 20:00</p>
               </div>
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-5 w-5 text-gray-400" />
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <div className="mt-4">
-        <h2 className="font-semibold mb-1">Atividades Recentes</h2>
+      <div className="mt-5">
+        <h2 className="font-semibold mb-2">Atividades Recentes</h2>
         
-        <div className="space-y-2">
-          <Card className="border-0 shadow-none">
-            <CardContent className="p-2 flex justify-between items-center">
+        <div className="space-y-3">
+          <Card className="rounded-lg border shadow-sm">
+            <CardContent className="p-3 flex justify-between items-center">
               <div>
                 <p className="font-medium">Leitura concluída</p>
                 <p className="text-xs text-muted-foreground">Fundamentos da Umbanda</p>
               </div>
-              <BookOpen className="h-5 w-5" />
+              <BookOpen className="h-5 w-5 text-gray-400" />
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-none">
-            <CardContent className="p-2 flex justify-between items-center">
+          <Card className="rounded-lg border shadow-sm">
+            <CardContent className="p-3 flex justify-between items-center">
               <div>
                 <p className="font-medium">Participação em Gira</p>
                 <p className="text-xs text-muted-foreground">Gira de Caboclos</p>
               </div>
-              <Users className="h-5 w-5" />
+              <Users className="h-5 w-5 text-gray-400" />
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <div className="mt-4">
-        <h2 className="font-semibold mb-1">Desenvolvimento Espiritual</h2>
+      <div className="mt-5">
+        <h2 className="font-semibold mb-2">Desenvolvimento Espiritual</h2>
         
         <div className="grid grid-cols-2 gap-4">
-          <Card className="py-3 px-4 text-center">
-            <Star className="mx-auto h-5 w-5 mb-1" />
+          <Card className="rounded-lg border shadow-sm py-3 px-4 text-center">
+            <Star className="mx-auto h-5 w-5 mb-1 text-gray-400" />
             <p className="text-xl font-bold">12</p>
             <p className="text-xs text-muted-foreground">Giras</p>
           </Card>
           
-          <Card className="py-3 px-4 text-center">
-            <Book className="mx-auto h-5 w-5 mb-1" />
+          <Card className="rounded-lg border shadow-sm py-3 px-4 text-center">
+            <Book className="mx-auto h-5 w-5 mb-1 text-gray-400" />
             <p className="text-xl font-bold">5</p>
             <p className="text-xs text-muted-foreground">Estudos</p>
           </Card>
