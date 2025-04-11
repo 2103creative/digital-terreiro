@@ -31,7 +31,7 @@ const MobileNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-background border-t md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-background md:hidden">
       <div className="grid grid-cols-4">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;

@@ -84,7 +84,7 @@ const Index = () => {
         </div>
       </main>
       
-      <footer className="py-6 border-t">
+      <footer className="py-4 mt-4">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
           <p>Ylê Axé Xangô & Oxum &copy; {new Date().getFullYear()}</p>
           <p>Seu terreiro na palma da mão</p>
