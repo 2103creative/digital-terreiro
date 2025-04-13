@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import AdminUsers from "./pages/AdminUsers";
 import UserFormPage from "./pages/UserFormPage";
+import Limpeza from "./pages/Limpeza";
+import AdminLimpeza from "./pages/AdminLimpeza";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
 import { lazy, Suspense } from "react";
@@ -52,6 +54,7 @@ const App = () => (
           <Route path="/leitura" element={<Reading />} />
           <Route path="/mensagens" element={<Messages />} />
           <Route path="/frentes" element={<Frentes />} />
+          <Route path="/limpeza" element={<Limpeza />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/sobre" element={<About />} />
           <Route path="/configuracoes" element={<Settings />} />
@@ -92,6 +95,7 @@ const App = () => (
               </Suspense>
             } 
           />
+          <Route path="/admin/limpeza" element={<AdminLimpeza />} />
           
           {/* Página 404 */}
           <Route path="*" element={<NotFound />} />

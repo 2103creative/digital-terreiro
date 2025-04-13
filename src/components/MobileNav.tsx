@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User, BookOpen, Info } from "lucide-react";
+import { Home, User, BookOpen, Info, Brush } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MobileNav = () => {
@@ -21,6 +21,11 @@ const MobileNav = () => {
       label: "Frentes",
       icon: BookOpen,
       path: "/frentes",
+    },
+    {
+      label: "Limpeza",
+      icon: Brush,
+      path: "/limpeza",
     },
     {
       label: "Sobre",

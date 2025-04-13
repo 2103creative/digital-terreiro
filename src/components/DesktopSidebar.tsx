@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User, Layers, Info, Calendar, BookOpen, MessageSquare } from "lucide-react";
+import { Home, User, Layers, Info, Calendar, BookOpen, MessageSquare, Brush } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,6 +33,11 @@ const DesktopSidebar = () => {
       label: "Frentes",
       icon: Layers,
       path: "/frentes",
+    },
+    {
+      label: "Limpeza",
+      icon: Brush,
+      path: "/limpeza",
     },
     {
       label: "Mensagens",

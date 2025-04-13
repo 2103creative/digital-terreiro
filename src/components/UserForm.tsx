@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserFormProps {
   userId?: number; // Se fornecido, estamos editando um usuário
@@ -28,10 +29,12 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     mataObrigacao: [],
     santoObrigacao: "",
     status: "active",
-    role: "member"
+    role: "member",
+    avatar: "/placeholder.svg"
   });
   
   const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   useEffect(() => {
     if (isEditMode) {
@@ -52,7 +55,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             mataObrigacao: ["Oxóssi", "Ogum"],
             santoObrigacao: "7 anos",
             role: "admin", 
-            status: "active"
+            status: "active",
+            avatar: "/placeholder.svg"
           },
           { 
             id: 2, 
@@ -65,7 +69,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             mataObrigacao: ["Oxóssi"],
             santoObrigacao: "3 anos",
             role: "member", 
-            status: "active"
+            status: "active",
+            avatar: "/placeholder.svg"
           }
         ];
         
@@ -75,6 +80,9 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             ...formData,
             ...user
           });
+          if (user.avatar) {
+            setImagePreview(user.avatar);
+          }
         }
         
         setIsLoading(false);
@@ -110,6 +118,20 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     }
   };
   
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Em um app real, você enviaria o arquivo para o servidor
+      // Aqui, estamos apenas criando uma URL temporária para exibição
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreview(imageUrl);
+      setFormData({
+        ...formData,
+        avatar: imageUrl
+      });
+    }
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -138,7 +160,7 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
   ];
   
   const linhasDeMata = [
-    "Oxóssi", "Ogum", "Xangô", "Oxum", "Iansã", "Iemanjá", "Oxalá", "Cosme & Damião", "Exu"
+    "Oxóssi", "Ogum", "Xangô", "Oxum", "Iansã", "Iemanjá", "Obaluaiê"
   ];
   
   const roleOptions = [
@@ -175,6 +197,47 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-card rounded-lg border p-6">
+            <h2 className="text-lg font-medium mb-4">Foto de Perfil</h2>
+            
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex flex-col items-center gap-4">
+                <Avatar className="h-32 w-32">
+                  <AvatarImage src={imagePreview || formData.avatar} alt={formData.name} />
+                  <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                
+                <div className="relative">
+                  <Input
+                    id="avatar"
+                    name="avatar"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  <Label
+                    htmlFor="avatar"
+                    className="flex items-center gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Alterar foto
+                  </Label>
+                </div>
+              </div>
+              
+              <div className="space-y-2 flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Adicione uma foto de perfil para o usuário. Formatos aceitos: JPG, PNG ou GIF. 
+                  Tamanho máximo recomendado: 2MB.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  A foto será usada na página de perfil do usuário e em listagens do sistema.
+                </p>
+              </div>
+            </div>
+          </div>
+          
           <div className="bg-card rounded-lg border p-6">
             <h2 className="text-lg font-medium mb-4">Informações Pessoais</h2>
             
