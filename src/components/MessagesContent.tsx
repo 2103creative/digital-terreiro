@@ -1,11 +1,13 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+// Armazenamento no localStorage para persistir estado de leitura
+const STORAGE_KEY = "yle-axe-messages";
 
 // Sample messages
 const messages = [
@@ -23,7 +25,7 @@ const messages = [
     content: "Estamos recebendo doações para a festa de Oxum que acontecerá no próximo mês. Precisamos de flores amarelas, champagne e mel.",
     date: new Date(2025, 3, 8, 10, 15),
     isUrgent: false,
-    isRead: true,
+    isRead: false,
   },
   {
     id: 3,
@@ -31,7 +33,7 @@ const messages = [
     content: "Estamos abrindo inscrições para o novo curso de desenvolvimento mediúnico que começa no dia 22/04. Vagas limitadas!",
     date: new Date(2025, 3, 5, 9, 0),
     isUrgent: false,
-    isRead: true,
+    isRead: false,
   },
   {
     id: 4,
@@ -43,11 +45,83 @@ const messages = [
   },
 ];
 
+// Evento personalizado para notificar sobre novas mensagens
+export const emitMessageUpdate = (count: number) => {
+  window.dispatchEvent(new CustomEvent('message-update', { detail: { count } }));
+};
+
+// Hook para componentes externos escutarem atualizações de mensagens
+export const useMessageUpdates = () => {
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  useEffect(() => {
+    const handleMessageUpdate = (event: any) => {
+      setUnreadCount(event.detail.count);
+    };
+
+    // Verificar mensagens não lidas no localStorage ao montar
+    const checkStoredMessages = () => {
+      try {
+        const storedData = localStorage.getItem(STORAGE_KEY);
+        if (storedData) {
+          const readStatus = JSON.parse(storedData);
+          const unreadCount = messages.filter(msg => !readStatus[msg.id]).length;
+          setUnreadCount(unreadCount);
+        } else {
+          // Se não houver dados salvos, conte mensagens não lidas dos dados iniciais
+          const unreadCount = messages.filter(msg => !msg.isRead).length;
+          setUnreadCount(unreadCount);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar mensagens:", error);
+      }
+    };
+
+    window.addEventListener('message-update', handleMessageUpdate);
+    checkStoredMessages();
+
+    return () => {
+      window.removeEventListener('message-update', handleMessageUpdate);
+    };
+  }, []);
+
+  return unreadCount;
+};
+
 const MessagesContent = () => {
   const [activeTab, setActiveTab] = useState("recentes");
-  const [readStatus, setReadStatus] = useState<Record<number, boolean>>(
-    messages.reduce((acc, msg) => ({ ...acc, [msg.id]: msg.isRead }), {})
-  );
+  
+  // Inicializar com dados do localStorage ou dados padrão
+  const getInitialReadStatus = () => {
+    try {
+      const storedData = localStorage.getItem(STORAGE_KEY);
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error("Erro ao recuperar dados de mensagens:", error);
+    }
+    
+    // Se não houver dados salvos, use os valores iniciais
+    return messages.reduce((acc, msg) => ({ ...acc, [msg.id]: msg.isRead }), {});
+  };
+  
+  const [readStatus, setReadStatus] = useState<Record<number, boolean>>(getInitialReadStatus());
+
+  // Salvar no localStorage quando o status muda
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(readStatus));
+    
+    // Emitir evento quando o status de leitura muda
+    const unreadCount = messages.filter(msg => !readStatus[msg.id]).length;
+    emitMessageUpdate(unreadCount);
+  }, [readStatus]);
+
+  // Emitir número de mensagens não lidas ao iniciar o componente
+  useEffect(() => {
+    const unreadCount = messages.filter(msg => !readStatus[msg.id]).length;
+    emitMessageUpdate(unreadCount);
+  }, []);
 
   const handleMessageClick = (id: number) => {
     setReadStatus(prev => ({ ...prev, [id]: true }));

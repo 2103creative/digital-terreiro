@@ -2,6 +2,7 @@
   "name": "Ylê Axé Xangô & Oxum",
   "short_name": "Ylê Axé",
   "description": "Seu terreiro na palma da mão",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -21,6 +22,42 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -33,6 +70,25 @@
       "name": "Leitura",
       "url": "/leitura",
       "description": "Acesse materiais de estudo e leitura"
+    }
+  ],
+  "categories": ["religion", "lifestyle", "education"],
+  "dir": "ltr",
+  "lang": "pt-BR",
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "360x640",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela inicial no celular"
+    },
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Tela inicial no computador"
     }
   ]
 }

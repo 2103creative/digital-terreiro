@@ -1,18 +1,14 @@
 /* eslint-disable no-restricted-globals */
 
-// This service worker can be customized to your app's needs
-// For example, you can add offline support, handle push notifications, etc.
-
-const CACHE_NAME = 'yle-axe-cache-v1';
-const urlsToCache = [
+// Nome e versão do cache
+const CACHE_NAME = 'yle-axe-cache-v2';
+const APP_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/service-worker.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/apple-touch/apple-icon-180.png',
   '/offline.html',
+  '/placeholder.svg',
   '/dashboard',
   '/eventos',
   '/leitura',
@@ -22,79 +18,149 @@ const urlsToCache = [
   '/sobre'
 ];
 
-// Install a service worker
+// Arquivos estáticos para cache
+const STATIC_ASSETS = [
+  '/icons/icon-48.png',
+  '/icons/icon-72.png',
+  '/icons/icon-96.png',
+  '/icons/icon-128.png',
+  '/icons/icon-144.png',
+  '/icons/icon-192.png',
+  '/icons/icon-384.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch/apple-icon-180.png',
+  '/icons/apple-touch/apple-splash-2048-2732.png'
+];
+
+// Instala o service worker
 self.addEventListener('install', (event) => {
-  // Perform install steps
+  // Console para debug
+  console.log('[Service Worker] Instalando...');
+  
+  // Realiza a instalação
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('[Service Worker] Cache aberto');
+        // Adiciona todos os URLs ao cache
+        return Promise.all([
+          cache.addAll(APP_URLS),
+          cache.addAll(STATIC_ASSETS)
+        ]);
       })
-  );
-  // Activate worker immediately
-  self.skipWaiting();
-});
-
-// Cache and return requests
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // Clone the request because it's a stream and can only be consumed once
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          (response) => {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            var responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        ).catch(() => {
-          // If the network is unavailable and we have no cache, try to serve the offline page
-          if (event.request.mode === 'navigate') {
-            return caches.match('/offline.html');
-          }
-        });
+      .then(() => {
+        console.log('[Service Worker] Todos recursos cacheados');
+        // Ativa o worker imediatamente
+        return self.skipWaiting();
       })
   );
 });
 
-// Update a service worker
+// Ativa o service worker
 self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Ativando...');
+  
+  // Lista de caches a manter
   const cacheWhitelist = [CACHE_NAME];
+  
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    // Limpa caches antigos
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(cacheName => {
+        cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('[Service Worker] Deletando cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
           return null;
         })
       );
-    }).then(() => {
-      // Ativa o service worker imediatamente em todas as páginas
+    })
+    .then(() => {
+      console.log('[Service Worker] Ativado e pronto para controlar clientes');
+      // Toma controle de todos os clientes imediatamente
       return self.clients.claim();
     })
+  );
+});
+
+// Captura e processa requisições de rede
+self.addEventListener('fetch', (event) => {
+  // Estratégia: Cache First, fallback para Network, depois para offline.html
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Cache hit - retorna resposta
+        if (response) {
+          return response;
+        }
+        
+        // Clone a requisição porque pode ser consumida apenas uma vez
+        const fetchRequest = event.request.clone();
+        
+        // Tenta buscar da rede
+        return fetch(fetchRequest)
+          .then((networkResponse) => {
+            // Verifica se recebemos uma resposta válida
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
+            }
+            
+            // Clone a resposta para armazenar no cache
+            const responseToCache = networkResponse.clone();
+            
+            // Abre o cache e armazena a resposta
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+            
+            return networkResponse;
+          })
+          .catch(() => {
+            // Offline fallback para navegação em páginas
+            if (event.request.mode === 'navigate') {
+              return caches.match('/offline.html');
+            }
+          });
+      })
+  );
+});
+
+// Evento de mensagem para comunicação com a página
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// Evento para notificações push
+self.addEventListener('push', (event) => {
+  const data = event.data.json();
+  
+  const options = {
+    body: data.body || 'Nova notificação do Ylê Axé',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-96.png',
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || '/'
+    }
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(
+      data.title || 'Ylê Axé Xangô & Oxum',
+      options
+    )
+  );
+});
+
+// Evento para clique em notificação
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url)
   );
 });

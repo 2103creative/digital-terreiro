@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Ylê Axé" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Ylê Axé" />
 
     <!-- Ícones para iOS -->
     <link rel="apple-touch-icon" href="/icons/apple-touch/apple-icon-180.png">
@@ -28,17 +30,105 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <!-- Manifesto do PWA -->
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
     
     <!-- Fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="196x196" href="/icons/icon-192.png">
+    <!-- Favicon e ícones -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
+    <link rel="icon" type="image/png" sizes="72x72" href="/icons/icon-72.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon-128.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/icons/icon-144.png">
+    <link rel="icon" type="image/png" sizes="384x384" href="/icons/icon-384.png">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- Prompt de instalação personalizado -->
+    <style>
+      #pwa-install-prompt {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        z-index: 9999;
+        text-align: center;
+      }
+      #pwa-install-prompt button {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        margin: 8px;
+        cursor: pointer;
+      }
+      #pwa-install-prompt button.dismiss {
+        background: transparent;
+        color: #666;
+      }
+    </style>
   </head>
 
   <body>
     <div id="root"></div>
+    
+    <!-- Prompt de instalação PWA personalizado -->
+    <div id="pwa-install-prompt">
+      <p>Instale o app Ylê Axé para uma experiência completa offline</p>
+      <button id="pwa-install-button">Instalar</button>
+      <button id="pwa-dismiss-button" class="dismiss">Agora não</button>
+    </div>
+    
+    <!-- Script para gerenciar a instalação do PWA -->
+    <script>
+      let deferredPrompt;
+      const installPrompt = document.getElementById('pwa-install-prompt');
+      const installButton = document.getElementById('pwa-install-button');
+      const dismissButton = document.getElementById('pwa-dismiss-button');
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Previne Chrome 76+ de mostrar o prompt automático
+        e.preventDefault();
+        // Guarda o evento para usar depois
+        deferredPrompt = e;
+        // Mostra nosso prompt personalizado
+        installPrompt.style.display = 'block';
+      });
+      
+      installButton.addEventListener('click', async () => {
+        // Esconde nosso prompt
+        installPrompt.style.display = 'none';
+        // Mostra o prompt do navegador
+        deferredPrompt.prompt();
+        // Espera o usuário responder
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Escolha do usuário: ${outcome}`);
+        // Limpa a referência
+        deferredPrompt = null;
+      });
+      
+      dismissButton.addEventListener('click', () => {
+        // Esconde nosso prompt
+        installPrompt.style.display = 'none';
+      });
+      
+      // Se já estiver instalado
+      window.addEventListener('appinstalled', () => {
+        // Esconde o prompt
+        installPrompt.style.display = 'none';
+        // Limpa a referência
+        deferredPrompt = null;
+        console.log('PWA instalado com sucesso!');
+      });
+    </script>
+    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>

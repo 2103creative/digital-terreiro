@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -72,31 +71,31 @@ const ProfileContent = () => {
       
       {!isEditing ? (
         <>
-          <div className="flex flex-col items-center mb-6">
-            <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage src={initialUser.avatar} alt={formData.name} />
-              <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-          </div>
-
           <div className="space-y-6">
-            <div>
-              <h2 className="font-semibold mb-2">Informações Pessoais</h2>
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={initialUser.avatar} alt={formData.name} />
+                <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
               
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Nome Completo</p>
-                  <p>{formData.name}</p>
-                </div>
+              <div className="flex-1">
+                <h2 className="font-semibold mb-2">Informações Pessoais</h2>
                 
-                <div>
-                  <p className="text-sm text-muted-foreground">Data de Nascimento</p>
-                  <p>{formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : "Não informado"}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p>{formData.email}</p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nome Completo</p>
+                    <p>{formData.name}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Data de Nascimento</p>
+                    <p>{formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : "Não informado"}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p>{formData.email}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -121,28 +120,17 @@ const ProfileContent = () => {
                 </div>
               </div>
             </div>
-            
-            <div className="pt-4">
-              <Button 
-                onClick={() => setIsEditing(true)}
-                className="w-full"
-              >
-                Editar Perfil
-              </Button>
-            </div>
           </div>
         </>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col items-center mb-6">
-            <Avatar className="h-24 w-24 mb-4">
+          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-6">
+            <Avatar className="h-24 w-24">
               <AvatarImage src={initialUser.avatar} alt={formData.name} />
               <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-          </div>
-          
-          <div className="space-y-6">
-            <div>
+            
+            <div className="flex-1">
               <h2 className="font-semibold mb-2">Informações Pessoais</h2>
               
               <div className="space-y-3">
@@ -181,68 +169,68 @@ const ProfileContent = () => {
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div>
+            <h2 className="font-semibold mb-2">Informações Espirituais</h2>
             
-            <div>
-              <h2 className="font-semibold mb-2">Informações Espirituais</h2>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="orixa">Orixá regente</Label>
+                <Select 
+                  value={formData.orixa} 
+                  onValueChange={handleOrixaChange}
+                >
+                  <SelectTrigger id="orixa">
+                    <SelectValue placeholder="Selecione seu Orixá" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {orixaOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="orixa">Orixá regente</Label>
-                  <Select 
-                    value={formData.orixa} 
-                    onValueChange={handleOrixaChange}
-                  >
-                    <SelectTrigger id="orixa">
-                      <SelectValue placeholder="Selecione seu Orixá" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {orixaOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="iniciationDate">Data de iniciação</Label>
-                  <Input
-                    id="iniciationDate"
-                    name="iniciationDate"
-                    value={formData.iniciationDate}
-                    onChange={handleChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="templeAffiliation">Casa de Umbanda</Label>
-                  <Input
-                    id="templeAffiliation"
-                    name="templeAffiliation"
-                    value={formData.templeAffiliation}
-                    onChange={handleChange}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="iniciationDate">Data de iniciação</Label>
+                <Input
+                  id="iniciationDate"
+                  name="iniciationDate"
+                  value={formData.iniciationDate}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="templeAffiliation">Casa de Umbanda</Label>
+                <Input
+                  id="templeAffiliation"
+                  name="templeAffiliation"
+                  value={formData.templeAffiliation}
+                  onChange={handleChange}
+                />
               </div>
             </div>
-            
-            <div className="flex gap-4 pt-2">
-              <Button 
-                type="submit" 
-                className="flex-1"
-              >
-                Salvar
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => setIsEditing(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
+          </div>
+          
+          <div className="flex gap-4 pt-2">
+            <Button 
+              type="submit" 
+              className="flex-1"
+            >
+              Salvar
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancelar
+            </Button>
           </div>
         </form>
       )}

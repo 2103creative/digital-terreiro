@@ -1,6 +1,5 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User, Layers, Info, Calendar, BookOpen, MessageSquare, Settings, LogOut } from "lucide-react";
+import { Home, User, Layers, Info, Calendar, BookOpen, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -8,15 +7,6 @@ const DesktopSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    navigate("/login");
-    toast({
-      title: "Saiu com sucesso",
-      description: "Você foi desconectado da sua conta",
-    });
-  };
 
   const mainMenuItems = [
     {
@@ -52,11 +42,6 @@ const DesktopSidebar = () => {
   ];
 
   const secondaryMenuItems = [
-    {
-      label: "Configurações",
-      icon: Settings,
-      path: "/profile",
-    },
     {
       label: "Sobre",
       icon: Info,
@@ -119,16 +104,6 @@ const DesktopSidebar = () => {
           </ul>
         </div>
       </nav>
-
-      <div className="p-4 border-t">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center w-full px-4 py-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-        >
-          <LogOut className="h-5 w-5 mr-3" />
-          <span>Sair</span>
-        </button>
-      </div>
     </aside>
   );
 };
