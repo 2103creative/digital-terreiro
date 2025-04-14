@@ -83,6 +83,28 @@ Agradeço a compreensão de todos!`,
     pageSubtitle: "\"Dias D\" Todos participam e segue a cada dois meses"
   });
   
+  // Função para converter as datas da escala gerada para o formato esperado
+  const convertGeneratedScheduleToCleaningItems = (generatedSchedule: any[]): CleaningItem[] => {
+    let counter = 1;
+    
+    return generatedSchedule.map(item => {
+      // Extrair dia e mês
+      const date = new Date(item.date);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const formattedDate = `${day}/${month}`;
+      
+      return {
+        id: counter++,
+        date: formattedDate,
+        month: item.month,
+        team: item.isSpecialDay ? item.specialDayTitle : item.names.join(' e '),
+        isSpecialDay: item.isSpecialDay || false,
+        status: item.status as "pending" | "completed" | "missed"
+      };
+    });
+  };
+
   useEffect(() => {
     // Verificar se o usuário está autenticado
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
@@ -97,7 +119,9 @@ Agradeço a compreensão de todos!`,
     
     // Verificar se existem dados de limpeza gerados e passados como state
     if (location.state && location.state.generatedSchedule) {
-      setCleaningItems(location.state.generatedSchedule);
+      // Converter os dados recebidos para o formato esperado
+      const convertedItems = convertGeneratedScheduleToCleaningItems(location.state.generatedSchedule);
+      setCleaningItems(convertedItems);
       setIsLoading(false);
       
       // Limpar o histórico para evitar que os dados sejam carregados novamente ao atualizar a página

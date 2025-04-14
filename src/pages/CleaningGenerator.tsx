@@ -1,6 +1,6 @@
   import { useState, useEffect } from 'react';
   import { useNavigate } from 'react-router-dom';
-  import { AlertCircle, Calendar, Trash, UserPlus, ArrowRight, Check, Save, Download } from 'lucide-react';
+  import { AlertCircle, Calendar, Trash, UserPlus, ArrowRight, Check, Save, Download, ChevronsUpDown } from 'lucide-react';
   import AdminLayout from '@/components/AdminLayout';
   import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
   import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@
   interface CleaningItem {
     id: string;
     date: string;
+    month: string;
     names: string[];
     status: 'pending' | 'completed' | 'missed';
     isSpecialDay?: boolean;
@@ -50,6 +51,10 @@
     const [newSpecialDate, setNewSpecialDate] = useState('');
     const [newSpecialTitle, setNewSpecialTitle] = useState('');
     
+    // Estado para visualização
+    const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+    const [expandedMonth, setExpandedMonth] = useState<string | null>(null);
+    
     // Estado para resultados
     const [generatedSchedule, setGeneratedSchedule] = useState<CleaningItem[]>([]);
     const [memberStats, setMemberStats] = useState<MemberInfo[]>([]);
@@ -57,6 +62,10 @@
     // Estado para carregamento
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
+    
+    // Histórico para o algoritmo melhorado
+    const [pairHistory, setPairHistory] = useState<Set<string>>(new Set());
+    const [memberCleaningHistory, setMemberCleaningHistory] = useState<Record<string, number>>({});
     
     useEffect(() => {
       // Verificar se o usuário está autenticado e é admin
@@ -121,40 +130,213 @@
       setSpecialDays(specialDays.filter((_, i) => i !== index));
     };
     
+    // Tradutor de meses para português
+    const getMonthNamePtBr = (month: number): string => {
+      const months = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      ];
+      return months[month];
+    };
+    
+    // Função de teste para verificar se todos os sábados estão sendo gerados corretamente
+    const testSaturdayGeneration = (year: number) => {
+      try {
+        const saturdays = generateSaturdays(year);
+        
+        // Verificar a quantidade
+        if (saturdays.length < 50 || saturdays.length > 53) {
+          toast({
+            title: "Erro na geração de sábados",
+            description: `Esperado entre 50-53 sábados, mas encontrado: ${saturdays.length}`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Verificar se todas as datas são sábados
+        const invalidDates: string[] = [];
+        for (const date of saturdays) {
+          if (new Date(date).getDay() !== 6) {
+            invalidDates.push(new Date(date).toLocaleDateString());
+          }
+        }
+        
+        if (invalidDates.length > 0) {
+          toast({
+            title: "Datas inválidas detectadas",
+            description: `Encontradas ${invalidDates.length} datas que não são sábados`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Verificar se não há lacunas (cada sábado deve estar a 7 dias do anterior)
+        const gaps: string[] = [];
+        for (let i = 1; i < saturdays.length; i++) {
+          const diff = (new Date(saturdays[i]).getTime() - new Date(saturdays[i-1]).getTime()) / (1000 * 60 * 60 * 24);
+          if (diff !== 7) {
+            gaps.push(`Entre ${new Date(saturdays[i-1]).toLocaleDateString()} e ${new Date(saturdays[i]).toLocaleDateString()}: ${diff} dias`);
+          }
+        }
+        
+        if (gaps.length > 0) {
+          toast({
+            title: "Lacunas na sequência de sábados",
+            description: `Encontradas ${gaps.length} lacunas na sequência`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Se passou em todos os testes
+        toast({
+          title: "Teste de geração de sábados concluído",
+          description: `Total de ${saturdays.length} sábados gerados corretamente para ${year}`,
+          variant: "default",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro ao testar geração de sábados",
+          description: error instanceof Error ? error.message : "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
+    };
+
     // Gera todos os sábados do ano
     const generateSaturdays = (year: number): string[] => {
       const saturdays: string[] = [];
-      const date = new Date(year, 0, 1); // 1º de janeiro
       
-      // Avança para o primeiro sábado
-      while (date.getDay() !== 6) {
-        date.setDate(date.getDate() + 1);
+      console.log(`Iniciando geração dos sábados de ${year}`);
+      
+      // Criar uma data com o primeiro dia do ano
+      const startDate = new Date(`${year}-01-01T12:00:00-03:00`);
+      console.log(`Data inicial: ${startDate.toISOString()}, dia da semana: ${startDate.getDay()}`);
+      
+      // Encontrar o primeiro sábado do ano
+      // Em JavaScript: 0=Domingo, 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado
+      let firstSaturday = new Date(startDate);
+      while (firstSaturday.getDay() !== 6) {
+        firstSaturday.setDate(firstSaturday.getDate() + 1);
       }
       
-      // Coleta todos os sábados do ano
-      while (date.getFullYear() === year) {
-        // Formato YYYY-MM-DD
-        const formattedDate = date.toISOString().split('T')[0];
+      console.log(`Primeiro sábado: ${firstSaturday.toISOString()}, dia: ${firstSaturday.getDate()}, mês: ${firstSaturday.getMonth() + 1}`);
+      
+      // Gerar todos os sábados do ano
+      let currentDate = new Date(firstSaturday);
+      
+      while (currentDate.getFullYear() === year) {
+        // Formatar data manualmente para garantir a data correta
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        
+        console.log(`Adicionando sábado: ${formattedDate}, dia da semana: ${currentDate.getDay()}`);
+        
+        // Verificar se o dia da semana é realmente um sábado
+        if (currentDate.getDay() !== 6) {
+          console.error(`ERRO: Data ${formattedDate} não é um sábado, é dia ${currentDate.getDay()}`);
+          // Corrigir para o próximo sábado
+          currentDate.setDate(currentDate.getDate() + (6 - currentDate.getDay() + 7) % 7);
+          continue;
+        }
+        
         saturdays.push(formattedDate);
-        date.setDate(date.getDate() + 7); // Próximo sábado
+        
+        // Avançar 7 dias para o próximo sábado
+        currentDate.setDate(currentDate.getDate() + 7);
       }
+      
+      // Verificação final
+      console.log(`Gerados ${saturdays.length} sábados para ${year}`);
+      
+      saturdays.forEach((dateStr, index) => {
+        const testDate = new Date(`${dateStr}T12:00:00-03:00`);
+        const dayOfWeek = testDate.getDay();
+        console.log(`Data #${index}: ${dateStr}, dia da semana: ${dayOfWeek} (${dayOfWeek === 6 ? 'sábado' : 'NÃO É SÁBADO!'})`);
+      });
       
       return saturdays;
     };
     
-    // Gera todas as combinações possíveis de pares únicos
-    const generateUniquePairs = (people: string[]): string[][] => {
-      const pairs: string[][] = [];
-      
-      for (let i = 0; i < people.length; i++) {
-        for (let j = i + 1; j < people.length; j++) {
-          pairs.push([people[i], people[j]]);
-        }
-      }
-      
-      return pairs;
+    // Formatar data no formato desejado para exibição (DD/MM)
+    const formatDisplayDate = (dateStr: string): string => {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}`;
     };
     
+    // Formatar data no formato YYYY-MM-DD para operações internas
+    const formatISODate = (dateStr: string): string => {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    
+    // Formatar data no formato DD/MM para exportação
+    const formatShortDate = (dateStr: string): string => {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}`;
+    };
+    
+    // Verifica se uma dupla foi formada recentemente (nos últimos N ciclos)
+    const wasPairedRecently = (member1: string, member2: string, historyLimit: number = 5) => {
+      const pairKey = [member1, member2].sort().join('|');
+      return pairHistory.has(pairKey);
+    };
+
+    // Verifica se um membro participou de limpezas demais comparado com outros
+    const hasCleanedTooMuch = (member: string, averageCleanings: number, threshold: number = 1.5) => {
+      const memberCount = memberCleaningHistory[member] || 0;
+      return memberCount > averageCleanings * threshold;
+    };
+
+    // Encontra o melhor par para um membro, considerando balanceamento e histórico
+    const findBestPair = (member: string, availableMembers: string[], averageCleanings: number) => {
+      // Filtrar membros que não foram pareados recentemente com este membro
+      const possiblePairs = availableMembers.filter(m => 
+        m !== member && !wasPairedRecently(member, m)
+      );
+      
+      if (possiblePairs.length === 0) {
+        // Se não houver opções sem histórico recente, usar qualquer disponível
+        return availableMembers[0];
+      }
+      
+      // Ordenar por quem participou menos de limpezas
+      possiblePairs.sort((a, b) => {
+        const countA = memberCleaningHistory[a] || 0;
+        const countB = memberCleaningHistory[b] || 0;
+        return countA - countB; // Prioriza quem limpou menos
+      });
+      
+      return possiblePairs[0];
+    };
+
+    // Atualiza históricos de pares e limpezas
+    const updateHistories = (pairs: string[][]) => {
+      // Atualizar histórico de pares (mantém os últimos N pares por membro)
+      const newPairHistory = new Set<string>();
+      
+      pairs.forEach(pair => {
+        const pairKey = [...pair].sort().join('|');
+        newPairHistory.add(pairKey);
+        
+        // Atualizar contagem de limpezas para cada membro
+        pair.forEach(member => {
+          memberCleaningHistory[member] = (memberCleaningHistory[member] || 0) + 1;
+        });
+      });
+      
+      setPairHistory(newPairHistory);
+    };
+
     // Gera a agenda de limpeza
     const generateCleaningSchedule = () => {
       setIsGenerating(true);
@@ -170,29 +352,33 @@
         // Obter todos os sábados do ano
         const saturdays = generateSaturdays(year);
         
-        // Gerar todos os pares possíveis
-        let allPairs = generateUniquePairs(members);
+        // Teste de depuração - pode ser removido em produção
+        // testSaturdayGeneration(year);
         
-        // Embaralhar os pares para distribuição aleatória
-        for (let i = allPairs.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [allPairs[i], allPairs[j]] = [allPairs[j], allPairs[i]];
-        }
-        
+        // Inicializar histórico de limpeza se for uma nova geração
+        const cleaningCountInitial: Record<string, number> = {};
+        members.forEach(member => {
+          cleaningCountInitial[member] = 0;
+        });
+        setMemberCleaningHistory(cleaningCountInitial);
+
         // Criar agenda
         const schedule: CleaningItem[] = [];
         const memberParticipation: Record<string, number> = {};
+        const assignedPairs: string[][] = [];
         
         // Inicializar contador de participação
         members.forEach(member => {
           memberParticipation[member] = 0;
         });
         
-        let pairIndex = 0;
-        
         // Para cada sábado, atribuir um par
         for (let i = 0; i < saturdays.length; i++) {
           const date = saturdays[i];
+          
+          // Obter o nome do mês em português
+          const monthIndex = new Date(date).getMonth();
+          const monthName = getMonthNamePtBr(monthIndex);
           
           // Verificar se é um dia especial
           const specialDay = specialDays.find(sd => sd.date === date);
@@ -202,6 +388,7 @@
             schedule.push({
               id: `cleaning-${i}`,
               date,
+              month: monthName,
               names: [...members], // Todos participam
               status: 'pending',
               isSpecialDay: true,
@@ -213,31 +400,52 @@
               memberParticipation[member] += 1;
             });
           } else {
-            // Dia normal - escolher próximo par
-            const currentPair = allPairs[pairIndex % allPairs.length];
+            // Calcular média atual de limpezas por membro
+            const totalCleanings = Object.values(memberParticipation).reduce((sum, val) => sum + val, 0);
+            const averageCleanings = totalCleanings / members.length || 0;
             
+            // Criar uma cópia ordenada dos membros, priorizando quem participou menos
+            const sortedMembers = [...members].sort((a, b) => 
+              (memberParticipation[a] || 0) - (memberParticipation[b] || 0)
+            );
+            
+            let currentPair: string[] = [];
+            
+            // Escolher o primeiro membro (quem participou menos)
+            const firstMember = sortedMembers[0];
+            currentPair.push(firstMember);
+            
+            // Encontrar o melhor par para o primeiro membro
+            const remainingMembers = sortedMembers.filter(m => m !== firstMember);
+            const secondMember = findBestPair(firstMember, remainingMembers, averageCleanings);
+            currentPair.push(secondMember);
+            
+            // Adicionar o par à escala
             schedule.push({
               id: `cleaning-${i}`,
               date,
+              month: monthName,
               names: currentPair,
               status: 'pending'
             });
             
             // Incrementar participação dos membros do par
             currentPair.forEach(member => {
-              memberParticipation[member] += 1;
+              memberParticipation[member] = (memberParticipation[member] || 0) + 1;
             });
             
-            pairIndex++;
+            // Adicionar ao histórico de pares
+            assignedPairs.push(currentPair);
+            
+            // Atualizar histórico a cada 5 datas para manter um equilíbrio de memória
+            if (i > 0 && i % 5 === 0) {
+              updateHistories(assignedPairs.slice(-5));
+            }
           }
         }
         
-        // Se o número de sábados for maior que o número de pares disponíveis,
-        // precisamos repetir alguns pares. Neste caso, tentamos distribuir igualmente.
-        if (saturdays.length > allPairs.length) {
-          // Já atribuímos todos os pares na primeira volta
-          // A lógica acima continuará a partir do início da lista para as demais datas
-        }
+        // Atualizar histórico final
+        updateHistories(assignedPairs);
         
         // Estatísticas de participação
         const stats = Object.entries(memberParticipation).map(([name, count]) => ({
@@ -249,12 +457,106 @@
         
         setGeneratedSchedule(schedule);
         setMemberStats(stats);
+
+        // Expandir o primeiro mês por padrão
+        if (schedule.length > 0) {
+          setExpandedMonth(schedule[0].month);
+        }
       } catch (error) {
         console.error("Erro ao gerar escala:", error);
         alert("Ocorreu um erro ao gerar a escala. Tente novamente.");
       } finally {
         setIsGenerating(false);
       }
+    };
+    
+    // Alternar a expansão de um mês no modo calendário
+    const toggleMonthExpansion = (month: string) => {
+      if (expandedMonth === month) {
+        setExpandedMonth(null);
+      } else {
+        setExpandedMonth(month);
+      }
+    };
+    
+    // Obter todos os meses únicos da escala
+    const getUniqueMonths = () => {
+      if (!generatedSchedule.length) return [];
+      
+      const months = generatedSchedule.map(item => item.month);
+      return [...new Set(months)];
+    };
+    
+    // Renderizar os itens de um mês específico
+    const renderMonthItems = (month: string) => {
+      return generatedSchedule
+        .filter(item => item.month === month)
+        .map((item, index) => (
+          <TableRow key={index} className={item.isSpecialDay ? "bg-amber-50" : ""}>
+            <TableCell className="font-mono text-sm border-r border-gray-100 w-[80px]">
+              {formatDisplayDate(item.date)}
+            </TableCell>
+            <TableCell className={`${item.isSpecialDay ? 'text-blue-700 font-medium' : ''}`}>
+              {item.isSpecialDay ? (
+                <div>
+                  <div className="font-medium text-blue-700">{item.specialDayTitle}</div>
+                  <div className="text-xs text-blue-600 mt-0.5">Todos participam</div>
+                </div>
+              ) : (
+                item.names.join(' e ')
+              )}
+            </TableCell>
+            <TableCell className="text-right">
+              <div className="flex justify-end space-x-2">
+                <Checkbox 
+                  checked={item.status === "pending"}
+                  className="rounded-sm data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 h-4 w-4"
+                />
+                <Checkbox 
+                  className="rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 h-4 w-4"
+                />
+                <Checkbox 
+                  className="rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500 h-4 w-4"
+                />
+              </div>
+            </TableCell>
+          </TableRow>
+        ));
+    };
+    
+    // Renderizar o calendário mensal
+    const renderCalendarView = () => {
+      const uniqueMonths = getUniqueMonths();
+      
+      return (
+        <div className="space-y-4">
+          {uniqueMonths.map(month => (
+            <Card key={month} className="overflow-hidden">
+              <CardHeader 
+                className={`py-2 px-4 cursor-pointer hover:bg-gray-50 ${expandedMonth === month ? 'bg-blue-50' : ''}`}
+                onClick={() => toggleMonthExpansion(month)}
+              >
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base">{month}</CardTitle>
+                  <ChevronsUpDown className="h-4 w-4 text-gray-500" />
+                </div>
+              </CardHeader>
+              
+              {expandedMonth === month && (
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableBody>
+                        {renderMonthItems(month)}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          ))}
+        </div>
+      );
     };
     
     // Exportar para CSV
@@ -265,12 +567,12 @@
       csvContent += "Data,Pessoas,Status,Tipo\n";
       
       generatedSchedule.forEach(item => {
-        const date = new Date(item.date).toLocaleDateString('pt-BR');
+        const formattedDate = formatDisplayDate(item.date);
         const names = item.names.join(' & ');
         const status = item.status;
         const type = item.isSpecialDay ? `Dia D: ${item.specialDayTitle}` : "Normal";
         
-        csvContent += `${date},${names},${status},${type}\n`;
+        csvContent += `${formattedDate},${names},${status},${type}\n`;
       });
       
       const encodedUri = encodeURI(csvContent);
@@ -284,7 +586,12 @@
     
     // Enviar para a página de limpeza
     const sendToCleaningPage = () => {
-      navigate('/admin/limpeza', { state: { generatedSchedule } });
+      // Converter para o formato esperado pela página AdminLimpeza
+      const formattedSchedule = generatedSchedule.map(item => ({
+        ...item,
+        date: formatDisplayDate(item.date) // Garante que a data está no formato DD/MM
+      }));
+      navigate('/admin/limpeza', { state: { generatedSchedule: formattedSchedule } });
     };
     
     if (isLoading) {
@@ -414,15 +721,40 @@
           
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-lg">Escala Gerada</CardTitle>
-              <CardDescription>
-                Escala de limpeza para o ano {year}
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-lg">Escala Gerada</CardTitle>
+                  <CardDescription>
+                    Escala de limpeza para o ano {year}
+                    {generatedSchedule.length > 0 && (
+                      <span className="ml-2 text-xs">
+                        ({generatedSchedule.length} sábados)
+                      </span>
+                    )}
+                  </CardDescription>
+                </div>
+
                 {generatedSchedule.length > 0 && (
-                  <span className="ml-2 text-xs">
-                    ({generatedSchedule.length} sábados)
-                  </span>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className={viewMode === 'list' ? 'bg-blue-50' : ''}
+                      onClick={() => setViewMode('list')}
+                    >
+                      Lista
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className={viewMode === 'calendar' ? 'bg-blue-50' : ''}
+                      onClick={() => setViewMode('calendar')}
+                    >
+                      Calendário
+                    </Button>
+                  </div>
                 )}
-              </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
               {generatedSchedule.length === 0 ? (
@@ -492,47 +824,64 @@
                     </div>
                   </div>
                   
-                  <div className="border rounded-md overflow-x-auto">
-                    <Table>
-                      <TableCaption>Escala de limpeza para {year}</TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[100px]">Data</TableHead>
-                          <TableHead>Pessoas</TableHead>
-                          <TableHead className="w-[130px]">Tipo</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {generatedSchedule.map((item, index) => (
-                          <TableRow key={index} className={item.isSpecialDay ? "bg-amber-50" : ""}>
-                            <TableCell className="font-mono text-xs">
-                              {new Date(item.date).toLocaleDateString('pt-BR')}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {item.names.map((name, idx) => (
-                                  <Badge key={idx} variant={item.isSpecialDay ? "outline" : "secondary"} className="text-xs">
-                                    {name}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {item.isSpecialDay ? (
-                                <Badge variant="warning" className="whitespace-nowrap">
-                                  Dia D: {item.specialDayTitle}
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="whitespace-nowrap">
-                                  Regular
-                                </Badge>
-                              )}
-                            </TableCell>
+                  {/* Botão para testar geração de sábados */}
+                  <Button
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => testSaturdayGeneration(year)}
+                  >
+                    Testar Geração de Sábados
+                  </Button>
+                  
+                  {viewMode === 'list' ? (
+                    <div className="border rounded-md overflow-x-auto">
+                      <Table>
+                        <TableCaption>Escala de limpeza para {year}</TableCaption>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[100px]">Data</TableHead>
+                            <TableHead>Equipe</TableHead>
+                            <TableHead className="w-[120px] text-right">Status</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                        </TableHeader>
+                        <TableBody>
+                          {generatedSchedule.map((item, index) => (
+                            <TableRow key={index} className={item.isSpecialDay ? "bg-amber-50" : ""}>
+                              <TableCell className="font-mono text-sm">
+                                {formatDisplayDate(item.date)}
+                              </TableCell>
+                              <TableCell className={`${item.isSpecialDay ? 'text-blue-700 font-medium' : ''}`}>
+                                {item.isSpecialDay ? (
+                                  <div>
+                                    <div className="font-medium text-blue-700">{item.specialDayTitle}</div>
+                                    <div className="text-xs text-blue-600 mt-0.5">Todos participam</div>
+                                  </div>
+                                ) : (
+                                  item.names.join(' e ')
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Checkbox 
+                                    checked={item.status === "pending"}
+                                    className="rounded-sm data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 h-4 w-4"
+                                  />
+                                  <Checkbox 
+                                    className="rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 h-4 w-4"
+                                  />
+                                  <Checkbox 
+                                    className="rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500 h-4 w-4"
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    renderCalendarView()
+                  )}
                 </>
               )}
             </CardContent>
