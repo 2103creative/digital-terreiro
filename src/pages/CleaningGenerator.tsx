@@ -136,7 +136,14 @@
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
       ];
-      return months[month];
+      
+      // Garantir que o índice do mês está dentro do intervalo válido
+      if (month >= 0 && month < 12) {
+        return months[month];
+      }
+      
+      console.error(`Índice de mês inválido: ${month}`);
+      return 'Mês desconhecido';
     };
     
     // Função de teste para verificar se todos os sábados estão sendo gerados corretamente
@@ -208,39 +215,24 @@
     const generateSaturdays = (year: number): string[] => {
       const saturdays: string[] = [];
       
-      console.log(`Iniciando geração dos sábados de ${year}`);
-      
-      // Criar uma data com o primeiro dia do ano
-      const startDate = new Date(`${year}-01-01T12:00:00-03:00`);
-      console.log(`Data inicial: ${startDate.toISOString()}, dia da semana: ${startDate.getDay()}`);
+      // Começar com o primeiro dia do ano
+      const startDate = new Date(year, 0, 1); 
       
       // Encontrar o primeiro sábado do ano
       // Em JavaScript: 0=Domingo, 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado
-      let firstSaturday = new Date(startDate);
-      while (firstSaturday.getDay() !== 6) {
-        firstSaturday.setDate(firstSaturday.getDate() + 1);
-      }
+      const firstDayOfWeek = startDate.getDay();
+      const daysUntilSaturday = (firstDayOfWeek <= 6) ? (6 - firstDayOfWeek) : 0;
       
-      console.log(`Primeiro sábado: ${firstSaturday.toISOString()}, dia: ${firstSaturday.getDate()}, mês: ${firstSaturday.getMonth() + 1}`);
+      // Definir a data do primeiro sábado
+      const firstSaturday = new Date(year, 0, 1 + daysUntilSaturday);
       
-      // Gerar todos os sábados do ano
+      // Loop para gerar todos os sábados do ano
       let currentDate = new Date(firstSaturday);
       
       while (currentDate.getFullYear() === year) {
-        // Formatar data manualmente para garantir a data correta
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const formattedDate = `${year}-${month}-${day}`;
-        
-        console.log(`Adicionando sábado: ${formattedDate}, dia da semana: ${currentDate.getDay()}`);
-        
-        // Verificar se o dia da semana é realmente um sábado
-        if (currentDate.getDay() !== 6) {
-          console.error(`ERRO: Data ${formattedDate} não é um sábado, é dia ${currentDate.getDay()}`);
-          // Corrigir para o próximo sábado
-          currentDate.setDate(currentDate.getDate() + (6 - currentDate.getDay() + 7) % 7);
-          continue;
-        }
+        // Formatar a data como YYYY-MM-DD
+        const formattedDate = 
+          `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
         
         saturdays.push(formattedDate);
         
@@ -248,24 +240,39 @@
         currentDate.setDate(currentDate.getDate() + 7);
       }
       
-      // Verificação final
-      console.log(`Gerados ${saturdays.length} sábados para ${year}`);
-      
-      saturdays.forEach((dateStr, index) => {
-        const testDate = new Date(`${dateStr}T12:00:00-03:00`);
-        const dayOfWeek = testDate.getDay();
-        console.log(`Data #${index}: ${dateStr}, dia da semana: ${dayOfWeek} (${dayOfWeek === 6 ? 'sábado' : 'NÃO É SÁBADO!'})`);
-      });
+      // Verificação de segurança - confirmar se todas são sábados
+      for (let dateStr of saturdays) {
+        const testDate = new Date(dateStr);
+        if (testDate.getDay() !== 6) {
+          console.error(`ERRO: Data ${dateStr} não é um sábado. Dia da semana: ${testDate.getDay()}`);
+        }
+      }
       
       return saturdays;
     };
     
     // Formatar data no formato desejado para exibição (DD/MM)
     const formatDisplayDate = (dateStr: string): string => {
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      return `${day}/${month}`;
+      // Verificar se a data está no formato ISO (YYYY-MM-DD)
+      if (dateStr && dateStr.includes('-') && dateStr.length >= 10) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}`;
+      }
+      
+      // Tentar criar um objeto Date válido e extrair dia/mês
+      try {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          return `${day}/${month}`;
+        }
+      } catch (e) {
+        console.error("Erro ao formatar data:", dateStr, e);
+      }
+      
+      // Fallback - retornar a data original ou placeholder
+      return dateStr || 'Data inválida';
     };
     
     // Formatar data no formato YYYY-MM-DD para operações internas
@@ -351,9 +358,7 @@
         
         // Obter todos os sábados do ano
         const saturdays = generateSaturdays(year);
-        
-        // Teste de depuração - pode ser removido em produção
-        // testSaturdayGeneration(year);
+        console.log(`Gerados ${saturdays.length} sábados para ${year}:`, saturdays);
         
         // Inicializar histórico de limpeza se for uma nova geração
         const cleaningCountInitial: Record<string, number> = {};
@@ -376,9 +381,19 @@
         for (let i = 0; i < saturdays.length; i++) {
           const date = saturdays[i];
           
+          // Validar formato da data
+          if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            console.error(`Data inválida na posição ${i}:`, date);
+            continue;
+          }
+          
           // Obter o nome do mês em português
-          const monthIndex = new Date(date).getMonth();
+          const dateParts = date.split('-');
+          // Mês em JavaScript é 0-indexed (Janeiro = 0), mas no formato ISO é 1-indexed
+          const monthIndex = parseInt(dateParts[1], 10) - 1;
           const monthName = getMonthNamePtBr(monthIndex);
+          
+          console.log(`Processando data ${date} - mês: ${monthName}`);
           
           // Verificar se é um dia especial
           const specialDay = specialDays.find(sd => sd.date === date);
@@ -483,8 +498,23 @@
     const getUniqueMonths = () => {
       if (!generatedSchedule.length) return [];
       
-      const months = generatedSchedule.map(item => item.month);
-      return [...new Set(months)];
+      // Agrupar por mês, priorizando meses válidos
+      const monthsMap = generatedSchedule.reduce((acc, item) => {
+        if (item.month && !acc.has(item.month)) {
+          acc.set(item.month, true);
+        }
+        return acc;
+      }, new Map<string, boolean>());
+      
+      // Converter para array e ordenar
+      return Array.from(monthsMap.keys()).sort((a, b) => {
+        const monthsOrder = {
+          'Janeiro': 0, 'Fevereiro': 1, 'Março': 2, 'Abril': 3,
+          'Maio': 4, 'Junho': 5, 'Julho': 6, 'Agosto': 7,
+          'Setembro': 8, 'Outubro': 9, 'Novembro': 10, 'Dezembro': 11
+        };
+        return (monthsOrder[a] || 99) - (monthsOrder[b] || 99);
+      });
     };
     
     // Renderizar os itens de um mês específico
@@ -528,6 +558,17 @@
     const renderCalendarView = () => {
       const uniqueMonths = getUniqueMonths();
       
+      // Verificar se há meses sem itens
+      const monthsWithItems = uniqueMonths.map(month => {
+        const itemsInMonth = generatedSchedule.filter(item => item.month === month);
+        return {
+          month,
+          itemCount: itemsInMonth.length
+        };
+      });
+      
+      console.log("Meses e quantidade de itens:", monthsWithItems);
+      
       return (
         <div className="space-y-4">
           {uniqueMonths.map(month => (
@@ -538,6 +579,9 @@
               >
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-base">{month}</CardTitle>
+                  <span className="text-sm text-gray-500 mr-2">
+                    {generatedSchedule.filter(item => item.month === month).length} itens
+                  </span>
                   <ChevronsUpDown className="h-4 w-4 text-gray-500" />
                 </div>
               </CardHeader>
@@ -587,10 +631,32 @@
     // Enviar para a página de limpeza
     const sendToCleaningPage = () => {
       // Converter para o formato esperado pela página AdminLimpeza
-      const formattedSchedule = generatedSchedule.map(item => ({
-        ...item,
-        date: formatDisplayDate(item.date) // Garante que a data está no formato DD/MM
-      }));
+      const formattedSchedule = generatedSchedule.map(item => {
+        // Garantir que a data está no formato DD/MM
+        const formattedDate = formatDisplayDate(item.date);
+        
+        console.log(`Formatando item para envio - data original: ${item.date}, formatada: ${formattedDate}`);
+        
+        return {
+          ...item,
+          date: formattedDate
+        };
+      });
+      
+      // Verificação final das datas
+      const invalidDates = formattedSchedule.filter(item => 
+        !item.date || item.date.includes('NaN') || item.date === 'Data inválida'
+      );
+      
+      if (invalidDates.length > 0) {
+        console.error(`Encontradas ${invalidDates.length} datas inválidas:`, invalidDates);
+        toast({
+          title: "Atenção",
+          description: `Existem ${invalidDates.length} datas com formato inválido. Verifique o console.`,
+          variant: "destructive",
+        });
+      }
+      
       navigate('/admin/limpeza', { state: { generatedSchedule: formattedSchedule } });
     };
     
