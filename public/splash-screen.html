@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#3b82f6">
+  <title>Carregando - Ylê Axé Xangô & Oxum</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --background: #f9fafb;
+      --text: #1f2937;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+      background-color: var(--background);
+      color: var(--text);
+    }
+    
+    .logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 16px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .loading {
+      display: flex;
+      width: 80px;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+    
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .loading-dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    .loading-dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.95);
+        opacity: 0.7;
+      }
+    }
+    
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    @media (display-mode: standalone) {
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    }
+    
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .app-name {
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      object-fit: contain;
+    }
+  </style>
+  <script>
+    // Redirecionar para a página principal após carregar
+    window.addEventListener('load', () => {
+      // Verificar se o usuário está autenticado
+      const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+      
+      // Redirecionar para a página apropriada
+      setTimeout(() => {
+        window.location.href = isAuthenticated ? '/dashboard' : '/login';
+      }, 1500); // 1.5 segundos de atraso para mostrar o splash
+    });
+  </script>
+</head>
+<body>
+  <div class="content">
+    <div class="logo-container">
+      <h1 class="app-name">Ylê Axé Xangô & Oxum</h1>
+    </div>
+  </div>
+  <div class="loading">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+</body>
+</html> 

@@ -105,7 +105,7 @@ const DesktopSidebar = () => {
             <ChevronRight 
               className={cn(
                 "h-3.5 w-3.5 mr-1.5 transition-transform",
-                menuCollapsed[categoryItem.category] ? "rotate-90" : ""
+                !menuCollapsed[categoryItem.category] ? "rotate-90" : ""
               )} 
             />
             <span>{categoryItem.category}</span>

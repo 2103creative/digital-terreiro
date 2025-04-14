@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import UpdateIndicator from "@/components/UpdateIndicator";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -47,6 +48,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <UpdateIndicator />
+        <PWAInstallPrompt />
         <BrowserRouter>
           <Routes>
             {/* Rotas públicas */}

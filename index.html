@@ -7,13 +7,15 @@
     <meta name="description" content="Seu terreiro na palma da mão - Plataforma espiritual para a comunidade Ylê Axé Xangô & Oxum" />
     <meta name="theme-color" content="#3b82f6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ylê Axé" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="Ylê Axé" />
 
     <!-- Ícones para iOS -->
-    <link rel="apple-touch-icon" href="/icons/apple-touch/apple-icon-180.png">
+    <link rel="apple-touch-icon" href="/pwa-192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-512x512.png">
     
     <!-- Splash screens para iOS -->
     <link rel="apple-touch-startup-image" href="/icons/apple-touch/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
@@ -30,7 +32,7 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <!-- Manifesto do PWA -->
-    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+    <link rel="manifest" href="/manifest.json" />
     
     <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,14 +40,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Favicon e ícones -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
-    <link rel="icon" type="image/png" sizes="72x72" href="/icons/icon-72.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="/icons/icon-128.png">
-    <link rel="icon" type="image/png" sizes="144x144" href="/icons/icon-144.png">
-    <link rel="icon" type="image/png" sizes="384x384" href="/icons/icon-384.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     
     <!-- Prompt de instalação personalizado -->
@@ -117,7 +113,7 @@
     <!-- Prompt de instalação PWA personalizado -->
     <div id="pwa-install-prompt">
       <div class="prompt-content">
-        <img src="/icons/icon-192.png" alt="Ylê Axé" class="icon" />
+        <img src="/pwa-192x192.png" alt="Ylê Axé" class="icon" />
         <p class="title">Instale o aplicativo do Ylê Axé</p>
         <p>Acesse facilmente e use mesmo sem internet</p>
         <div>
@@ -145,6 +141,7 @@
         e.preventDefault();
         // Guarda o evento para usar depois
         deferredPrompt = e;
+        console.log('Evento beforeinstallprompt capturado', e);
         
         // Só mostra se não foi dispensado nas últimas 24h
         if (now - lastDismissed > oneDay) {
@@ -156,6 +153,11 @@
       });
       
       installButton.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          console.log('Nenhum prompt de instalação disponível');
+          return;
+        }
+        
         // Esconde nosso prompt
         installPrompt.style.display = 'none';
         // Mostra o prompt do navegador
@@ -186,7 +188,7 @@
       // Detecta se já está sendo executado como PWA
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         // Já está instalado e rodando como app
-        console.log('Aplicativo já está instalado');
+        console.log('Aplicativo já está instalado e rodando em modo standalone');
       }
     </script>
     

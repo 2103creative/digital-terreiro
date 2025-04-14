@@ -1,14 +1,16 @@
 /* eslint-disable no-restricted-globals */
 
 // Nome e versão do cache
-const CACHE_NAME = 'yle-axe-cache-v3';
+const CACHE_NAME = 'yle-axe-cache-v5';
+const OFFLINE_URL = '/offline.html';
+
+// URLs de páginas da aplicação
 const APP_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/service-worker.js',
   '/offline.html',
-  '/placeholder.svg',
   '/dashboard',
   '/eventos',
   '/leitura',
@@ -16,26 +18,21 @@ const APP_URLS = [
   '/frentes',
   '/limpeza',
   '/profile',
-  '/sobre'
+  '/sobre',
+  '/login'
 ];
 
-// Arquivos estáticos para cache
+// Arquivos estáticos para cache prioritário
 const STATIC_ASSETS = [
-  '/icons/icon-48.png',
-  '/icons/icon-72.png',
-  '/icons/icon-96.png',
-  '/icons/icon-128.png',
-  '/icons/icon-144.png',
-  '/icons/icon-192.png',
-  '/icons/icon-384.png',
-  '/icons/icon-512.png',
-  '/icons/apple-touch/apple-icon-180.png',
-  '/icons/apple-touch/apple-splash-2048-2732.png'
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/pwa-maskable-192x192.png',
+  '/pwa-maskable-512x512.png',
+  '/favicon.ico'
 ];
 
 // Instala o service worker
 self.addEventListener('install', (event) => {
-  // Console para debug
   console.log('[Service Worker] Instalando...');
   
   // Realiza a instalação
@@ -43,8 +40,13 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Cache aberto');
+        
         // Adiciona todos os URLs ao cache
         return Promise.all([
+          // Cache prioritário - deve ser completado para o SW ser instalado
+          cache.add(OFFLINE_URL),
+          
+          // Cache em segundo plano - não bloqueia a instalação
           cache.addAll(APP_URLS),
           cache.addAll(STATIC_ASSETS)
         ]);
@@ -85,47 +87,122 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Estratégias de cache diferentes baseadas no tipo de recurso
+const resourceType = (request) => {
+  const url = new URL(request.url);
+  
+  if (url.pathname.startsWith('/api/')) {
+    return 'api';
+  }
+  
+  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+    return 'static';
+  }
+  
+  if (request.mode === 'navigate') {
+    return 'navigation';
+  }
+  
+  return 'unknown';
+};
+
 // Captura e processa requisições de rede
 self.addEventListener('fetch', (event) => {
-  // Estratégia: Cache First, fallback para Network, depois para offline.html
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - retorna resposta
-        if (response) {
-          return response;
-        }
-        
-        // Clone a requisição porque pode ser consumida apenas uma vez
-        const fetchRequest = event.request.clone();
-        
-        // Tenta buscar da rede
-        return fetch(fetchRequest)
-          .then((networkResponse) => {
-            // Verifica se recebemos uma resposta válida
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              return networkResponse;
-            }
-            
-            // Clone a resposta para armazenar no cache
-            const responseToCache = networkResponse.clone();
-            
-            // Abre o cache e armazena a resposta
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return networkResponse;
+  // Ignorar requisições de outros domínios
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+  
+  // Determinar tipo de recurso
+  const type = resourceType(event.request);
+  
+  // Escolher estratégia baseada no tipo
+  switch (type) {
+    case 'api':
+      // Network first, fallback para cache (se existente) ou erro offline
+      event.respondWith(
+        fetch(event.request)
+          .then(response => {
+            // Cache a resposta para uso offline futuro
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+            return response;
           })
           .catch(() => {
-            // Offline fallback para navegação em páginas
-            if (event.request.mode === 'navigate') {
-              return caches.match('/offline.html');
-            }
-          });
-      })
-  );
+            return caches.match(event.request)
+              .then(cachedResponse => {
+                // Se temos versão em cache, retorne-a
+                if (cachedResponse) {
+                  return cachedResponse;
+                }
+                
+                // Se não, retorne uma resposta padrão para API
+                return new Response(
+                  JSON.stringify({ error: 'Você está offline e este recurso não está em cache' }),
+                  { 
+                    status: 503,
+                    headers: { 'Content-Type': 'application/json' }
+                  }
+                );
+              });
+          })
+      );
+      break;
+      
+    case 'static':
+      // Cache first, fallback para network
+      event.respondWith(
+        caches.match(event.request)
+          .then(cachedResponse => {
+            return cachedResponse || fetch(event.request)
+              .then(response => {
+                // Cache a nova resposta
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+                return response;
+              });
+          })
+      );
+      break;
+      
+    case 'navigation':
+      // Network first, fallback para cache, fallback para offline.html
+      event.respondWith(
+        fetch(event.request)
+          .then(response => {
+            // Cache a resposta
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+            return response;
+          })
+          .catch(() => {
+            return caches.match(event.request)
+              .then(cachedResponse => {
+                return cachedResponse || caches.match(OFFLINE_URL);
+              });
+          })
+      );
+      break;
+      
+    default:
+      // Stale-while-revalidate para outros recursos
+      event.respondWith(
+        caches.match(event.request)
+          .then(cachedResponse => {
+            const fetchPromise = fetch(event.request)
+              .then(networkResponse => {
+                // Atualizar o cache
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(event.request, networkResponse.clone());
+                });
+                return networkResponse;
+              });
+            
+            // Retorna o cache imediatamente, mas atualiza em segundo plano
+            return cachedResponse || fetchPromise;
+          })
+      );
+  }
 });
 
 // Evento de mensagem para comunicação com a página
@@ -135,33 +212,90 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// Evento para sincronização em segundo plano
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-messages') {
+    event.waitUntil(syncMessages());
+  }
+});
+
+// Função para sincronizar mensagens
+const syncMessages = async () => {
+  try {
+    // Aqui você implementaria a lógica para enviar mensagens pendentes
+    console.log('[Service Worker] Sincronizando mensagens...');
+    
+    return self.registration.showNotification('Ylê Axé', {
+      body: 'Suas mensagens foram sincronizadas com sucesso!',
+      icon: '/pwa-192x192.png'
+    });
+  } catch (error) {
+    console.error('[Service Worker] Erro ao sincronizar:', error);
+  }
+};
+
 // Evento para notificações push
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
+  if (!event.data) return;
   
-  const options = {
-    body: data.body || 'Nova notificação do Ylê Axé',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-96.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || '/'
-    }
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(
-      data.title || 'Ylê Axé Xangô & Oxum',
-      options
-    )
-  );
+  try {
+    const data = event.data.json();
+    
+    const options = {
+      body: data.body || 'Nova notificação do Ylê Axé',
+      icon: '/pwa-192x192.png',
+      badge: '/pwa-192x192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/dashboard',
+        timestamp: new Date().getTime()
+      },
+      actions: [
+        {
+          action: 'view',
+          title: 'Ver agora'
+        },
+        {
+          action: 'close',
+          title: 'Mais tarde'
+        }
+      ]
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(
+        data.title || 'Ylê Axé Xangô & Oxum',
+        options
+      )
+    );
+  } catch (error) {
+    console.error('[Service Worker] Erro ao processar notificação push:', error);
+  }
 });
 
 // Evento para clique em notificação
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
+  if (event.action === 'close') {
+    return;
+  }
+  
+  // Abrir página apropriada
   event.waitUntil(
-    clients.openWindow(event.notification.data.url)
+    clients.matchAll({ type: 'window' })
+      .then(windowClients => {
+        // Verificar se já existe uma janela aberta e focar nela
+        for (const client of windowClients) {
+          if (client.url === event.notification.data.url && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        
+        // Se não tem janela aberta, abrir uma nova
+        if (clients.openWindow) {
+          return clients.openWindow(event.notification.data.url);
+        }
+      })
   );
 });

@@ -4,7 +4,8 @@
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
     window.location.hostname === '[::1]' ||
-    window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+    window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/) ||
+    window.location.hostname.match(/^192\.168\.\d{1,3}\.\d{1,3}$/)
 );
 
 type Config = {
@@ -13,9 +14,9 @@ type Config = {
 };
 
 export function register(config?: Config) {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
     // O construtor de URL está disponível em todos os navegadores que suportam SW
-    const publicUrl = new URL(import.meta.env.BASE_URL, window.location.href);
+    const publicUrl = new URL(import.meta.env.BASE_URL || '/', window.location.href);
     if (publicUrl.origin !== window.location.origin) {
       // Nosso service worker não funcionará se BASE_URL estiver em uma origem diferente
       // da origem de nossa página. Isso pode acontecer se um CDN for usado para
@@ -24,7 +25,7 @@ export function register(config?: Config) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${import.meta.env.BASE_URL}service-worker.js`;
+      const swUrl = `${import.meta.env.BASE_URL || '/'}service-worker.js`;
 
       if (isLocalhost) {
         // Isso está rodando no localhost. Vamos verificar se um service worker ainda existe ou não.
@@ -49,6 +50,8 @@ function registerValidSW(swUrl: string, config?: Config) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      console.log('Service Worker registrado com sucesso:', swUrl);
+      
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {

@@ -2,45 +2,122 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#3b82f6">
   <title>Offline - Ylê Axé Xangô & Oxum</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --text: #1f2937;
+      --text-light: #6b7280;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: 'Quicksand', sans-serif;
+      font-family: 'Inter', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      margin: 0;
       padding: 20px;
       text-align: center;
-      background-color: #f8f8f8;
+      background-color: #f9fafb;
+      color: var(--text);
+    }
+    
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
     }
     
     h1 {
       font-size: 1.5rem;
+      font-weight: 600;
       margin-bottom: 1rem;
     }
     
     p {
       margin-bottom: 1.5rem;
-      color: #666;
+      color: var(--text-light);
+      max-width: 450px;
+      line-height: 1.6;
     }
     
     button {
-      background-color: #000;
+      background-color: var(--primary);
       color: white;
       border: none;
       padding: 10px 20px;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .wifi-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      position: relative;
+    }
+
+    @media (display-mode: standalone) {
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
     }
   </style>
 </head>
 <body>
+  <img src="/pwa-192x192.png" alt="Ylê Axé Logo" class="icon">
   <h1>Você está offline</h1>
-  <p>Parece que você está sem conexão com a internet. Algumas funcionalidades podem não estar disponíveis.</p>
-  <button onclick="window.location.reload()">Tentar novamente</button>
+  <p>Parece que você está sem conexão com a internet. O Ylê Axé ainda pode ser utilizado em modo offline, mas algumas funcionalidades podem não estar disponíveis.</p>
+  <button onclick="window.location.reload()">
+    <svg class="wifi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+      <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+      <line x1="12" y1="20" x2="12.01" y2="20"></line>
+    </svg>
+    Tentar reconectar
+  </button>
+  <script>
+    // Verifica periodicamente se a conexão foi restabelecida
+    setInterval(() => {
+      if (navigator.onLine) {
+        window.location.reload();
+      }
+    }, 5000);
+    
+    // Adiciona listener para evento online
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
 </body>
 </html> 
