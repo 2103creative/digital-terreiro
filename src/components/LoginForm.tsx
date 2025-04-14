@@ -43,7 +43,20 @@ const LoginForm = () => {
         
         <div className="mt-2 p-3 bg-blue-50 rounded-md text-xs text-blue-800">
           <p><strong>Admin:</strong> root@admin.com / 057841</p>
-          <p><strong>Usuário:</strong> user@user.com / 148750</p>
+          <p><strong>Usuário Padrão:</strong> user@user.com / 148750</p>
+          <div className="mt-2 text-left">
+            <p className="font-semibold mb-1">Membros do terreiro:</p>
+            <p>karina@terreiro.com</p>
+            <p>nicole@terreiro.com</p>
+            <p>tita@terreiro.com</p>
+            <p>maicon@terreiro.com</p>
+            <p>jeferson@terreiro.com</p>
+            <p>leno@terreiro.com</p>
+            <p>carol@terreiro.com</p>
+            <p>camila@terreiro.com</p>
+            <p>baby@terreiro.com</p>
+            <p className="mt-1 italic">Senha para todos: 123456</p>
+          </div>
         </div>
       </div>
       

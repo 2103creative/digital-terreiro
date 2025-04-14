@@ -29,63 +29,21 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import AdminLayout from "@/components/AdminLayout";
-
-// Dados mockados para usuários
-const MOCK_USERS = [
-  { 
-    id: 1, 
-    name: "Maria Silva", 
-    email: "maria@example.com", 
-    role: "admin", 
-    status: "active", 
-    lastLogin: "2025-04-10T15:30:00" 
-  },
-  { 
-    id: 2, 
-    name: "João Santos", 
-    email: "joao@example.com", 
-    role: "member", 
-    status: "active", 
-    lastLogin: "2025-04-09T10:15:00" 
-  },
-  { 
-    id: 3, 
-    name: "Ana Oliveira", 
-    email: "ana@example.com", 
-    role: "member", 
-    status: "inactive", 
-    lastLogin: "2025-03-20T08:45:00" 
-  },
-  { 
-    id: 4, 
-    name: "Carlos Pereira", 
-    email: "carlos@example.com", 
-    role: "editor", 
-    status: "active", 
-    lastLogin: "2025-04-11T09:30:00" 
-  },
-  { 
-    id: 5, 
-    name: "Lúcia Fernandes", 
-    email: "lucia@example.com", 
-    role: "member", 
-    status: "pending", 
-    lastLogin: null 
-  },
-];
+import { getAllUsers, isAdmin, isAuthenticated } from "@/lib/authService";
+import { User } from "@/lib/authService";
 
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   
   useEffect(() => {
     // Verificar se o usuário está autenticado e é admin
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-    if (!isAuthenticated) {
+    if (!isAuthenticated()) {
       navigate("/login");
       toast({
         title: "Acesso negado",
@@ -95,18 +53,18 @@ const AdminUsers = () => {
       return;
     }
 
-    // Simulação de verificação de admin
-    setTimeout(() => {
-      const isAdmin = true; // Em um app real, isso seria verificado via API
-      if (!isAdmin) {
-        navigate("/dashboard");
-        toast({
-          title: "Acesso restrito",
-          description: "Você não tem permissão para acessar esta área",
-          variant: "destructive",
-        });
-      }
-    }, 500);
+    if (!isAdmin()) {
+      navigate("/dashboard");
+      toast({
+        title: "Acesso restrito",
+        description: "Você não tem permissão para acessar esta área",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Carregar usuários
+    loadUsers();
     
     // Detectar tamanho da tela para responsividade
     const handleResize = () => {
@@ -117,36 +75,45 @@ const AdminUsers = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [navigate, toast]);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Nunca";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const usersList = await getAllUsers();
+      setUsers(usersList);
+    } catch (error) {
+      console.error("Erro ao carregar usuários:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a lista de usuários",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-500">Ativo</Badge>;
-      case "inactive":
-        return <Badge variant="secondary">Inativo</Badge>;
-      case "pending":
-        return <Badge variant="outline" className="text-orange-500 border-orange-500">Pendente</Badge>;
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive 
+      ? <Badge className="bg-green-500">Ativo</Badge>
+      : <Badge variant="secondary">Inativo</Badge>;
+  };
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case "admin":
+        return <Badge className="bg-blue-500">Admin</Badge>;
+      case "user":
+        return <Badge variant="outline">Usuário</Badge>;
       default:
         return <Badge variant="outline">Desconhecido</Badge>;
     }
   };
 
-  const handleEdit = (userId) => {
+  const handleEdit = (userId: string) => {
     navigate(`/admin/usuarios/editar/${userId}`);
   };
 
-  const handleDeleteClick = (userId) => {
+  const handleDeleteClick = (userId: string) => {
     setUserToDelete(userId);
     setDeleteDialogOpen(true);
   };
@@ -171,6 +138,7 @@ const AdminUsers = () => {
   return (
     <AdminLayout pageTitle="Gerenciar Usuários">
       <div className="flex justify-between items-center mb-6">
+        <h1 className="text-xl font-bold">Usuários do Sistema</h1>
         <Button onClick={handleAddUser}>
           <UserPlusIcon className="h-4 w-4 mr-2" />
           Novo Usuário
@@ -178,47 +146,51 @@ const AdminUsers = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <Table>
-          <TableCaption>Lista de usuários do sistema</TableCaption>
-          <TableHeader>
-            <TableRow>
-              {!isMobile && <TableHead className="w-[80px]">ID</TableHead>}
-              <TableHead>Nome</TableHead>
-              {!isMobile && <TableHead>E-mail</TableHead>}
-              <TableHead>
-                <div className="flex items-center">
-                  Função
-                  <ArrowUpDown className="ml-1 h-4 w-4" />
-                </div>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              {!isMobile && <TableHead>Último Acesso</TableHead>}
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                {!isMobile && <TableCell className="font-medium">{user.id}</TableCell>}
-                <TableCell>{user.name}</TableCell>
-                {!isMobile && <TableCell>{user.email}</TableCell>}
-                <TableCell className="capitalize">{user.role}</TableCell>
-                <TableCell>{getStatusBadge(user.status)}</TableCell>
-                {!isMobile && <TableCell>{formatDate(user.lastLogin)}</TableCell>}
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user.id)}>
-                      <PencilIcon className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(user.id)}>
-                      <Trash2Icon className="h-4 w-4 text-destructive" />
-                    </Button>
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+          </div>
+        ) : (
+          <Table>
+            <TableCaption></TableCaption>
+            <TableHeader>
+              <TableRow>
+                {!isMobile && <TableHead className="w-[80px]">ID</TableHead>}
+                <TableHead>Nome</TableHead>
+                {!isMobile && <TableHead>E-mail</TableHead>}
+                <TableHead>
+                  <div className="flex items-center">
+                    Função
+                    <ArrowUpDown className="ml-1 h-4 w-4" />
                   </div>
-                </TableCell>
+                </TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  {!isMobile && <TableCell className="font-medium">{user.id}</TableCell>}
+                  <TableCell>{user.name}</TableCell>
+                  {!isMobile && <TableCell>{user.email}</TableCell>}
+                  <TableCell>{getRoleBadge(user.role)}</TableCell>
+                  <TableCell>{getStatusBadge(user.isActive)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user.id)}>
+                        <PencilIcon className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(user.id)}>
+                        <Trash2Icon className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

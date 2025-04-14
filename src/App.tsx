@@ -23,6 +23,7 @@ import AdminUsers from "./pages/AdminUsers";
 import UserFormPage from "./pages/UserFormPage";
 import Limpeza from "./pages/Limpeza";
 import AdminLimpeza from "./pages/AdminLimpeza";
+import CleaningGenerator from "./pages/CleaningGenerator";
 import AdminMessages from "./pages/AdminMessages";
 import Favoritos from "./pages/Favoritos";
 
@@ -155,6 +156,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <AdminLimpeza />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/gerador-limpeza" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CleaningGenerator />
                 </ProtectedRoute>
               } 
             />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff, Edit, Trash, Plus } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff, Edit, Trash, Plus, ListPlus } from "lucide-react";
 
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,8 @@ const statusOptions = [
 
 const AdminLimpeza = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [cleaningItems, setCleaningItems] = useState<CleaningItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
@@ -81,8 +84,33 @@ Agradeço a compreensão de todos!`,
   });
   
   useEffect(() => {
-    // Carregar os dados de limpeza
-    loadCleaningData();
+    // Verificar se o usuário está autenticado
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    if (!isAuthenticated) {
+      navigate("/login");
+      toast({
+        title: "Acesso negado",
+        description: "Por favor, faça login para acessar esta página",
+        variant: "destructive",
+      });
+    }
+    
+    // Verificar se existem dados de limpeza gerados e passados como state
+    if (location.state && location.state.generatedSchedule) {
+      setCleaningItems(location.state.generatedSchedule);
+      setIsLoading(false);
+      
+      // Limpar o histórico para evitar que os dados sejam carregados novamente ao atualizar a página
+      window.history.replaceState({}, document.title);
+      
+      toast({
+        title: "Agenda importada",
+        description: "A agenda de limpeza foi importada com sucesso do gerador",
+      });
+    } else {
+      // Carregar dados normalmente se não houver dados gerados
+      loadCleaningData();
+    }
     
     // Carregar configurações salvas (simulado)
     const savedSettings = localStorage.getItem('cleaningViewSettings');
@@ -345,6 +373,15 @@ Agradeço a compreensão de todos!`,
                   >
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     Adicionar
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
+                    onClick={() => navigate('/admin/gerador-limpeza')}
+                  >
+                    <ListPlus className="h-3.5 w-3.5 mr-1" />
+                    Gerador
                   </Button>
                   <Button 
                     variant="outline" 
