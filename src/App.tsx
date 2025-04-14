@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import UpdateIndicator from "@/components/UpdateIndicator";
@@ -24,6 +24,7 @@ import UserFormPage from "./pages/UserFormPage";
 import Limpeza from "./pages/Limpeza";
 import AdminLimpeza from "./pages/AdminLimpeza";
 import AdminMessages from "./pages/AdminMessages";
+import Favoritos from "./pages/Favoritos";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
 import { lazy, Suspense } from "react";
@@ -57,70 +58,17 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             
             {/* Rotas protegidas para usuários comuns */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/eventos" 
-              element={
-                <ProtectedRoute>
-                  <Events />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/leitura" 
-              element={
-                <ProtectedRoute>
-                  <Reading />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/mensagens" 
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/frentes" 
-              element={
-                <ProtectedRoute>
-                  <Frentes />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/limpeza" 
-              element={
-                <ProtectedRoute>
-                  <Limpeza />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/sobre" 
-              element={
-                <ProtectedRoute>
-                  <About />
-                </ProtectedRoute>
-              } 
-            />
+            <Route element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/frentes" element={<Frentes />} />
+              <Route path="/eventos" element={<Events />} />
+              <Route path="/leitura" element={<Reading />} />
+              <Route path="/mensagens" element={<Messages />} />
+              <Route path="/limpeza" element={<Limpeza />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/sobre" element={<About />} />
+              <Route path="/favoritos" element={<Favoritos />} />
+            </Route>
             <Route 
               path="/configuracoes" 
               element={

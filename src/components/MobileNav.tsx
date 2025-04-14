@@ -7,11 +7,14 @@ import {
   FileText, 
   MessageSquare, 
   User, 
-  Info
+  Info,
+  Settings
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
+// Este componente agora está desativado em favor do menu dropdown
+// Mantido apenas para referência caso precise voltar à navegação inferior
 const MobileNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -93,56 +96,8 @@ const MobileNav = () => {
     }
   ];
 
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 py-2 px-3 bottom-nav-admin">
-      <div className="grid grid-cols-6 gap-1">
-        {navItems.map((item) => (
-          <button
-            key={item.path}
-            onClick={() => handleNavigate(item.path)}
-            className={cn(
-              "flex flex-col items-center justify-center py-1 px-1 text-[10px] rounded transition-colors relative",
-              isActive(item.path)
-                ? "text-primary"
-                : "text-gray-600 hover:text-gray-900"
-            )}
-          >
-            <item.icon className="h-5 w-5 mb-1" />
-            <span>{item.label}</span>
-            {item.badge && (
-              <span className="absolute top-0 right-1/4 h-4 w-4 bg-red-500 rounded-full text-[8px] text-white flex items-center justify-center">
-                {item.badge}
-              </span>
-            )}
-          </button>
-        ))}
-        
-        {secondaryItems.map((item) => (
-          <button
-            key={item.path}
-            onClick={() => handleNavigate(item.path)}
-            className={cn(
-              "flex flex-col items-center justify-center py-1 px-1 text-[10px] rounded transition-colors",
-              location.pathname === item.path
-                ? "text-primary"
-                : "text-gray-600 hover:text-gray-900"
-            )}
-          >
-            <item.icon className="h-5 w-5 mb-1" />
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div>
-    </nav>
-  );
+  // Este componente está desativado
+  return null;
 };
 
 export default MobileNav;
