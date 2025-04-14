@@ -19,6 +19,7 @@ import AdminUsers from "./pages/AdminUsers";
 import UserFormPage from "./pages/UserFormPage";
 import Limpeza from "./pages/Limpeza";
 import AdminLimpeza from "./pages/AdminLimpeza";
+import TerreiroBotaoDemo from "./pages/TerreiroBotaoDemo";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
 import { lazy, Suspense } from "react";
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/botao-demo" element={<TerreiroBotaoDemo />} />
           
           {/* Rotas protegidas */}
           <Route path="/dashboard" element={<Dashboard />} />

@@ -192,25 +192,27 @@ const AdminLimpeza = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
+    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0 md:flex">
       <DesktopSidebar />
       
       <div className="flex-1">
         <DashboardHeader />
         
         <main className="container mx-auto px-4 py-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Lista de limpeza e "Dias D" do terreiro para 2025</h1>
-            <Button onClick={saveChanges}>Salvar alterações</Button>
+          <div className="bg-white shadow-sm rounded-lg py-4 px-6 mb-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-xl font-medium text-gray-800">Lista de limpeza e "Dias D" do terreiro para 2025</h1>
+              <Button variant="default" className="bg-blue-600 hover:bg-blue-700" onClick={saveChanges}>Salvar alterações</Button>
+            </div>
+            
+            <p className="text-gray-600 text-sm mt-2">
+              "Dias D" Todos participam e segue a cada dois meses. Utilize os seletores para atualizar o status de cada tarefa.
+            </p>
           </div>
-          
-          <p className="text-gray-600 italic mb-6">
-            "Dias D" Todos participam e segue a cada dois meses. Utilize os seletores para atualizar o status de cada tarefa.
-          </p>
           
           {isLoading ? (
             <div className="flex justify-center my-12">
-              <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full"></div>
+              <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -218,77 +220,76 @@ const AdminLimpeza = () => {
                 acc[item.month] = true;
                 return acc;
               }, {})).map(month => (
-                <Card key={month} className="border rounded-md shadow-sm">
-                  <CardHeader className="pb-2 border-b">
-                    <CardTitle className="text-xl font-bold text-primary">{month}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <ul className="divide-y divide-gray-100">
-                      {cleaningItems
-                        .filter(item => item.month === month)
-                        .map(item => (
-                          <li 
-                            key={item.id} 
-                            className={`p-3 flex items-center justify-between ${
-                              item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)
-                            }`}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className="text-center min-w-12">
-                                <span className="text-base font-medium">{item.date}</span>
-                              </div>
-                              <div>
-                                <span className={`text-sm font-medium ${item.isSpecialDay ? 'text-blue-700' : ''}`}>
+                <div key={month} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <h2 className="text-lg font-medium text-gray-800">{month}</h2>
+                  </div>
+                  <div className="p-0">
+                    <table className="w-full border-collapse">
+                      <tbody>
+                        {cleaningItems
+                          .filter(item => item.month === month)
+                          .map(item => (
+                            <tr 
+                              key={item.id} 
+                              className={`border-b border-gray-100 last:border-b-0 ${
+                                item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)
+                              }`}
+                            >
+                              <td className="px-4 py-3 text-center w-16">
+                                <span className="text-sm font-medium text-gray-700">{item.date}</span>
+                              </td>
+                              <td className="px-2 py-3">
+                                <span className={`text-sm ${item.isSpecialDay ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
                                   {item.team}
                                 </span>
                                 {item.isSpecialDay && (
-                                  <div className="text-xs text-blue-600 font-medium mt-0.5">
+                                  <div className="text-xs text-blue-600 mt-0.5">
                                     Todos participam
                                   </div>
                                 )}
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              {getStatusIcon(item.status)}
-                              <Select
-                                value={item.status}
-                                onValueChange={(value) => 
-                                  handleStatusChange(
-                                    item.id, 
-                                    value as "pending" | "completed" | "missed"
-                                  )
-                                }
-                              >
-                                <SelectTrigger className="w-[140px]">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {statusOptions.map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      <div className="flex items-center">
-                                        <option.icon className="mr-2 h-4 w-4" />
-                                        <span>{option.label}</span>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </li>
-                        ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                              </td>
+                              <td className="px-4 py-3 w-40">
+                                <div className="flex items-center justify-end space-x-2">
+                                  {getStatusIcon(item.status)}
+                                  <Select
+                                    value={item.status}
+                                    onValueChange={(value) => 
+                                      handleStatusChange(
+                                        item.id, 
+                                        value as "pending" | "completed" | "missed"
+                                      )
+                                    }
+                                  >
+                                    <SelectTrigger className="w-32 h-8 text-sm bg-white border border-gray-200 shadow-sm">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {statusOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                          <div className="flex items-center">
+                                            <option.icon className="mr-2 h-4 w-4" />
+                                            <span>{option.label}</span>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               ))}
             </div>
           )}
           
-          <Card className="mt-8 bg-slate-50">
-            <CardHeader>
-              <CardTitle>OBSERVAÇÕES:</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <div className="bg-white shadow-sm rounded-lg mt-8 p-6">
+            <h2 className="text-lg font-medium text-gray-800 mb-4">OBSERVAÇÕES:</h2>
+            <div className="space-y-3 text-sm text-gray-700">
               <p>• Caso haja necessidade de qualquer motivo para a realização da mesma em dias antecipados ou posteriores, atente-se em comunicar o seu parceiro(a) para não haver discordância.</p>
               <p>• As limpezas serão supervisionadas a cada limpeza, assim verificando se a limpeza teve efetividade.</p>
               <p>• A limpeza do terreiro ocorre mesmo com chuva ou sol. Em dias de chuva a parte externa não precisa ser lavada.</p>
@@ -296,20 +297,20 @@ const AdminLimpeza = () => {
               <p>• Ao finalizar as tarefas, por favor, salve tudo o que foi utilizado nos seus devidos lugares.</p>
               
               <div className="pt-2">
-                <p className="font-semibold">Lembrete: Sempre que levar os panos pra lavar, traga na próxima vez que vier pro Terreiro.</p>
+                <p className="font-medium text-gray-800">Lembrete: Sempre que levar os panos pra lavar, traga na próxima vez que vier pro Terreiro.</p>
               </div>
               
               <div className="pt-2">
-                <p className="font-semibold">Lavar separadamente os panos:</p>
+                <p className="font-medium text-gray-800">Lavar separadamente os panos:</p>
                 <p>• Toalhas de rosto com toalhas de rosto.</p>
                 <p>• Panos de prato com panos de prato.</p>
                 <p>• Tapetes com tapetes.</p>
                 <p>• Pano de chão com pano de chão.</p>
               </div>
               
-              <p className="pt-2 font-medium">Agradeço a compreensão de todos!</p>
-            </CardContent>
-          </Card>
+              <p className="pt-2 font-medium text-gray-800">Agradeço a compreensão de todos!</p>
+            </div>
+          </div>
         </main>
       </div>
       
