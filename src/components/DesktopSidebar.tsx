@@ -8,7 +8,10 @@ import {
   Info, 
   MessageSquare, 
   Brush, 
-  ChevronRight
+  ChevronRight,
+  Settings,
+  Cog,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -43,21 +46,22 @@ const DesktopSidebar = () => {
     }));
   };
 
-  const mainMenuItems: MenuItem[] = [
+  // Itens de menu para usuários comuns
+  const userMenuItems: MenuItem[] = [
     {
       label: "Início",
       icon: Home,
       path: "/dashboard",
     },
     {
-      label: "Frentes",
-      icon: FileText,
-      path: "/frentes",
-    },
-    {
       label: "Eventos",
       icon: Calendar,
       path: "/eventos",
+    },
+    {
+      label: "Frentes",
+      icon: FileText,
+      path: "/frentes",
     },
     {
       label: "Leitura",
@@ -81,13 +85,60 @@ const DesktopSidebar = () => {
     }
   ];
 
-  const secondaryMenuItems: MenuItem[] = [
+  // Itens de menu para administradores
+  const adminMenuItems: MenuItem[] = [
+    {
+      label: "Dashboard",
+      icon: Home,
+      path: "/dashboard",
+    },
+    {
+      label: "Usuários",
+      icon: Users,
+      path: "/admin/usuarios",
+    },
+    {
+      label: "Frentes",
+      icon: FileText,
+      path: "/admin/frentes",
+    },
+    {
+      label: "Eventos",
+      icon: Calendar,
+      path: "/admin/eventos",
+    },
+    {
+      label: "Leitura",
+      icon: BookOpen,
+      path: "/admin/leitura",
+    },
+    {
+      label: "Limpeza",
+      icon: Brush,
+      path: "/admin/limpeza",
+    },
+    {
+      label: "Mensagens",
+      icon: MessageSquare,
+      path: "/admin/mensagens",
+    },
+    {
+      label: "Sobre",
+      icon: Info,
+      path: "/admin/sobre",
+    }
+  ];
+
+  // Seleciona os itens de menu com base no tipo de usuário
+  const mainMenuItems = isAdmin ? adminMenuItems : userMenuItems;
+
+  const secondaryMenuItems: MenuItem[] = !isAdmin ? [
     {
       label: "Sobre",
       icon: Info,
       path: "/sobre",
     },
-  ];
+  ] : [];
 
   const isCategoryMenuItem = (item: MenuItem): item is CategoryMenuItemType => {
     return 'category' in item;
@@ -161,7 +212,7 @@ const DesktopSidebar = () => {
                   !menuCollapsed.PUBLIC ? "rotate-90" : ""
                 )} 
               />
-              <span>PÚBLICO</span>
+              <span>{isAdmin ? "MENU" : "PÚBLICO"}</span>
             </button>
             
             {!menuCollapsed.PUBLIC && (

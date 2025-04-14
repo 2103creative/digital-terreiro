@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff, Edit, Trash, Plus } from "lucide-react";
 
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // Interface para os itens de limpeza
 interface CleaningItem {
@@ -20,6 +22,11 @@ interface CleaningItem {
   team: string;
   isSpecialDay: boolean;
   status: "pending" | "completed" | "missed";
+}
+
+// Formulário para editar item
+interface EditingItem extends Omit<CleaningItem, 'id'> {
+  id?: number;
 }
 
 // Interface para as configurações de visualização
@@ -42,6 +49,8 @@ const AdminLimpeza = () => {
   const { toast } = useToast();
   const [cleaningItems, setCleaningItems] = useState<CleaningItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Estado para as configurações de visualização
   const [viewSettings, setViewSettings] = useState<ViewSettings>({
@@ -172,6 +181,82 @@ Agradeço a compreensão de todos!`,
     }, 1000);
   };
   
+  // Funções para manipulação da lista
+  const handleAddItem = () => {
+    setEditingItem({
+      date: "",
+      month: "",
+      team: "",
+      isSpecialDay: false,
+      status: "pending"
+    });
+    setIsDialogOpen(true);
+  };
+  
+  const handleEditItem = (item: CleaningItem) => {
+    setEditingItem({ ...item });
+    setIsDialogOpen(true);
+  };
+  
+  const handleDeleteItem = (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir este item de limpeza?")) {
+      const updatedItems = cleaningItems.filter(item => item.id !== id);
+      setCleaningItems(updatedItems);
+      
+      // Desativado temporariamente
+      /*
+      toast({
+        title: "Item excluído",
+        description: "O item foi excluído da lista de limpeza com sucesso.",
+      });
+      */
+    }
+  };
+  
+  const handleSaveItem = () => {
+    if (!editingItem) return;
+    
+    if (!editingItem.date || !editingItem.month || !editingItem.team) {
+      // Desativado temporariamente
+      /*
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos.",
+        variant: "destructive"
+      });
+      */
+      return;
+    }
+    
+    let updatedItems;
+    
+    if (editingItem.id) {
+      // Editando item existente
+      updatedItems = cleaningItems.map(item => 
+        item.id === editingItem.id ? { ...editingItem, id: item.id } : item
+      );
+    } else {
+      // Adicionando novo item
+      const newId = Math.max(0, ...cleaningItems.map(item => item.id)) + 1;
+      updatedItems = [
+        ...cleaningItems,
+        { ...editingItem, id: newId }
+      ];
+    }
+    
+    setCleaningItems(updatedItems);
+    setIsDialogOpen(false);
+    setEditingItem(null);
+    
+    // Desativado temporariamente
+    /*
+    toast({
+      title: editingItem.id ? "Item atualizado" : "Item adicionado",
+      description: `O item foi ${editingItem.id ? 'atualizado' : 'adicionado'} com sucesso.`,
+    });
+    */
+  };
+  
   const handleStatusChange = (id: number, status: "pending" | "completed" | "missed") => {
     // Em um app real, enviaria a alteração para o servidor
     const updatedItems = cleaningItems.map(item => 
@@ -180,10 +265,13 @@ Agradeço a compreensão de todos!`,
     
     setCleaningItems(updatedItems);
     
+    // Desativado temporariamente
+    /*
     toast({
       title: "Status atualizado",
       description: "O status da tarefa foi atualizado com sucesso.",
     });
+    */
   };
   
   const getStatusIcon = (status: string) => {
@@ -210,20 +298,27 @@ Agradeço a compreensão de todos!`,
   
   const saveChanges = () => {
     // Em um app real, isso enviaria todas as alterações para o servidor de uma vez
+    
+    // Desativado temporariamente
+    /*
     toast({
       title: "Alterações salvas",
       description: "Todas as alterações foram salvas com sucesso.",
     });
+    */
   };
   
   const saveViewSettings = () => {
     // Salva as configurações no localStorage (em um app real, isso iria para um servidor)
     localStorage.setItem('cleaningViewSettings', JSON.stringify(viewSettings));
     
+    // Desativado temporariamente
+    /*
     toast({
       title: "Configurações salvas",
       description: "As configurações de visualização foram atualizadas com sucesso.",
     });
+    */
   };
   
   return (
@@ -241,18 +336,35 @@ Agradeço a compreensão de todos!`,
             <div className="py-4 border-b border-gray-100">
               <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center mb-2">
                 <h1 className="text-xl font-medium text-gray-900">Lista de Limpeza 2025</h1>
-                <div className="flex space-x-2 mb-2 md:mb-0">
-                  <Button variant="outline" size="sm" className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white">
+                <div className="flex flex-wrap gap-2 mb-2 md:mb-0 w-full md:w-auto">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
+                    onClick={handleAddItem}
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    Adicionar
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
+                  >
                     <Filter className="h-3.5 w-3.5 mr-1" />
                     Filtrar
                   </Button>
-                  <Button variant="outline" size="sm" className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
+                  >
                     <Download className="h-3.5 w-3.5 mr-1" />
                     Exportar
                   </Button>
                   <Button 
                     size="sm" 
-                    className="h-8 text-xs px-3 bg-blue-500 hover:bg-blue-600 text-white" 
+                    className="h-8 text-xs px-3 bg-blue-500 hover:bg-blue-600 text-white flex-1 sm:flex-none" 
                     onClick={saveChanges}
                   >
                     Salvar alterações
@@ -260,7 +372,7 @@ Agradeço a compreensão de todos!`,
                 </div>
               </div>
               <p className="text-gray-500 text-xs">
-                "Dias D" são tarefas coletivas que ocorrem a cada dois meses. Utilize os seletores para atualizar o status de cada tarefa.
+                "Dias D" são tarefas coletivas que ocorrem a cada dois meses. Utilize os marcadores para atualizar o status de cada tarefa.
               </p>
             </div>
             
@@ -280,7 +392,8 @@ Agradeço a compreensão de todos!`,
                       <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
                         <h2 className="text-sm font-medium text-gray-700">{month}</h2>
                       </div>
-                      <div className="overflow-x-auto">
+                      {/* Versão desktop da tabela */}
+                      <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm">
                           <tbody>
                             {cleaningItems
@@ -305,40 +418,125 @@ Agradeço a compreensão de todos!`,
                                       </div>
                                     )}
                                   </td>
-                                  <td className="px-3 py-2 w-36">
-                                    <div className="flex items-center justify-end">
-                                      <Select
-                                        value={item.status}
-                                        onValueChange={(value) => 
-                                          handleStatusChange(
-                                            item.id, 
-                                            value as "pending" | "completed" | "missed"
-                                          )
-                                        }
+                                  <td className="px-3 py-2">
+                                    <div className="flex items-center justify-end space-x-2">
+                                      <div className="flex space-x-3 mr-2">
+                                        <Checkbox 
+                                          id={`pending-${item.id}`}
+                                          checked={item.status === "pending"}
+                                          className="rounded-sm data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 h-4 w-4"
+                                          onCheckedChange={() => handleStatusChange(item.id, "pending")}
+                                        />
+                                        <Checkbox 
+                                          id={`completed-${item.id}`}
+                                          checked={item.status === "completed"}
+                                          className="rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 h-4 w-4"
+                                          onCheckedChange={() => handleStatusChange(item.id, "completed")}
+                                        />
+                                        <Checkbox 
+                                          id={`missed-${item.id}`}
+                                          checked={item.status === "missed"}
+                                          className="rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500 h-4 w-4"
+                                          onCheckedChange={() => handleStatusChange(item.id, "missed")}
+                                        />
+                                      </div>
+                                      <Button
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 w-6 p-0" 
+                                        onClick={() => handleEditItem(item)}
                                       >
-                                        <SelectTrigger className="w-28 h-7 text-xs bg-white border border-gray-200 rounded">
-                                          <div className="flex items-center">
-                                            {getStatusIcon(item.status)}
-                                            <SelectValue className="ml-1.5" />
-                                          </div>
-                                        </SelectTrigger>
-                                        <SelectContent className="text-xs">
-                                          {statusOptions.map(option => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                              <div className="flex items-center">
-                                                <option.icon className="mr-1.5 h-3.5 w-3.5" />
-                                                <span>{option.label}</span>
-                                              </div>
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
+                                        <Edit className="h-3.5 w-3.5 text-gray-500" />
+                                      </Button>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 w-6 p-0" 
+                                        onClick={() => handleDeleteItem(item.id)}
+                                      >
+                                        <Trash className="h-3.5 w-3.5 text-gray-500" />
+                                      </Button>
                                     </div>
                                   </td>
                                 </tr>
                               ))}
                           </tbody>
                         </table>
+                      </div>
+
+                      {/* Versão mobile da tabela - layout em cards */}
+                      <div className="md:hidden">
+                        {cleaningItems
+                          .filter(item => item.month === month)
+                          .map(item => (
+                            <div 
+                              key={item.id}
+                              className={`p-3 border-b border-gray-50 ${
+                                item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)
+                              }`}
+                            >
+                              <div className="flex items-start justify-between mb-1.5">
+                                <div>
+                                  <span className="text-xs font-medium text-gray-600">{item.date}</span>
+                                  <span className={`ml-2 text-xs ${item.isSpecialDay ? 'text-blue-600 font-medium' : 'text-gray-700'}`}>
+                                    {item.team}
+                                  </span>
+                                  {item.isSpecialDay && (
+                                    <div className="text-[10px] text-blue-500 mt-0.5">
+                                      Todos participam
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex space-x-1">
+                                  <Button
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6 p-0" 
+                                    onClick={() => handleEditItem(item)}
+                                  >
+                                    <Edit className="h-3.5 w-3.5 text-gray-500" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6 p-0" 
+                                    onClick={() => handleDeleteItem(item.id)}
+                                  >
+                                    <Trash className="h-3.5 w-3.5 text-gray-500" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="flex items-center mt-1.5 space-x-4">
+                                <div className="flex items-center">
+                                  <Checkbox 
+                                    id={`pending-mobile-${item.id}`}
+                                    checked={item.status === "pending"}
+                                    className="rounded-sm data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500 h-4 w-4 mr-1"
+                                    onCheckedChange={() => handleStatusChange(item.id, "pending")}
+                                  />
+                                  <label htmlFor={`pending-mobile-${item.id}`} className="text-[10px] text-gray-500">Pendente</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <Checkbox 
+                                    id={`completed-mobile-${item.id}`}
+                                    checked={item.status === "completed"}
+                                    className="rounded-sm data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 h-4 w-4 mr-1"
+                                    onCheckedChange={() => handleStatusChange(item.id, "completed")}
+                                  />
+                                  <label htmlFor={`completed-mobile-${item.id}`} className="text-[10px] text-gray-500">Concluído</label>
+                                </div>
+                                <div className="flex items-center">
+                                  <Checkbox 
+                                    id={`missed-mobile-${item.id}`}
+                                    checked={item.status === "missed"}
+                                    className="rounded-sm data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500 h-4 w-4 mr-1"
+                                    onCheckedChange={() => handleStatusChange(item.id, "missed")}
+                                  />
+                                  <label htmlFor={`missed-mobile-${item.id}`} className="text-[10px] text-gray-500">Não realizado</label>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   ))}
@@ -359,12 +557,12 @@ Agradeço a compreensão de todos!`,
         </TabsContent>
         
         <TabsContent value="settings">
-          <div className="bg-white border border-gray-100 rounded px-5 py-4">
+          <div className="bg-white border border-gray-100 rounded px-4 sm:px-5 py-4">
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
               <h2 className="text-lg font-medium text-gray-900 mb-2 md:mb-0">Configurações de Visualização</h2>
               <Button
                 onClick={saveViewSettings}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white"
               >
                 <Save className="mr-2 h-4 w-4" />
                 Salvar Configurações
@@ -372,13 +570,13 @@ Agradeço a compreensão de todos!`,
             </div>
             
             <Card className="mb-6">
-              <CardHeader>
+              <CardHeader className="px-4 sm:px-6 py-4">
                 <CardTitle>Configurações da Página</CardTitle>
                 <CardDescription>
                   Configure como a página de limpeza será exibida para os usuários
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 px-4 sm:px-6 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="page-title">Título da Página</Label>
@@ -399,14 +597,14 @@ Agradeço a compreensão de todos!`,
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-4 pt-2">
                   <div className="flex items-center space-x-2">
                     <Switch 
                       id="show-status-buttons"
                       checked={viewSettings.showStatusButtons}
                       onCheckedChange={(checked) => setViewSettings({...viewSettings, showStatusButtons: checked})}
                     />
-                    <Label htmlFor="show-status-buttons" className="flex items-center">
+                    <Label htmlFor="show-status-buttons" className="flex items-center text-sm">
                       <Eye className="mr-2 h-4 w-4" />
                       Mostrar botões de status
                     </Label>
@@ -418,7 +616,7 @@ Agradeço a compreensão de todos!`,
                       checked={viewSettings.allowStatusChange}
                       onCheckedChange={(checked) => setViewSettings({...viewSettings, allowStatusChange: checked})}
                     />
-                    <Label htmlFor="allow-status-change" className="flex items-center">
+                    <Label htmlFor="allow-status-change" className="flex items-center text-sm">
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Permitir alteração de status
                     </Label>
@@ -430,7 +628,7 @@ Agradeço a compreensão de todos!`,
                       checked={viewSettings.showObservations}
                       onCheckedChange={(checked) => setViewSettings({...viewSettings, showObservations: checked})}
                     />
-                    <Label htmlFor="show-observations" className="flex items-center">
+                    <Label htmlFor="show-observations" className="flex items-center text-sm">
                       <Eye className="mr-2 h-4 w-4" />
                       Mostrar observações
                     </Label>
@@ -440,13 +638,13 @@ Agradeço a compreensão de todos!`,
             </Card>
             
             <Card>
-              <CardHeader>
+              <CardHeader className="px-4 sm:px-6 py-4">
                 <CardTitle>Texto de Observações</CardTitle>
                 <CardDescription>
                   Edite o texto que será exibido na seção de observações para os usuários
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6 py-4">
                 <Textarea 
                   rows={15}
                   value={viewSettings.observationsText}
@@ -458,7 +656,7 @@ Agradeço a compreensão de todos!`,
             </Card>
           </div>
           
-          <div className="mt-6 bg-white border border-gray-100 rounded p-5">
+          <div className="mt-6 bg-white border border-gray-100 rounded p-4 sm:p-5">
             <h3 className="text-base font-medium text-gray-900 mb-2">Visualização Prévia</h3>
             <Card className="border-dashed">
               <CardContent className="p-4">
@@ -471,8 +669,8 @@ Agradeço a compreensão de todos!`,
                       <span className="text-sm font-medium">Janeiro</span>
                     </div>
                     <div className="p-3">
-                      <div className="flex justify-between items-center py-1">
-                        <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-1">
+                        <div className="flex-1 mb-2 sm:mb-0">
                           <span className="text-xs">11/01 - Karina e Nicole</span>
                         </div>
                         {viewSettings.showStatusButtons && (
@@ -506,8 +704,72 @@ Agradeço a compreensão de todos!`,
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Dialog para adicionar/editar itens de limpeza */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-[425px] sm:w-full p-0 overflow-hidden">
+          <DialogHeader className="px-4 pt-4 pb-2">
+            <DialogTitle>{editingItem?.id ? 'Editar Item' : 'Adicionar Novo Item'}</DialogTitle>
+            <DialogDescription>
+              {editingItem?.id 
+                ? 'Modifique os detalhes do item de limpeza existente.' 
+                : 'Preencha os detalhes para adicionar um novo item à lista de limpeza.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 px-4 py-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="item-date">Data</Label>
+                <Input 
+                  id="item-date" 
+                  placeholder="DD/MM" 
+                  value={editingItem?.date || ''} 
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, date: e.target.value} : null)} 
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="item-month">Mês</Label>
+                <Input 
+                  id="item-month" 
+                  placeholder="Janeiro, Fevereiro, etc" 
+                  value={editingItem?.month || ''} 
+                  onChange={(e) => setEditingItem(prev => prev ? {...prev, month: e.target.value} : null)} 
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="item-team">Equipe</Label>
+              <Input 
+                id="item-team" 
+                placeholder="Nomes dos responsáveis" 
+                value={editingItem?.team || ''} 
+                onChange={(e) => setEditingItem(prev => prev ? {...prev, team: e.target.value} : null)} 
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="item-special" 
+                checked={editingItem?.isSpecialDay || false} 
+                onCheckedChange={(checked) => 
+                  setEditingItem(prev => prev ? {...prev, isSpecialDay: checked as boolean} : null)
+                } 
+              />
+              <Label htmlFor="item-special">É um dia especial (Dia D, Obrigação, etc)</Label>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 px-4 pb-4 pt-2">
+            <Button variant="outline" className="sm:w-auto w-full" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+            <Button className="sm:w-auto w-full" onClick={handleSaveItem}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
 
-export default AdminLimpeza; 
+export default AdminLimpeza;

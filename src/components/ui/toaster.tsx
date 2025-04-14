@@ -1,4 +1,3 @@
-import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
   ToastClose,
@@ -7,10 +6,15 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import { useToast } from "@/hooks/use-toast"
 
 export function Toaster() {
   const { toasts } = useToast()
 
+  // Desativando temporariamente todas as notificações
+  return null;
+  
+  /*
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
@@ -30,4 +34,5 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   )
+  */
 }

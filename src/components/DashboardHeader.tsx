@@ -114,16 +114,11 @@ const DashboardHeader = () => {
   };
 
   // Menu items for the fullscreen menu
-  const menuItems = [
+  const userMenuItems = [
     {
       icon: Home,
       label: "Início",
       path: "/dashboard",
-    },
-    {
-      icon: FileText,
-      label: "Frentes",
-      path: "/frentes",
     },
     {
       icon: Calendar,
@@ -131,15 +126,14 @@ const DashboardHeader = () => {
       path: "/eventos",
     },
     {
+      icon: FileText,
+      label: "Frentes",
+      path: "/frentes",
+    },
+    {
       icon: BookOpen,
       label: "Leitura",
       path: "/leitura",
-    },
-    {
-      icon: MessageSquare,
-      label: "Mensagens",
-      path: "/mensagens",
-      badge: messageCount > 0 ? messageCount : null,
     },
     {
       icon: Brush,
@@ -147,9 +141,10 @@ const DashboardHeader = () => {
       path: "/limpeza",
     },
     {
-      icon: Heart,
-      label: "Favoritos",
-      path: "/favoritos",
+      icon: MessageSquare,
+      label: "Mensagens",
+      path: "/mensagens",
+      badge: messageCount > 0 ? messageCount : null,
     },
     {
       icon: User,
@@ -162,6 +157,59 @@ const DashboardHeader = () => {
       path: "/sobre",
     }
   ];
+
+  // Menu items for administrators
+  const adminMenuItems = [
+    {
+      icon: Home,
+      label: "Dashboard",
+      path: "/dashboard",
+    },
+    {
+      icon: Users,
+      label: "Usuários",
+      path: "/admin/usuarios",
+    },
+    {
+      icon: FileText,
+      label: "Frentes",
+      path: "/admin/frentes",
+    },
+    {
+      icon: Calendar,
+      label: "Eventos",
+      path: "/admin/eventos",
+    },
+    {
+      icon: BookOpen,
+      label: "Leitura",
+      path: "/admin/leitura",
+    },
+    {
+      icon: Brush,
+      label: "Limpeza",
+      path: "/admin/limpeza",
+    },
+    {
+      icon: MessageSquare,
+      label: "Mensagens",
+      path: "/admin/mensagens",
+      badge: messageCount > 0 ? messageCount : null,
+    },
+    {
+      icon: Info,
+      label: "Sobre",
+      path: "/admin/sobre",
+    },
+    {
+      icon: User,
+      label: "Meu Perfil",
+      path: "/profile",
+    }
+  ];
+
+  // Seleciona os itens de menu com base no tipo de usuário
+  const menuItems = isAdmin ? adminMenuItems : userMenuItems;
 
   return (
     <>
@@ -241,64 +289,6 @@ const DashboardHeader = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-
-              {isAdmin && (
-                <>
-                  <DropdownMenuLabel className="text-[10px] md:text-xs text-gray-500 py-1 font-normal">Administração</DropdownMenuLabel>
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('usuarios')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <Users className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Gerenciar Usuários</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('frentes')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <FileEdit className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Editar Frentes</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('eventos')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <Calendar className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Gerenciar Eventos</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('leitura')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <BookOpen className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Gerenciar Leitura</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('sobre')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <Info className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Editar Sobre</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('limpeza')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <FileEdit className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Gerenciar Limpeza</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => navigateToAdmin('mensagens')}
-                      className="text-[10px] md:text-xs py-1.5 px-2"
-                    >
-                      <MessageSquare className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                      <span>Gerenciar Mensagens</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                </>
-              )}
               
               <DropdownMenuItem 
                 onClick={() => navigate('/profile')}
@@ -322,7 +312,7 @@ const DashboardHeader = () => {
                 className="text-[10px] md:text-xs py-1.5 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 focus:bg-red-50 focus:text-red-700"
               >
                 <LogOut className="mr-2 h-3 w-3 md:h-3.5 md:w-3.5" />
-                <span>Logout</span>
+                <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -331,28 +321,28 @@ const DashboardHeader = () => {
 
       {/* Fullscreen Menu for Mobile */}
       {isFullscreenMenuOpen && (
-        <div className="fixed inset-0 bg-teal-700 z-50 md:hidden">
+        <div className="fixed inset-0 bg-white z-50 md:hidden">
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="p-4 border-b border-teal-600 flex items-center justify-between">
+            <div className="p-4 flex items-center justify-between">
               <div className="flex items-center">
                 <Avatar className="h-10 w-10 mr-3">
                   <AvatarImage src={avatar} alt={user?.name || "Usuário"} />
                   <AvatarFallback>{user?.name ? getInitials(user.name) : "U"}</AvatarFallback>
                 </Avatar>
-                <div className="text-white">
-                  <p className="font-medium text-sm">{user?.name || "Usuário"}</p>
-                  <p className="text-xs opacity-80">{user?.role === 'admin' ? 'Administrador' : 'Membro do Terreiro'}</p>
+                <div>
+                  <p className="font-medium text-sm text-gray-900">{user?.name || "Usuário"}</p>
+                  <p className="text-xs text-gray-500">{user?.role === 'admin' ? 'Administrador' : 'Membro do Terreiro'}</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsFullscreenMenuOpen(false)}
-                className="text-white p-2"
+                className="text-gray-500 p-2"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
-
+          
             {/* Menu Items */}
             <div className="flex-1 overflow-y-auto p-4">
               <ul className="space-y-4">
@@ -360,7 +350,7 @@ const DashboardHeader = () => {
                   <li key={item.path}>
                     <button
                       onClick={() => handleNavigate(item.path)}
-                      className="flex items-center w-full text-white py-2 px-1"
+                      className="flex items-center w-full text-gray-700 hover:text-blue-600 py-2 px-1"
                     >
                       <item.icon className="h-5 w-5 mr-4" />
                       <span className="text-base font-medium">{item.label}</span>
@@ -372,18 +362,28 @@ const DashboardHeader = () => {
                     </button>
                   </li>
                 ))}
+                
+                {/* Settings and Logout */}
+                <li className="mt-48">
+                  <div className="flex items-center text-gray-500 py-2 px-1 space-x-4">
+                    <button
+                      onClick={() => handleNavigate('/configuracoes')}
+                      className="flex items-center"
+                    >
+                      <Settings className="h-5 w-5 mr-2" />
+                      <span className="text-base font-medium">Configurações</span>
+                    </button>
+                    <div>|</div>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center"
+                    >
+                      <LogOut className="h-5 w-5 mr-2" />
+                      <span className="text-base font-medium">Sair</span>
+                    </button>
+                  </div>
+                </li>
               </ul>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-teal-600 p-4">
-              <button
-                onClick={handleLogout}
-                className="flex items-center w-full text-white py-2 px-1"
-              >
-                <LogOut className="h-5 w-5 mr-4" />
-                <span className="text-base font-medium">Sair</span>
-              </button>
             </div>
           </div>
         </div>

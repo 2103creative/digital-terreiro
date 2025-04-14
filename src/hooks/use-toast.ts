@@ -140,6 +140,20 @@ function dispatch(action: Action) {
 type Toast = Omit<ToasterToast, "id">
 
 function toast({ ...props }: Toast) {
+  // Desativando temporariamente todas as notificações
+  const id = genId()
+  
+  // Funções vazias que não fazem nada
+  const update = (props: ToasterToast) => {}
+  const dismiss = () => {}
+  
+  return {
+    id: id,
+    dismiss,
+    update,
+  }
+  
+  /* Original implementation
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -166,6 +180,7 @@ function toast({ ...props }: Toast) {
     dismiss,
     update,
   }
+  */
 }
 
 function useToast() {

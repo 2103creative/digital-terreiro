@@ -8,7 +8,9 @@ import {
   MessageSquare, 
   User, 
   Info,
-  Settings
+  Settings,
+  Calendar,
+  Brush
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -60,19 +62,24 @@ const MobileNav = () => {
       path: "/dashboard",
     },
     {
+      icon: Calendar,
+      label: "Eventos",
+      path: "/eventos",
+    },
+    {
       icon: FileText,
       label: "Frentes",
       path: "/frentes",
     },
     {
-      icon: CalendarDays,
-      label: "Eventos",
-      path: "/eventos",
-    },
-    {
       icon: BookOpen,
       label: "Leitura",
       path: "/leitura",
+    },
+    {
+      icon: Brush,
+      label: "Limpeza",
+      path: "/limpeza",
     },
     {
       icon: MessageSquare,
