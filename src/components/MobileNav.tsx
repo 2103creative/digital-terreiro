@@ -35,8 +35,8 @@ const MobileNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 shadow-sm md:hidden">
-      <div className="flex justify-around items-center h-16 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-md md:hidden">
+      <div className="flex justify-around items-center h-[4.5rem] px-2">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
           
@@ -47,16 +47,19 @@ const MobileNav = () => {
               onClick={() => navigate(tab.path)}
             >
               {isActive && (
-                <div className="absolute top-0 w-12 h-1 rounded-b-sm bg-blue-600"></div>
+                <div className="absolute top-2.5 w-1.5 h-1.5 rounded-full bg-black"></div>
               )}
               <div className={cn(
-                "flex flex-col items-center justify-center",
-                isActive ? "text-blue-600" : "text-gray-500"
+                "flex flex-col items-center justify-center mt-1.5",
+                isActive ? "text-black" : "text-gray-400"
               )}>
-                <tab.icon strokeWidth={isActive ? 2 : 1.5} className="h-5 w-5 mb-1" />
+                <tab.icon strokeWidth={isActive ? 2.5 : 1.5} className={cn(
+                  "h-6 w-6 mb-1",
+                  isActive ? "text-black" : "text-gray-400"
+                )} />
                 <span className={cn(
                   "text-xs",
-                  isActive ? "font-medium" : ""
+                  isActive ? "font-semibold" : "font-medium"
                 )}>
                   {tab.label}
                 </span>

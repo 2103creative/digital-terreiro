@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
-import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { CheckCircle, XCircle, Clock, Filter, Download } from "lucide-react";
+
+import AdminLayout from "@/components/AdminLayout";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
 
 // Interface para os itens de limpeza
 interface CleaningItem {
@@ -26,40 +24,14 @@ const statusOptions = [
 ];
 
 const AdminLimpeza = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [cleaningItems, setCleaningItems] = useState<CleaningItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Verificar se o usuário está autenticado e é admin
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-    if (!isAuthenticated) {
-      navigate("/login");
-      toast({
-        title: "Acesso negado",
-        description: "Por favor, faça login para acessar esta página",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Simulação de verificação de admin
-    setTimeout(() => {
-      const isAdmin = true; // Em um app real, isso seria verificado via API
-      if (!isAdmin) {
-        navigate("/dashboard");
-        toast({
-          title: "Acesso restrito",
-          description: "Você não tem permissão para acessar esta área",
-          variant: "destructive",
-        });
-      }
-    }, 500);
-    
     // Carregar os dados de limpeza
     loadCleaningData();
-  }, [navigate, toast]);
+  }, []);
   
   const loadCleaningData = () => {
     setIsLoading(true);
@@ -164,11 +136,11 @@ const AdminLimpeza = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "missed":
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
       default:
-        return <Clock className="h-5 w-5 text-amber-500" />;
+        return <Clock className="h-4 w-4 text-amber-600" />;
     }
   };
   
@@ -179,7 +151,7 @@ const AdminLimpeza = () => {
       case "missed":
         return "bg-red-50";
       default:
-        return "bg-amber-50";
+        return "";
     }
   };
   
@@ -192,66 +164,79 @@ const AdminLimpeza = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
-      <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-4 py-6">
-          <div className="bg-white shadow-sm rounded-lg py-4 px-6 mb-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-xl font-medium text-gray-800">Lista de limpeza e "Dias D" do terreiro para 2025</h1>
-              <Button variant="default" className="bg-blue-600 hover:bg-blue-700" onClick={saveChanges}>Salvar alterações</Button>
+    <AdminLayout>
+      {/* Página de lista no estilo ERPNext 15 */}
+      <div className="bg-white border border-gray-100 rounded px-5 pb-4">
+        {/* Cabeçalho da página */}
+        <div className="py-4 border-b border-gray-100">
+          <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center mb-2">
+            <h1 className="text-xl font-medium text-gray-900">Lista de Limpeza 2025</h1>
+            <div className="flex space-x-2 mb-2 md:mb-0">
+              <Button variant="outline" size="sm" className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white">
+                <Filter className="h-3.5 w-3.5 mr-1" />
+                Filtrar
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white">
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Exportar
+              </Button>
+              <Button 
+                size="sm" 
+                className="h-8 text-xs px-3 bg-blue-500 hover:bg-blue-600 text-white" 
+                onClick={saveChanges}
+              >
+                Salvar alterações
+              </Button>
             </div>
-            
-            <p className="text-gray-600 text-sm mt-2">
-              "Dias D" Todos participam e segue a cada dois meses. Utilize os seletores para atualizar o status de cada tarefa.
-            </p>
           </div>
-          
-          {isLoading ? (
-            <div className="flex justify-center my-12">
-              <div className="animate-spin h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <p className="text-gray-500 text-xs">
+            "Dias D" são tarefas coletivas que ocorrem a cada dois meses. Utilize os seletores para atualizar o status de cada tarefa.
+          </p>
+        </div>
+        
+        {/* Conteúdo principal */}
+        {isLoading ? (
+          <div className="flex justify-center my-12">
+            <div className="animate-spin h-10 w-10 border-3 border-blue-500 border-t-transparent rounded-full"></div>
+          </div>
+        ) : (
+          <div className="pt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {Object.keys(cleaningItems.reduce((acc, item) => {
                 acc[item.month] = true;
                 return acc;
               }, {})).map(month => (
-                <div key={month} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <h2 className="text-lg font-medium text-gray-800">{month}</h2>
+                <div key={month} className="border border-gray-100 rounded overflow-hidden">
+                  <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+                    <h2 className="text-sm font-medium text-gray-700">{month}</h2>
                   </div>
-                  <div className="p-0">
-                    <table className="w-full border-collapse">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
                       <tbody>
                         {cleaningItems
                           .filter(item => item.month === month)
                           .map(item => (
                             <tr 
                               key={item.id} 
-                              className={`border-b border-gray-100 last:border-b-0 ${
+                              className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
                                 item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)
                               }`}
                             >
-                              <td className="px-4 py-3 text-center w-16">
-                                <span className="text-sm font-medium text-gray-700">{item.date}</span>
+                              <td className="px-3 py-2 text-center w-14">
+                                <span className="text-xs font-medium text-gray-600">{item.date}</span>
                               </td>
-                              <td className="px-2 py-3">
-                                <span className={`text-sm ${item.isSpecialDay ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
+                              <td className="px-3 py-2">
+                                <span className={`text-xs ${item.isSpecialDay ? 'text-blue-600 font-medium' : 'text-gray-700'}`}>
                                   {item.team}
                                 </span>
                                 {item.isSpecialDay && (
-                                  <div className="text-xs text-blue-600 mt-0.5">
+                                  <div className="text-[10px] text-blue-500 mt-0.5">
                                     Todos participam
                                   </div>
                                 )}
                               </td>
-                              <td className="px-4 py-3 w-40">
-                                <div className="flex items-center justify-end space-x-2">
-                                  {getStatusIcon(item.status)}
+                              <td className="px-3 py-2 w-36">
+                                <div className="flex items-center justify-end">
                                   <Select
                                     value={item.status}
                                     onValueChange={(value) => 
@@ -261,14 +246,17 @@ const AdminLimpeza = () => {
                                       )
                                     }
                                   >
-                                    <SelectTrigger className="w-32 h-8 text-sm bg-white border border-gray-200 shadow-sm">
-                                      <SelectValue />
+                                    <SelectTrigger className="w-28 h-7 text-xs bg-white border border-gray-200 rounded">
+                                      <div className="flex items-center">
+                                        {getStatusIcon(item.status)}
+                                        <SelectValue className="ml-1.5" />
+                                      </div>
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="text-xs">
                                       {statusOptions.map(option => (
                                         <SelectItem key={option.value} value={option.value}>
                                           <div className="flex items-center">
-                                            <option.icon className="mr-2 h-4 w-4" />
+                                            <option.icon className="mr-1.5 h-3.5 w-3.5" />
                                             <span>{option.label}</span>
                                           </div>
                                         </SelectItem>
@@ -285,37 +273,36 @@ const AdminLimpeza = () => {
                 </div>
               ))}
             </div>
-          )}
-          
-          <div className="bg-white shadow-sm rounded-lg mt-8 p-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">OBSERVAÇÕES:</h2>
-            <div className="space-y-3 text-sm text-gray-700">
-              <p>• Caso haja necessidade de qualquer motivo para a realização da mesma em dias antecipados ou posteriores, atente-se em comunicar o seu parceiro(a) para não haver discordância.</p>
-              <p>• As limpezas serão supervisionadas a cada limpeza, assim verificando se a limpeza teve efetividade.</p>
-              <p>• A limpeza do terreiro ocorre mesmo com chuva ou sol. Em dias de chuva a parte externa não precisa ser lavada.</p>
-              <p>• A limpeza consiste em lavar o chão, vidros internos e externos, paredes e teto quando necessário, tirar o pó onde houver pó, tirar teias de aranha quando observado, área externa, escadas, banheiro, lavanderia, pias internas e externas, organizar os panos utilizados para a limpeza do dia (lavar, secar, guardar). Retire o lixo para a rua quando houver necessidade. Passar um pano molhado nos corrimãos das escadas, colocar no lixo do banheiro quando trocar, lavar os panos usados na limpeza, lavar os panos de pratos, tapetes e toalhas de rosto.</p>
-              <p>• Ao finalizar as tarefas, por favor, salve tudo o que foi utilizado nos seus devidos lugares.</p>
-              
-              <div className="pt-2">
-                <p className="font-medium text-gray-800">Lembrete: Sempre que levar os panos pra lavar, traga na próxima vez que vier pro Terreiro.</p>
-              </div>
-              
-              <div className="pt-2">
-                <p className="font-medium text-gray-800">Lavar separadamente os panos:</p>
-                <p>• Toalhas de rosto com toalhas de rosto.</p>
-                <p>• Panos de prato com panos de prato.</p>
-                <p>• Tapetes com tapetes.</p>
-                <p>• Pano de chão com pano de chão.</p>
-              </div>
-              
-              <p className="pt-2 font-medium text-gray-800">Agradeço a compreensão de todos!</p>
-            </div>
           </div>
-        </main>
+        )}
       </div>
       
-      <MobileNav />
-    </div>
+      {/* Seção de observações no estilo ERPNext 15 */}
+      <div className="bg-white border border-gray-100 rounded px-5 py-4 mt-6">
+        <h2 className="text-sm font-medium text-gray-700 mb-3">OBSERVAÇÕES</h2>
+        <div className="space-y-3 text-xs text-gray-600">
+          <p>• Caso haja necessidade de qualquer motivo para a realização da mesma em dias antecipados ou posteriores, atente-se em comunicar o seu parceiro(a) para não haver discordância.</p>
+          <p>• As limpezas serão supervisionadas a cada limpeza, assim verificando se a limpeza teve efetividade.</p>
+          <p>• A limpeza do terreiro ocorre mesmo com chuva ou sol. Em dias de chuva a parte externa não precisa ser lavada.</p>
+          <p>• A limpeza consiste em lavar o chão, vidros internos e externos, paredes e teto quando necessário, tirar o pó onde houver pó, tirar teias de aranha quando observado, área externa, escadas, banheiro, lavanderia, pias internas e externas, organizar os panos utilizados para a limpeza do dia (lavar, secar, guardar). Retire o lixo para a rua quando houver necessidade. Passar um pano molhado nos corrimãos das escadas, colocar no lixo do banheiro quando trocar, lavar os panos usados na limpeza, lavar os panos de pratos, tapetes e toalhas de rosto.</p>
+          <p>• Ao finalizar as tarefas, por favor, salve tudo o que foi utilizado nos seus devidos lugares.</p>
+          
+          <div className="pt-1">
+            <p className="font-medium text-gray-700 text-xs">Lembrete: Sempre que levar os panos pra lavar, traga na próxima vez que vier pro Terreiro.</p>
+          </div>
+          
+          <div className="pt-1">
+            <p className="font-medium text-gray-700 text-xs">Lavar separadamente os panos:</p>
+            <p>• Toalhas de rosto com toalhas de rosto.</p>
+            <p>• Panos de prato com panos de prato.</p>
+            <p>• Tapetes com tapetes.</p>
+            <p>• Pano de chão com pano de chão.</p>
+          </div>
+          
+          <p className="pt-1 font-medium text-gray-700">Agradeço a compreensão de todos!</p>
+        </div>
+      </div>
+    </AdminLayout>
   );
 };
 

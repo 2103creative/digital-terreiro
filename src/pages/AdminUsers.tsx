@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
-import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Table, 
@@ -31,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import AdminLayout from "@/components/AdminLayout";
 
 // Dados mockados para usuários
 const MOCK_USERS = [
@@ -171,68 +169,57 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
-      <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-4 py-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Gerenciar Usuários</h1>
-            <Button onClick={handleAddUser}>
-              <UserPlusIcon className="h-4 w-4 mr-2" />
-              Novo Usuário
-            </Button>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <Table>
-              <TableCaption>Lista de usuários do sistema</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  {!isMobile && <TableHead className="w-[80px]">ID</TableHead>}
-                  <TableHead>Nome</TableHead>
-                  {!isMobile && <TableHead>E-mail</TableHead>}
-                  <TableHead>
-                    <div className="flex items-center">
-                      Função
-                      <ArrowUpDown className="ml-1 h-4 w-4" />
-                    </div>
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                  {!isMobile && <TableHead>Último Acesso</TableHead>}
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    {!isMobile && <TableCell className="font-medium">{user.id}</TableCell>}
-                    <TableCell>{user.name}</TableCell>
-                    {!isMobile && <TableCell>{user.email}</TableCell>}
-                    <TableCell className="capitalize">{user.role}</TableCell>
-                    <TableCell>{getStatusBadge(user.status)}</TableCell>
-                    {!isMobile && <TableCell>{formatDate(user.lastLogin)}</TableCell>}
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(user.id)}>
-                          <PencilIcon className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(user.id)}>
-                          <Trash2Icon className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </main>
+    <AdminLayout pageTitle="Gerenciar Usuários">
+      <div className="flex justify-between items-center mb-6">
+        <Button onClick={handleAddUser}>
+          <UserPlusIcon className="h-4 w-4 mr-2" />
+          Novo Usuário
+        </Button>
       </div>
       
-      <MobileNav />
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Table>
+          <TableCaption>Lista de usuários do sistema</TableCaption>
+          <TableHeader>
+            <TableRow>
+              {!isMobile && <TableHead className="w-[80px]">ID</TableHead>}
+              <TableHead>Nome</TableHead>
+              {!isMobile && <TableHead>E-mail</TableHead>}
+              <TableHead>
+                <div className="flex items-center">
+                  Função
+                  <ArrowUpDown className="ml-1 h-4 w-4" />
+                </div>
+              </TableHead>
+              <TableHead>Status</TableHead>
+              {!isMobile && <TableHead>Último Acesso</TableHead>}
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                {!isMobile && <TableCell className="font-medium">{user.id}</TableCell>}
+                <TableCell>{user.name}</TableCell>
+                {!isMobile && <TableCell>{user.email}</TableCell>}
+                <TableCell className="capitalize">{user.role}</TableCell>
+                <TableCell>{getStatusBadge(user.status)}</TableCell>
+                {!isMobile && <TableCell>{formatDate(user.lastLogin)}</TableCell>}
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user.id)}>
+                      <PencilIcon className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(user.id)}>
+                      <Trash2Icon className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -250,7 +237,7 @@ const AdminUsers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminLayout>
   );
 };
 
