@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
 // Nome e versão do cache
-const CACHE_NAME = 'yle-axe-cache-v2';
+const CACHE_NAME = 'yle-axe-cache-v3';
 const APP_URLS = [
   '/',
   '/index.html',
@@ -14,6 +14,7 @@ const APP_URLS = [
   '/leitura',
   '/mensagens',
   '/frentes',
+  '/limpeza',
   '/profile',
   '/sobre'
 ];

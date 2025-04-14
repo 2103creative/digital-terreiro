@@ -1,48 +1,35 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate authentication for demo
-    setTimeout(() => {
-      // In a real app, we'd check credentials with a backend
-      if (email && password) {
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("user", JSON.stringify({
-          name: "Filho de Xangô",
-          email: email,
-          avatar: "/placeholder.svg"
-        }));
+    try {
+      // Usar o novo sistema de autenticação
+      const success = await login(email, password);
+      
+      if (success) {
         navigate("/dashboard");
-        toast({
-          title: "Login realizado com sucesso",
-          description: "Bem-vindo de volta ao Ylê Axé Xangô & Oxum",
-        });
-      } else {
-        toast({
-          title: "Erro no login",
-          description: "Por favor, verifique seu email e senha",
-          variant: "destructive",
-        });
       }
+    } catch (error) {
+      console.error("Erro durante o login:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -53,6 +40,11 @@ const LoginForm = () => {
         
         <h2 className="text-xl font-bold">Entrar</h2>
         <p className="text-muted-foreground">Acesse sua conta</p>
+        
+        <div className="mt-2 p-3 bg-blue-50 rounded-md text-xs text-blue-800">
+          <p><strong>Admin:</strong> root@admin.com / 057841</p>
+          <p><strong>Usuário:</strong> user@user.com / 148750</p>
+        </div>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,10 +66,8 @@ const LoginForm = () => {
             <Button 
               variant="link" 
               className="p-0 h-auto text-xs"
-              onClick={() => toast({
-                title: "Recuperação de senha",
-                description: "Função em desenvolvimento. Em breve!",
-              })}
+              type="button"
+              onClick={() => navigate("/recuperar-senha")}
             >
               Esqueceu a senha?
             </Button>
@@ -116,6 +106,7 @@ const LoginForm = () => {
           <Button 
             variant="link" 
             className="p-0 h-auto"
+            type="button"
             onClick={() => navigate("/register")}
           >
             Cadastre-se

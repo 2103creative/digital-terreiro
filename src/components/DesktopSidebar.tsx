@@ -1,23 +1,58 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, User, Layers, Info, Calendar, BookOpen, MessageSquare, Brush } from "lucide-react";
+import { 
+  Home, 
+  User, 
+  Calendar, 
+  BookOpen, 
+  FileText, 
+  Info, 
+  MessageSquare, 
+  Brush, 
+  ChevronRight
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface MenuItemType {
+  label: string;
+  icon: React.FC<any>;
+  path: string;
+}
+
+interface CategoryMenuItemType {
+  category: string;
+  icon: React.FC<any>;
+  items: MenuItemType[];
+}
+
+type MenuItem = MenuItemType | CategoryMenuItemType;
 
 const DesktopSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { isAdmin } = useAuth();
+  const [menuCollapsed, setMenuCollapsed] = useState<Record<string, boolean>>({
+    PUBLIC: false,
+  });
 
-  const mainMenuItems = [
+  const toggleMenu = (key: string) => {
+    setMenuCollapsed(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const mainMenuItems: MenuItem[] = [
     {
-      label: "Dashboard",
+      label: "Início",
       icon: Home,
       path: "/dashboard",
     },
     {
-      label: "Perfil",
-      icon: User,
-      path: "/profile",
+      label: "Frentes",
+      icon: FileText,
+      path: "/frentes",
     },
     {
       label: "Eventos",
@@ -30,11 +65,6 @@ const DesktopSidebar = () => {
       path: "/leitura",
     },
     {
-      label: "Frentes",
-      icon: Layers,
-      path: "/frentes",
-    },
-    {
       label: "Limpeza",
       icon: Brush,
       path: "/limpeza",
@@ -44,9 +74,14 @@ const DesktopSidebar = () => {
       icon: MessageSquare,
       path: "/mensagens",
     },
+    {
+      label: "Perfil",
+      icon: User,
+      path: "/profile",
+    }
   ];
 
-  const secondaryMenuItems = [
+  const secondaryMenuItems: MenuItem[] = [
     {
       label: "Sobre",
       icon: Info,
@@ -54,61 +89,97 @@ const DesktopSidebar = () => {
     },
   ];
 
-  const MenuItem = ({ item }) => {
-    const isActive = location.pathname === item.path;
+  const isCategoryMenuItem = (item: MenuItem): item is CategoryMenuItemType => {
+    return 'category' in item;
+  };
+
+  const MenuItemComponent = ({ item, isCategory = false }) => {
+    if (isCategory || isCategoryMenuItem(item)) {
+      const categoryItem = item as CategoryMenuItemType;
+      return (
+        <li>
+          <button
+            onClick={() => toggleMenu(categoryItem.category)}
+            className="flex items-center w-full px-4 py-1.5 text-xs text-gray-600 hover:text-gray-900 font-medium group"
+          >
+            <ChevronRight 
+              className={cn(
+                "h-3.5 w-3.5 mr-1.5 transition-transform",
+                menuCollapsed[categoryItem.category] ? "rotate-90" : ""
+              )} 
+            />
+            <span>{categoryItem.category}</span>
+          </button>
+          {!menuCollapsed[categoryItem.category] && categoryItem.items && (
+            <ul className="pl-8 mt-1 space-y-1">
+              {categoryItem.items.map((subItem) => (
+                <MenuItemComponent key={subItem.path} item={subItem} />
+              ))}
+            </ul>
+          )}
+        </li>
+      );
+    }
+    
+    const standardItem = item as MenuItemType;
+    const isActive = standardItem.path ? location.pathname === standardItem.path : false;
     
     return (
       <li>
         <button
-          onClick={() => navigate(item.path)}
+          onClick={() => navigate(standardItem.path)}
           className={cn(
-            "flex items-center w-full px-4 py-2 rounded-md transition-colors",
+            "flex items-center w-full px-4 py-1.5 text-xs rounded-none transition-colors",
             isActive 
-              ? "bg-primary/10 text-primary font-medium" 
-              : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              ? "text-blue-800 font-medium" 
+              : "text-gray-700 hover:text-gray-900"
           )}
         >
-          <item.icon className="h-5 w-5 mr-3" />
-          <span>{item.label}</span>
+          <standardItem.icon className="h-3.5 w-3.5 mr-2.5" />
+          <span>{standardItem.label}</span>
         </button>
       </li>
     );
   };
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r bg-background">
-      <div className="p-6">
-        <h1 className="text-xl font-bold">Ylê Axé Xangô & Oxum</h1>
-        <p className="text-sm text-muted-foreground">Terreiro de Umbanda e Nação</p>
+    <aside className="hidden md:flex h-screen w-60 flex-col border-r border-gray-200 bg-white">
+      <div className="p-3 border-b border-gray-100">
+        <h1 className="text-base font-medium text-gray-900 mb-1 pl-4">Ylê Axé Xangô & Oxum</h1>
       </div>
 
-      <div className="px-4 mb-6">
-        <div className="flex items-center gap-3 px-2 py-3">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-            <User className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">Maria da Silva</p>
-            <p className="text-xs text-muted-foreground">Médium em Desenvolvimento</p>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto p-2">
-        <ul className="space-y-1">
-          {mainMenuItems.map((item) => (
-            <MenuItem key={item.path} item={item} />
-          ))}
+      <div className="flex-1 overflow-y-auto">
+        <ul className="py-1">
+          <li>
+            <button
+              onClick={() => toggleMenu("PUBLIC")}
+              className="flex items-center w-full px-4 py-1 text-xs text-gray-600 hover:text-gray-900 font-medium"
+            >
+              <ChevronRight 
+                className={cn(
+                  "h-3.5 w-3.5 mr-1.5 transition-transform",
+                  !menuCollapsed.PUBLIC ? "rotate-90" : ""
+                )} 
+              />
+              <span>PÚBLICO</span>
+            </button>
+            
+            {!menuCollapsed.PUBLIC && (
+              <ul className="mt-1 space-y-0.5">
+                {mainMenuItems.map((item) => (
+                  isCategoryMenuItem(item) ? 
+                    <MenuItemComponent key={item.category} item={item} isCategory={true} /> : 
+                    <MenuItemComponent key={item.path} item={item} />
+                ))}
+                
+                {secondaryMenuItems.map((item) => (
+                  <MenuItemComponent key={(item as MenuItemType).path} item={item} />
+                ))}
+              </ul>
+            )}
+          </li>
         </ul>
-
-        <div className="mt-6 pt-6 border-t">
-          <ul className="space-y-1">
-            {secondaryMenuItems.map((item) => (
-              <MenuItem key={item.path} item={item} />
-            ))}
-          </ul>
-        </div>
-      </nav>
+      </div>
     </aside>
   );
 };

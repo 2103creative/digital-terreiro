@@ -91,3 +91,43 @@
 h1, h2, h3, h4, h5, h6, p, span, button, input, select, textarea {
   font-family: 'Inter', sans-serif;
 }
+
+/* Mobile sidebar styles */
+@media (max-width: 768px) {
+  aside {
+    position: fixed;
+    top: 0;
+    left: -240px;
+    bottom: 0;
+    width: 240px;
+    z-index: 40;
+    transition: transform 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar-open aside {
+    transform: translateX(240px);
+  }
+  
+  .sidebar-open::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 39;
+  }
+}
+
+/* Fix PWA mobile padding for bottom nav */
+@media (max-width: 768px) {
+  html {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .pb-28 {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  }
+}

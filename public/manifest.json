@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#3b82f6",
   "orientation": "portrait",
   "scope": "/",
   "prefer_related_applications": false,
@@ -62,14 +62,19 @@
   ],
   "shortcuts": [
     {
-      "name": "Próximos Eventos",
+      "name": "Início",
+      "url": "/dashboard",
+      "description": "Página inicial do terreiro"
+    },
+    {
+      "name": "Eventos",
       "url": "/eventos",
       "description": "Veja os próximos eventos do terreiro"
     },
     {
-      "name": "Leitura",
-      "url": "/leitura",
-      "description": "Acesse materiais de estudo e leitura"
+      "name": "Limpeza",
+      "url": "/limpeza",
+      "description": "Acesse a escala de limpeza"
     }
   ],
   "categories": ["religion", "lifestyle", "education"],
@@ -90,5 +95,11 @@
       "platform": "wide",
       "label": "Tela inicial no computador"
     }
-  ]
+  ],
+  "related_applications": [],
+  "capture_links": "existing-client-navigate",
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  }
 }

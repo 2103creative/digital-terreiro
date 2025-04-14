@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Camera } from "lucide-react";
+
+// Definir evento customizado para atualização de avatar
+export const AVATAR_UPDATED_EVENT = "avatar_updated";
 
 const ProfileContent = () => {
   // Get user from localStorage (in a real app, this would come from a proper auth system)
@@ -29,8 +33,10 @@ const ProfileContent = () => {
     templeAffiliation: initialUser.templeAffiliation || "Terreiro Pai José de Angola"
   });
   
+  const [avatar, setAvatar] = useState(initialUser.avatar || "/placeholder.svg");
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -46,12 +52,52 @@ const ProfileContent = () => {
     });
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newAvatar = event.target?.result as string;
+        setAvatar(newAvatar);
+        
+        // Save the avatar immediately
+        const updatedUser = { 
+          ...initialUser, 
+          avatar: newAvatar 
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Disparar evento personalizado para atualizar outros componentes
+        const avatarEvent = new CustomEvent(AVATAR_UPDATED_EVENT, { detail: { avatar: newAvatar } });
+        window.dispatchEvent(avatarEvent);
+        
+        toast({
+          title: "Foto atualizada",
+          description: "Sua foto de perfil foi atualizada com sucesso",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Update user in localStorage
-    const updatedUser = { ...initialUser, ...formData };
+    const updatedUser = { 
+      ...initialUser, 
+      ...formData,
+      avatar: avatar 
+    };
     localStorage.setItem("user", JSON.stringify(updatedUser));
+    
+    // Disparar evento personalizado para atualizar outros componentes
+    const avatarEvent = new CustomEvent(AVATAR_UPDATED_EVENT, { detail: { avatar } });
+    window.dispatchEvent(avatarEvent);
     
     setIsEditing(false);
     toast({
@@ -73,10 +119,22 @@ const ProfileContent = () => {
         <>
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={initialUser.avatar} alt={formData.name} />
-                <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
+              <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                <Avatar className="h-24 w-24 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
+                  <AvatarImage src={avatar} alt={formData.name} />
+                  <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+              </div>
               
               <div className="flex-1">
                 <h2 className="font-semibold mb-2">Informações Pessoais</h2>
@@ -125,10 +183,22 @@ const ProfileContent = () => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-start gap-6 mb-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={initialUser.avatar} alt={formData.name} />
-              <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
+            <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+              <Avatar className="h-24 w-24 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
+                <AvatarImage src={avatar} alt={formData.name} />
+                <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="h-8 w-8 text-white" />
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
             
             <div className="flex-1">
               <h2 className="font-semibold mb-2">Informações Pessoais</h2>

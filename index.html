@@ -2,10 +2,10 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Ylê Axé Xangô & Oxum</title>
     <meta name="description" content="Seu terreiro na palma da mão - Plataforma espiritual para a comunidade Ylê Axé Xangô & Oxum" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#3b82f6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Ylê Axé" />
@@ -61,19 +61,52 @@
         padding: 16px;
         z-index: 9999;
         text-align: center;
+        border-top: 3px solid #3b82f6;
+      }
+      #pwa-install-prompt .prompt-content {
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #pwa-install-prompt .icon {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+      }
+      #pwa-install-prompt p {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: #333;
+      }
+      #pwa-install-prompt .title {
+        font-weight: 600;
+        margin-bottom: 4px;
       }
       #pwa-install-prompt button {
-        background: #1a1a1a;
+        background: #3b82f6;
         color: white;
         border: none;
         padding: 10px 20px;
         border-radius: 4px;
         margin: 8px;
         cursor: pointer;
+        font-weight: 500;
       }
       #pwa-install-prompt button.dismiss {
         background: transparent;
         color: #666;
+      }
+
+      @media (display-mode: standalone) {
+        #pwa-install-prompt {
+          display: none !important;
+        }
+        body {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
       }
     </style>
   </head>
@@ -83,9 +116,15 @@
     
     <!-- Prompt de instalação PWA personalizado -->
     <div id="pwa-install-prompt">
-      <p>Instale o app Ylê Axé para uma experiência completa offline</p>
-      <button id="pwa-install-button">Instalar</button>
-      <button id="pwa-dismiss-button" class="dismiss">Agora não</button>
+      <div class="prompt-content">
+        <img src="/icons/icon-192.png" alt="Ylê Axé" class="icon" />
+        <p class="title">Instale o aplicativo do Ylê Axé</p>
+        <p>Acesse facilmente e use mesmo sem internet</p>
+        <div>
+          <button id="pwa-install-button">Instalar agora</button>
+          <button id="pwa-dismiss-button" class="dismiss">Depois</button>
+        </div>
+      </div>
     </div>
     
     <!-- Script para gerenciar a instalação do PWA -->
@@ -95,13 +134,25 @@
       const installButton = document.getElementById('pwa-install-button');
       const dismissButton = document.getElementById('pwa-dismiss-button');
       
+      // Verificar se já foi dispensado antes
+      const dismissed = localStorage.getItem('pwa-dismissed');
+      const lastDismissed = parseInt(dismissed || '0', 10);
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000; // 1 dia em milissegundos
+      
       window.addEventListener('beforeinstallprompt', (e) => {
         // Previne Chrome 76+ de mostrar o prompt automático
         e.preventDefault();
         // Guarda o evento para usar depois
         deferredPrompt = e;
-        // Mostra nosso prompt personalizado
-        installPrompt.style.display = 'block';
+        
+        // Só mostra se não foi dispensado nas últimas 24h
+        if (now - lastDismissed > oneDay) {
+          // Atrasa a exibição para melhorar a experiência do usuário
+          setTimeout(() => {
+            installPrompt.style.display = 'block';
+          }, 3000);
+        }
       });
       
       installButton.addEventListener('click', async () => {
@@ -119,6 +170,8 @@
       dismissButton.addEventListener('click', () => {
         // Esconde nosso prompt
         installPrompt.style.display = 'none';
+        // Salva o timestamp atual
+        localStorage.setItem('pwa-dismissed', Date.now().toString());
       });
       
       // Se já estiver instalado
@@ -129,10 +182,14 @@
         deferredPrompt = null;
         console.log('PWA instalado com sucesso!');
       });
+      
+      // Detecta se já está sendo executado como PWA
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        // Já está instalado e rodando como app
+        console.log('Aplicativo já está instalado');
+      }
     </script>
     
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

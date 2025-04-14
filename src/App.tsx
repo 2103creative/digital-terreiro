@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import UpdateIndicator from "@/components/UpdateIndicator";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -19,6 +22,7 @@ import AdminUsers from "./pages/AdminUsers";
 import UserFormPage from "./pages/UserFormPage";
 import Limpeza from "./pages/Limpeza";
 import AdminLimpeza from "./pages/AdminLimpeza";
+import AdminMessages from "./pages/AdminMessages";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
 import { lazy, Suspense } from "react";
@@ -39,68 +43,178 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Rotas públicas */}
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Rotas protegidas */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/eventos" element={<Events />} />
-          <Route path="/leitura" element={<Reading />} />
-          <Route path="/mensagens" element={<Messages />} />
-          <Route path="/frentes" element={<Frentes />} />
-          <Route path="/limpeza" element={<Limpeza />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/sobre" element={<About />} />
-          <Route path="/configuracoes" element={<Settings />} />
-          
-          {/* Rotas administrativas */}
-          <Route path="/admin/usuarios" element={<AdminUsers />} />
-          <Route path="/admin/usuarios/novo" element={<UserFormPage />} />
-          <Route path="/admin/usuarios/editar/:userId" element={<UserFormPage />} />
-          <Route 
-            path="/admin/eventos" 
-            element={
-              <Suspense fallback={<AdminLoading />}>
-                <AdminEvents />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/admin/frentes" 
-            element={
-              <Suspense fallback={<AdminLoading />}>
-                <AdminFrente />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/admin/leitura" 
-            element={
-              <Suspense fallback={<AdminLoading />}>
-                <AdminReading />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/admin/sobre" 
-            element={
-              <Suspense fallback={<AdminLoading />}>
-                <AdminAbout />
-              </Suspense>
-            } 
-          />
-          <Route path="/admin/limpeza" element={<AdminLimpeza />} />
-          
-          {/* Página 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <UpdateIndicator />
+        <BrowserRouter>
+          <Routes>
+            {/* Rotas públicas */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Rotas protegidas para usuários comuns */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/eventos" 
+              element={
+                <ProtectedRoute>
+                  <Events />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/leitura" 
+              element={
+                <ProtectedRoute>
+                  <Reading />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/mensagens" 
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/frentes" 
+              element={
+                <ProtectedRoute>
+                  <Frentes />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/limpeza" 
+              element={
+                <ProtectedRoute>
+                  <Limpeza />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/sobre" 
+              element={
+                <ProtectedRoute>
+                  <About />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/configuracoes" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Rotas administrativas (requerem permissão de admin) */}
+            <Route 
+              path="/admin/usuarios" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminUsers />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/usuarios/novo" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserFormPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/usuarios/editar/:userId" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserFormPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/eventos" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Suspense fallback={<AdminLoading />}>
+                    <AdminEvents />
+                  </Suspense>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/frentes" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Suspense fallback={<AdminLoading />}>
+                    <AdminFrente />
+                  </Suspense>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/leitura" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Suspense fallback={<AdminLoading />}>
+                    <AdminReading />
+                  </Suspense>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/mensagens" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminMessages />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/sobre" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Suspense fallback={<AdminLoading />}>
+                    <AdminAbout />
+                  </Suspense>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/limpeza" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminLimpeza />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Página 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
