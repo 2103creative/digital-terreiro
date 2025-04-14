@@ -75,6 +75,15 @@
   .animate-slide-up {
     animation: slideUp 0.3s ease-out;
   }
+  
+  .scrollbar-none {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+  }
 }
 
 @keyframes fadeIn {
@@ -118,6 +127,20 @@ h1, h2, h3, h4, h5, h6, p, span, button, input, select, textarea {
     left: 0;
     background: rgba(0, 0, 0, 0.4);
     z-index: 39;
+  }
+  
+  /* Melhorar aparência de diálogos em dispositivos móveis */
+  [role="dialog"] {
+    margin-top: env(safe-area-inset-top);
+    margin-bottom: calc(env(safe-area-inset-bottom) + 16px);
+  }
+  
+  /* Ajustar botões para serem mais touch-friendly */
+  .dialog-footer button,
+  .tab-buttons button,
+  .mobile-action button {
+    min-height: 40px;
+    touch-action: manipulation;
   }
 }
 

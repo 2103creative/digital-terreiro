@@ -2,9 +2,18 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, AlertCircle } from "lucide-react";
+import { MessageSquare, AlertCircle, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 // Armazenamento no localStorage para persistir estado de leitura
 const STORAGE_KEY = "yle-axe-messages";
@@ -90,6 +99,7 @@ export const useMessageUpdates = () => {
 
 const MessagesContent = () => {
   const [activeTab, setActiveTab] = useState("recentes");
+  const [selectedMessage, setSelectedMessage] = useState<typeof messages[0] | null>(null);
   
   // Inicializar com dados do localStorage ou dados padrão
   const getInitialReadStatus = () => {
@@ -123,8 +133,15 @@ const MessagesContent = () => {
     emitMessageUpdate(unreadCount);
   }, []);
 
-  const handleMessageClick = (id: number) => {
+  const handleMessageClick = (message: typeof messages[0]) => {
+    setSelectedMessage(message);
+  };
+
+  const markAsRead = (id: number) => {
     setReadStatus(prev => ({ ...prev, [id]: true }));
+    if (selectedMessage && selectedMessage.id === id) {
+      setSelectedMessage({...selectedMessage, isRead: true});
+    }
   };
 
   const recentMessages = messages.sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -152,28 +169,33 @@ const MessagesContent = () => {
         {messagesToRender.map((message) => (
           <Card 
             key={message.id} 
-            className={`card-hover ${!readStatus[message.id] ? 'border-primary' : ''}`}
-            onClick={() => handleMessageClick(message.id)}
+            className={`card-hover ${!readStatus[message.id] ? 'border-primary' : ''} cursor-pointer transition-all hover:shadow-md active:bg-gray-50`}
+            onClick={() => handleMessageClick(message)}
           >
-            <CardHeader className="p-4 pb-2">
+            <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 flex-shrink-0" />
-                  <CardTitle className="text-base">{message.title}</CardTitle>
+                <div className="flex items-center gap-2 flex-1">
+                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                  <CardTitle className="text-sm md:text-base">{message.title}</CardTitle>
                 </div>
-                {message.isUrgent && (
-                  <Badge variant="destructive" className="ml-2">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Urgente
-                  </Badge>
-                )}
+                <div className="flex items-center gap-1 ml-1 flex-shrink-0">
+                  {!readStatus[message.id] && (
+                    <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+                  )}
+                  {message.isUrgent && (
+                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Urgente
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                 {formatMessageDate(message.date)}
               </p>
             </CardHeader>
-            <CardContent className="p-4 pt-2">
-              <p className="text-sm">{message.content}</p>
+            <CardContent className="p-3 md:p-4 pt-1 md:pt-2">
+              <p className="text-xs md:text-sm line-clamp-2">{message.content}</p>
             </CardContent>
           </Card>
         ))}
@@ -186,16 +208,16 @@ const MessagesContent = () => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 pb-16">
       <Tabs defaultValue="recentes" onValueChange={setActiveTab}>
         <TabsList className="mb-4 w-full">
-          <TabsTrigger value="recentes" className="flex-1">
+          <TabsTrigger value="recentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
             Recentes
           </TabsTrigger>
-          <TabsTrigger value="nao-lidas" className="flex-1">
+          <TabsTrigger value="nao-lidas" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
             Não lidas {unreadMessages.length > 0 && `(${unreadMessages.length})`}
           </TabsTrigger>
-          <TabsTrigger value="urgentes" className="flex-1">
+          <TabsTrigger value="urgentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
             Urgentes {urgentMessages.length > 0 && `(${urgentMessages.length})`}
           </TabsTrigger>
         </TabsList>
@@ -212,6 +234,62 @@ const MessagesContent = () => {
           {renderMessageList(urgentMessages)}
         </TabsContent>
       </Tabs>
+
+      {/* Diálogo de visualização detalhada de mensagem */}
+      <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-auto p-4 md:p-6">
+          {selectedMessage && (
+            <>
+              <DialogHeader className="pb-2">
+                <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
+                  {selectedMessage.title}
+                </DialogTitle>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-muted-foreground">
+                    {formatMessageDate(selectedMessage.date)}
+                  </p>
+                  {selectedMessage.isUrgent && (
+                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Urgente
+                    </Badge>
+                  )}
+                </div>
+              </DialogHeader>
+              <div className="py-2 border-t border-b my-2">
+                <p className="text-sm md:text-base whitespace-pre-line">{selectedMessage.content}</p>
+              </div>
+              <DialogFooter className="flex sm:justify-between gap-2 flex-wrap mt-2">
+                <div className="flex items-center">
+                  {!readStatus[selectedMessage.id] ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => markAsRead(selectedMessage.id)}
+                      className="gap-1 text-xs"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Marcar como lida
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Check className="h-3.5 w-3.5 text-green-600" />
+                      Mensagem lida
+                    </span>
+                  )}
+                </div>
+                <DialogClose asChild>
+                  <Button variant="secondary" size="sm" className="text-xs">
+                    <X className="h-3.5 w-3.5 mr-1" />
+                    Fechar
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
