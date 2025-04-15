@@ -633,7 +633,28 @@
       // Converter para o formato esperado pela página AdminLimpeza
       const formattedSchedule = generatedSchedule.map(item => {
         // Garantir que a data está no formato DD/MM
-        const formattedDate = formatDisplayDate(item.date);
+        let formattedDate = '';
+        
+        // Se a data estiver no formato ISO (YYYY-MM-DD)
+        if (item.date && item.date.includes('-') && item.date.length >= 10) {
+          const [year, month, day] = item.date.split('-');
+          formattedDate = `${day}/${month}`;
+        } else {
+          // Tentar criar um objeto Date válido como fallback
+          try {
+            const date = new Date(item.date);
+            if (!isNaN(date.getTime())) {
+              const day = String(date.getDate()).padStart(2, '0');
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              formattedDate = `${day}/${month}`;
+            } else {
+              throw new Error("Data inválida");
+            }
+          } catch (e) {
+            console.error("Erro ao formatar data:", item.date, e);
+            formattedDate = 'Data inválida';
+          }
+        }
         
         console.log(`Formatando item para envio - data original: ${item.date}, formatada: ${formattedDate}`);
         
@@ -655,6 +676,7 @@
           description: `Existem ${invalidDates.length} datas com formato inválido. Verifique o console.`,
           variant: "destructive",
         });
+        return; // Impedir o envio se houver datas inválidas
       }
       
       navigate('/admin/limpeza', { state: { generatedSchedule: formattedSchedule } });

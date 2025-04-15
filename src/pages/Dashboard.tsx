@@ -13,8 +13,14 @@ import {
   Info,
   ArrowRight,
   User,
-  Users
+  Users,
+  Heart,
+  ShoppingCart
 } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -63,11 +69,25 @@ const Dashboard = () => {
       color: "bg-green-50 text-green-700",
     },
     {
+      title: "Lista de Compras",
+      icon: ShoppingCart,
+      description: "Visualize os itens que precisam ser comprados para o terreiro.",
+      path: "/mantimentos",
+      color: "bg-cyan-50 text-cyan-700",
+    },
+    {
       title: "Mensagens",
       icon: MessageSquare,
       description: "Comunicações importantes e mensagens da diretoria.",
       path: "/mensagens",
       color: "bg-rose-50 text-rose-700",
+    },
+    {
+      title: "Bate Papo",
+      icon: Heart,
+      description: "Chat comunitário em tempo real entre os membros do terreiro.",
+      path: "/chat",
+      color: "bg-pink-50 text-pink-700",
     },
     {
       title: "Sobre",

@@ -11,7 +11,9 @@ import {
   ChevronRight,
   Settings,
   Cog,
-  Users
+  Users,
+  Heart,
+  ShoppingCart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -49,14 +51,9 @@ const DesktopSidebar = () => {
   // Itens de menu para usuários comuns
   const userMenuItems: MenuItem[] = [
     {
-      label: "Início",
+      label: "Dashboard",
       icon: Home,
       path: "/dashboard",
-    },
-    {
-      label: "Eventos",
-      icon: Calendar,
-      path: "/eventos",
     },
     {
       label: "Frentes",
@@ -64,14 +61,14 @@ const DesktopSidebar = () => {
       path: "/frentes",
     },
     {
+      label: "Eventos",
+      icon: Calendar,
+      path: "/eventos",
+    },
+    {
       label: "Leitura",
       icon: BookOpen,
       path: "/leitura",
-    },
-    {
-      label: "Limpeza",
-      icon: Brush,
-      path: "/limpeza",
     },
     {
       label: "Mensagens",
@@ -79,7 +76,27 @@ const DesktopSidebar = () => {
       path: "/mensagens",
     },
     {
-      label: "Perfil",
+      label: "Limpeza",
+      icon: Brush,
+      path: "/limpeza",
+    },
+    {
+      label: "Lista de Compras",
+      icon: ShoppingCart,
+      path: "/lista-compras",
+    },
+    {
+      label: "Bate Papo",
+      icon: Heart,
+      path: "/chat",
+    },
+    {
+      label: "Sobre",
+      icon: Info,
+      path: "/sobre",
+    },
+    {
+      label: "Meu Perfil",
       icon: User,
       path: "/profile",
     }
@@ -103,6 +120,11 @@ const DesktopSidebar = () => {
       path: "/admin/frentes",
     },
     {
+      label: "Lista de Compras",
+      icon: ShoppingCart,
+      path: "/lista-compras",
+    },
+    {
       label: "Eventos",
       icon: Calendar,
       path: "/admin/eventos",
@@ -121,6 +143,11 @@ const DesktopSidebar = () => {
       label: "Mensagens",
       icon: MessageSquare,
       path: "/admin/mensagens",
+    },
+    {
+      label: "Bate Papo",
+      icon: Heart,
+      path: "/chat",
     },
     {
       label: "Sobre",

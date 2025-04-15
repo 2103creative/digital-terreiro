@@ -20,7 +20,8 @@ import {
   PawPrint,
   Brush,
   FileText,
-  User
+  User,
+  ShoppingCart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -113,17 +114,12 @@ const DashboardHeader = () => {
       .slice(0, 2);
   };
 
-  // Menu items for the fullscreen menu
-  const userMenuItems = [
+  // Menu items for regular users
+  const regularMenuItems = [
     {
       icon: Home,
-      label: "Início",
+      label: "Dashboard",
       path: "/dashboard",
-    },
-    {
-      icon: Calendar,
-      label: "Eventos",
-      path: "/eventos",
     },
     {
       icon: FileText,
@@ -131,14 +127,14 @@ const DashboardHeader = () => {
       path: "/frentes",
     },
     {
+      icon: Calendar,
+      label: "Eventos",
+      path: "/eventos",
+    },
+    {
       icon: BookOpen,
       label: "Leitura",
       path: "/leitura",
-    },
-    {
-      icon: Brush,
-      label: "Limpeza",
-      path: "/limpeza",
     },
     {
       icon: MessageSquare,
@@ -147,14 +143,29 @@ const DashboardHeader = () => {
       badge: messageCount > 0 ? messageCount : null,
     },
     {
-      icon: User,
-      label: "Perfil",
-      path: "/profile",
+      icon: Brush,
+      label: "Limpeza",
+      path: "/limpeza",
+    },
+    {
+      icon: ShoppingCart,
+      label: "Lista de Compras",
+      path: "/mantimentos",
+    },
+    {
+      icon: Heart,
+      label: "Chat Comunitário",
+      path: "/chat",
     },
     {
       icon: Info,
       label: "Sobre",
       path: "/sobre",
+    },
+    {
+      icon: User,
+      label: "Meu Perfil",
+      path: "/profile",
     }
   ];
 
@@ -174,6 +185,11 @@ const DashboardHeader = () => {
       icon: FileText,
       label: "Frentes",
       path: "/admin/frentes",
+    },
+    {
+      icon: ShoppingCart,
+      label: "Lista de Compras",
+      path: "/admin/mantimentos",
     },
     {
       icon: Calendar,
@@ -197,6 +213,11 @@ const DashboardHeader = () => {
       badge: messageCount > 0 ? messageCount : null,
     },
     {
+      icon: Heart,
+      label: "Chat Comunitário",
+      path: "/chat",
+    },
+    {
       icon: Info,
       label: "Sobre",
       path: "/admin/sobre",
@@ -209,7 +230,7 @@ const DashboardHeader = () => {
   ];
 
   // Seleciona os itens de menu com base no tipo de usuário
-  const menuItems = isAdmin ? adminMenuItems : userMenuItems;
+  const menuItems = isAdmin ? adminMenuItems : regularMenuItems;
 
   return (
     <>

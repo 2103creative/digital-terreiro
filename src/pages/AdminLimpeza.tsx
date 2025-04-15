@@ -88,11 +88,22 @@ Agradeço a compreensão de todos!`,
     let counter = 1;
     
     return generatedSchedule.map(item => {
-      // Extrair dia e mês
-      const date = new Date(item.date);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const formattedDate = `${day}/${month}`;
+      let formattedDate = item.date;
+      
+      // Se a data estiver no formato YYYY-MM-DD, converter para DD/MM
+      if (item.date && item.date.includes('-')) {
+        const [year, month, day] = item.date.split('-');
+        formattedDate = `${day}/${month}`;
+      } 
+      // Se já estiver no formato DD/MM, usar diretamente
+      else if (item.date && item.date.includes('/')) {
+        formattedDate = item.date;
+      }
+      // Caso não seja possível determinar o formato, registrar o erro
+      else {
+        console.error("Formato de data não reconhecido:", item.date);
+        formattedDate = item.date || "Data inválida";
+      }
       
       return {
         id: counter++,

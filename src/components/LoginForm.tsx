@@ -44,7 +44,6 @@ const LoginForm = () => {
           <p className="text-sm text-muted-foreground mb-6">Seu terreiro na palma da mão</p>
           
           <h2 className="text-xl font-bold">Entrar</h2>
-          <p className="text-muted-foreground">Acesse sua conta</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">

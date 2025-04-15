@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -60,7 +59,6 @@ const RegisterForm = () => {
         <p className="text-sm text-muted-foreground mb-6">Seu terreiro na palma da mão</p>
         
         <h2 className="text-xl font-bold">Cadastre-se</h2>
-        <p className="text-muted-foreground">Crie sua conta espiritual</p>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
