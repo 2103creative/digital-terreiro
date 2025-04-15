@@ -261,55 +261,51 @@ const AdminEvents = () => {
             </CardHeader>
             <CardContent>
               {sortedEvents.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead className="hidden md:table-cell">Subtítulo</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedEvents.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell className="font-medium">{event.title}</TableCell>
-                        <TableCell>
-                          {format(event.date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={cn("rounded-sm font-normal", getEventTypeBadgeColor(event.type))}>
-                            {getEventTypeName(event.type)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">{event.subtitle}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditEvent(event)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500"
-                              onClick={() => {
-                                setSelectedEvent(event);
-                                setShowDeleteDialog(true);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                  {sortedEvents.map((event) => (
+                    <Card 
+                      key={event.id} 
+                      className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      <div className="flex flex-col h-full p-2 relative">
+                        {/* Ícone do tipo de evento no canto superior esquerdo */}
+                        <div className="absolute top-2 left-2">
+                          {event.type === "gira" && <Calendar className="h-5 w-5 text-blue-600" />}
+                          {event.type === "festa" && <Calendar className="h-5 w-5 text-green-600" />}
+                          {event.type === "curso" && <Calendar className="h-5 w-5 text-purple-600" />}
+                        </div>
+                        
+                        {/* Data do evento no canto superior direito */}
+                        <div className="absolute top-2 right-2">
+                          <span className="text-[10px] text-gray-500">
+                            {format(event.date, "dd/MM", { locale: ptBR })}
+                          </span>
+                        </div>
+                        
+                        {/* Título do evento centralizado */}
+                        <div className="flex-1 flex items-center justify-center px-2">
+                          <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{event.title}</h3>
+                        </div>
+                        
+                        {/* Link de editar no canto inferior esquerdo */}
+                        <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                          <span>Editar</span>
+                          <Edit className="h-2.5 w-2.5 ml-0.5" />
+                        </div>
+                        
+                        {/* Indicador de tipo no canto inferior direito */}
+                        <div className="absolute bottom-2 right-2">
+                          <div className={cn("h-3 w-3 rounded-full", 
+                            event.type === "gira" ? "bg-blue-500" : 
+                            event.type === "festa" ? "bg-green-500" : 
+                            "bg-purple-500"
+                          )}></div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center p-10">
                   <Calendar className="h-16 w-16 text-primary mb-4" />
@@ -491,4 +487,4 @@ const AdminEvents = () => {
   );
 };
 
-export default AdminEvents; 
+export default AdminEvents;

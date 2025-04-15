@@ -169,34 +169,41 @@ const MessagesContent = () => {
         {messagesToRender.map((message) => (
           <Card 
             key={message.id} 
-            className={`card-hover ${!readStatus[message.id] ? 'border-primary' : ''} cursor-pointer transition-all hover:shadow-md active:bg-gray-50`}
+            className={`aspect-square ${!readStatus[message.id] ? 'border-l-4 border-l-blue-500' : 'border border-gray-100'} bg-white rounded-lg cursor-pointer transition-all hover:shadow-md`}
             onClick={() => handleMessageClick(message)}
           >
-            <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2 flex-1">
-                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                  <CardTitle className="text-sm md:text-base">{message.title}</CardTitle>
-                </div>
-                <div className="flex items-center gap-1 ml-1 flex-shrink-0">
-                  {!readStatus[message.id] && (
-                    <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
-                  )}
-                  {message.isUrgent && (
-                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Urgente
-                    </Badge>
-                  )}
-                </div>
+            <div className="flex flex-col h-full p-3 relative">
+              {/* Ícone de status no canto superior esquerdo */}
+              <div className="absolute top-3 left-3">
+                {readStatus[message.id] ? 
+                  <CheckCircle className="h-5 w-5 text-green-600" /> : 
+                  <MessageSquare className="h-5 w-5 text-blue-600" />}
               </div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                {formatMessageDate(message.date)}
-              </p>
-            </CardHeader>
-            <CardContent className="p-3 md:p-4 pt-1 md:pt-2">
-              <p className="text-xs md:text-sm line-clamp-2">{message.content}</p>
-            </CardContent>
+              
+              {/* Data da mensagem no canto superior direito */}
+              <div className="absolute top-3 right-3">
+                <span className="text-[10px] text-gray-500">
+                  {formatMessageDate(message.date).split(' ')[0]}
+                </span>
+              </div>
+              
+              {/* Indicador de urgência */}
+              {message.isUrgent && (
+                <div className="absolute top-10 right-3">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                </div>
+              )}
+              
+              {/* Título da mensagem centralizado */}
+              <div className="flex-1 flex items-center justify-center px-3 mt-4">
+                <h3 className="text-sm font-medium text-gray-900 text-center line-clamp-3">{message.title}</h3>
+              </div>
+              
+              {/* Conteúdo resumido no canto inferior */}
+              <div className="absolute bottom-3 left-3 right-3">
+                <p className="text-xs text-gray-500 line-clamp-2">{message.content}</p>
+              </div>
+            </div>
           </Card>
         ))}
       </div>

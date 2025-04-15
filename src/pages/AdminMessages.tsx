@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -28,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { emitMessageUpdate } from "@/components/MessagesContent";
+import { cn } from "@/lib/utils";
 
 // Interface para o modelo de Mensagem
 interface Message {
@@ -275,91 +268,65 @@ const AdminMessages = () => {
             </CardHeader>
             <CardContent>
               {sortedMessages.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="hidden md:table-cell">Conteúdo</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedMessages.map((message) => (
-                      <TableRow key={message.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            {message.title}
-                            {message.isUrgent && (
-                              <Badge variant="destructive" className="ml-1">
-                                <AlertCircle className="h-3 w-3 mr-1" />
-                                Urgente
-                              </Badge>
-                            )}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                  {sortedMessages.map((message) => (
+                    <Card 
+                      key={message.id} 
+                      className={cn(
+                        "bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-md cursor-pointer transition-all",
+                        message.isRead ? "" : "border-l-4 border-l-blue-500"
+                      )}
+                      onClick={() => handleEditMessage(message)}
+                    >
+                      <div className="flex flex-col h-full p-3 relative">
+                        {/* Ícone de status no canto superior esquerdo */}
+                        <div className="absolute top-3 left-3">
+                          {message.isRead ? 
+                            <CheckCircle className="h-5 w-5 text-green-600" /> : 
+                            <MessageSquare className="h-5 w-5 text-blue-600" />}
+                        </div>
+                        
+                        {/* Data da mensagem no canto superior direito */}
+                        <div className="absolute top-3 right-3">
+                          <span className="text-[10px] text-gray-500">
+                            {format(message.date, "dd/MM", { locale: ptBR })}
+                          </span>
+                        </div>
+                        
+                        {/* Indicador de urgência */}
+                        {message.isUrgent && (
+                          <div className="absolute top-10 right-3">
+                            <AlertCircle className="h-4 w-4 text-red-500" />
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatMessageDate(message.date)}
-                        </TableCell>
-                        <TableCell>
-                          {message.isRead ? (
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                              <CheckCircle className="h-3 w-3 mr-1" /> Lida
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                              Não lida
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="max-w-xs truncate">
-                            {message.content}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className={message.isRead ? "text-blue-500" : "text-green-500"}
-                              onClick={() => handleToggleRead(message)}
-                            >
-                              {message.isRead ? (
-                                <>
-                                  <MessageSquare className="h-4 w-4" />
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle className="h-4 w-4" />
-                                </>
-                              )}
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditMessage(message)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500"
-                              onClick={() => {
-                                setSelectedMessage(message);
-                                setShowDeleteDialog(true);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        )}
+                        
+                        {/* Título da mensagem centralizado */}
+                        <div className="flex-1 flex items-center justify-center px-3 mt-4">
+                          <h3 className="text-sm font-medium text-gray-900 text-center line-clamp-3">{message.title}</h3>
+                        </div>
+                        
+                        {/* Link de editar no canto inferior esquerdo */}
+                        <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600">
+                          <span>Editar</span>
+                          <Edit className="h-3 w-3 ml-1" />
+                        </div>
+                        
+                        {/* Botão de excluir no canto inferior direito */}
+                        <div 
+                          className="absolute bottom-3 right-3 flex items-center text-xs text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMessage(message);
+                            setShowDeleteDialog(true);
+                          }}
+                        >
+                          <span>Excluir</span>
+                          <Trash2 className="h-3 w-3 ml-1" />
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center p-10">
                   <MessageSquare className="h-16 w-16 text-primary mb-4" />
@@ -482,4 +449,4 @@ const AdminMessages = () => {
   );
 };
 
-export default AdminMessages; 
+export default AdminMessages;
