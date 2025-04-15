@@ -161,7 +161,7 @@ const MessagesContent = () => {
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{message.content}</p>
                       </div>
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">{message.id}</span>
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatDate(message.date)}</span>
                     </div>
                     
                     <div className="flex items-center justify-between mt-2 pt-1 text-xs text-muted-foreground">
