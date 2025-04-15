@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BookOpenCheck, Bookmark, Download } from "lucide-react";
+import { BookOpenCheck, Bookmark, Download, BookOpen, Book } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CardIcon } from "@/components/ui/CardIcon";
 
 // Sample reading content
 const readings = {
@@ -83,20 +84,28 @@ const ReadingContent = () => {
 
   const renderBooks = (books: any[]) => {
     return books.map((book) => (
-      <Card key={book.id} className="card-hover">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <CardTitle className="text-base">{book.title}</CardTitle>
-            <span className="text-xs bg-secondary px-2 py-1 rounded">
+      <Card key={book.id} className="overflow-hidden transition-all hover:shadow-md">
+        <CardHeader className="p-4 pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <CardIcon variant={book.type === "e-book" ? "primary" : "secondary"}>
+                {book.type === "e-book" ? 
+                  <BookOpen className="h-4 w-4" /> : 
+                  <Book className="h-4 w-4" />
+                }
+              </CardIcon>
+              <CardTitle className="text-base font-medium">{book.title}</CardTitle>
+            </div>
+            <span className="text-xs px-2 py-1 rounded-full bg-secondary/10 text-secondary-foreground font-medium">
               {book.type === "e-book" ? "E-Book" : "Doutrina"}
             </span>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 py-2">
           <p className="text-sm text-muted-foreground mb-3">{book.description}</p>
           <div className="flex items-center justify-between text-xs">
             <span>{book.pages} páginas</span>
-            <span>
+            <span className="font-medium">
               {book.progress > 0 
                 ? book.progress === 100 
                   ? "Concluído" 
@@ -105,7 +114,7 @@ const ReadingContent = () => {
             </span>
           </div>
           {book.progress > 0 && (
-            <div className="w-full h-1.5 bg-secondary rounded-full mt-2">
+            <div className="w-full h-1.5 bg-secondary/20 rounded-full mt-2">
               <div 
                 className="h-full bg-primary rounded-full" 
                 style={{ width: `${book.progress}%` }}
@@ -113,13 +122,14 @@ const ReadingContent = () => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between p-4 pt-2 border-t border-gray-100">
           <Button 
-            variant="default" 
+            variant={book.progress === 100 ? "outline" : "default"}
             size="sm"
+            className="gap-1.5 text-xs"
             onClick={() => handleBookAction(book, "read")}
           >
-            <BookOpenCheck className="h-4 w-4 mr-1" />
+            <BookOpenCheck className="h-3.5 w-3.5" />
             {book.progress > 0 && book.progress < 100 ? "Continuar" : "Ler"}
           </Button>
           <div className="flex gap-1">
@@ -129,7 +139,7 @@ const ReadingContent = () => {
               className="h-8 w-8"
               onClick={() => handleBookAction(book, "save")}
             >
-              <Bookmark className="h-4 w-4" />
+              <Bookmark className="h-3.5 w-3.5" />
             </Button>
             <Button 
               variant="outline" 
@@ -137,7 +147,7 @@ const ReadingContent = () => {
               className="h-8 w-8"
               onClick={() => handleBookAction(book, "download")}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-3.5 w-3.5" />
             </Button>
           </div>
         </CardFooter>
@@ -148,7 +158,7 @@ const ReadingContent = () => {
   return (
     <div className="space-y-6 pb-16">
       <Tabs defaultValue="umbanda" onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 w-full grid grid-cols-2">
           <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
           <TabsTrigger value="nacao">Nação</TabsTrigger>
         </TabsList>

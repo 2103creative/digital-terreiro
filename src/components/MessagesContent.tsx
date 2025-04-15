@@ -1,11 +1,13 @@
+
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, AlertCircle, Check, X } from "lucide-react";
+import { MessageSquare, AlertCircle, Check, X, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { CardIcon } from "@/components/ui/CardIcon";
 import {
   Dialog,
   DialogContent,
@@ -165,66 +167,76 @@ const MessagesContent = () => {
 
   const renderMessageList = (messagesToRender: typeof messages) => {
     return messagesToRender.length > 0 ? (
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {messagesToRender.map((message) => (
           <Card 
             key={message.id} 
-            className={`aspect-square ${!readStatus[message.id] ? 'border-l-4 border-l-blue-500' : 'border border-gray-100'} bg-white rounded-lg cursor-pointer transition-all hover:shadow-md`}
+            className={`relative overflow-hidden cursor-pointer transition-all hover:shadow-md ${!readStatus[message.id] ? 'ring-2 ring-primary/20' : ''}`}
             onClick={() => handleMessageClick(message)}
           >
-            <div className="flex flex-col h-full p-3 relative">
-              {/* Ícone de status no canto superior esquerdo */}
-              <div className="absolute top-3 left-3">
+            <div className="flex flex-col p-4 h-full">
+              {/* Status icon */}
+              <div className="absolute top-2 left-2">
                 {readStatus[message.id] ? 
-                  <CheckCircle className="h-5 w-5 text-green-600" /> : 
-                  <MessageSquare className="h-5 w-5 text-blue-600" />}
+                  <CardIcon variant="ghost" className="text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                  </CardIcon> : 
+                  <CardIcon variant="primary">
+                    <MessageSquare className="h-4 w-4" />
+                  </CardIcon>
+                }
               </div>
               
-              {/* Data da mensagem no canto superior direito */}
-              <div className="absolute top-3 right-3">
-                <span className="text-[10px] text-gray-500">
+              {/* Date */}
+              <div className="absolute top-2 right-2">
+                <span className="text-xs text-muted-foreground bg-secondary/10 px-2 py-0.5 rounded-full">
                   {formatMessageDate(message.date).split(' ')[0]}
                 </span>
               </div>
               
-              {/* Indicador de urgência */}
+              {/* Urgent indicator */}
               {message.isUrgent && (
-                <div className="absolute top-10 right-3">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
+                <div className="absolute top-11 right-2">
+                  <Badge variant="destructive" className="h-5 px-2">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Urgente
+                  </Badge>
                 </div>
               )}
               
-              {/* Título da mensagem centralizado */}
-              <div className="flex-1 flex items-center justify-center px-3 mt-4">
-                <h3 className="text-sm font-medium text-gray-900 text-center line-clamp-3">{message.title}</h3>
+              {/* Title and content */}
+              <div className="mt-8 mb-2 text-center">
+                <h3 className="text-sm font-medium text-center line-clamp-2">{message.title}</h3>
               </div>
               
-              {/* Conteúdo resumido no canto inferior */}
-              <div className="absolute bottom-3 left-3 right-3">
-                <p className="text-xs text-gray-500 line-clamp-2">{message.content}</p>
+              <div className="mt-auto">
+                <p className="text-xs text-muted-foreground line-clamp-2">{message.content}</p>
               </div>
             </div>
           </Card>
         ))}
       </div>
     ) : (
-      <p className="text-muted-foreground text-center py-8">
-        Não há mensagens nesta categoria.
-      </p>
+      <div className="text-center py-10 bg-gray-50 rounded-lg border border-gray-100">
+        <MessageSquare className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+        <p className="text-muted-foreground">
+          Não há mensagens nesta categoria.
+        </p>
+      </div>
     );
   };
 
   return (
     <div className="space-y-4 pb-16">
       <Tabs defaultValue="recentes" onValueChange={setActiveTab}>
-        <TabsList className="mb-4 w-full">
-          <TabsTrigger value="recentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
+        <TabsList className="mb-4 w-full grid grid-cols-3">
+          <TabsTrigger value="recentes" className="text-xs md:text-sm">
             Recentes
           </TabsTrigger>
-          <TabsTrigger value="nao-lidas" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
+          <TabsTrigger value="nao-lidas" className="text-xs md:text-sm">
             Não lidas {unreadMessages.length > 0 && `(${unreadMessages.length})`}
           </TabsTrigger>
-          <TabsTrigger value="urgentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
+          <TabsTrigger value="urgentes" className="text-xs md:text-sm">
             Urgentes {urgentMessages.length > 0 && `(${urgentMessages.length})`}
           </TabsTrigger>
         </TabsList>
@@ -244,12 +256,12 @@ const MessagesContent = () => {
 
       {/* Diálogo de visualização detalhada de mensagem */}
       <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-auto p-4 md:p-6">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-auto p-5">
           {selectedMessage && (
             <>
               <DialogHeader className="pb-2">
                 <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
+                  <MessageSquare className="h-5 w-5 text-primary" />
                   {selectedMessage.title}
                 </DialogTitle>
                 <div className="flex items-center justify-between mt-1">
@@ -257,14 +269,14 @@ const MessagesContent = () => {
                     {formatMessageDate(selectedMessage.date)}
                   </p>
                   {selectedMessage.isUrgent && (
-                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
+                    <Badge variant="destructive" className="text-xs py-0 h-5">
                       <AlertCircle className="h-3 w-3 mr-1" />
                       Urgente
                     </Badge>
                   )}
                 </div>
               </DialogHeader>
-              <div className="py-2 border-t border-b my-2">
+              <div className="py-3 border-t border-b my-2">
                 <p className="text-sm md:text-base whitespace-pre-line">{selectedMessage.content}</p>
               </div>
               <DialogFooter className="flex sm:justify-between gap-2 flex-wrap mt-2">

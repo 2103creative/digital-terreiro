@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CardIcon } from "@/components/ui/CardIcon";
 
 // Sample event data
 const events = [
@@ -52,11 +53,11 @@ const EventsCalendar = () => {
   const renderEventTypeBadge = (type: string) => {
     switch (type) {
       case "gira":
-        return <Badge>Gira</Badge>;
+        return <Badge className="px-2.5 py-1">Gira</Badge>;
       case "festa":
-        return <Badge variant="secondary">Festa</Badge>;
+        return <Badge variant="secondary" className="px-2.5 py-1">Festa</Badge>;
       case "curso":
-        return <Badge variant="outline">Curso</Badge>;
+        return <Badge variant="outline" className="px-2.5 py-1">Curso</Badge>;
       default:
         return null;
     }
@@ -65,7 +66,7 @@ const EventsCalendar = () => {
   return (
     <div className="space-y-6 pb-16">
       <Tabs defaultValue="todos" onValueChange={setActiveFilter}>
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 w-full grid grid-cols-4">
           <TabsTrigger value="todos">Todos</TabsTrigger>
           <TabsTrigger value="gira">Giras</TabsTrigger>
           <TabsTrigger value="festa">Festas</TabsTrigger>
@@ -77,7 +78,7 @@ const EventsCalendar = () => {
         mode="single"
         selected={date}
         onSelect={setDate}
-        className="rounded-md border"
+        className="rounded-md border shadow-sm"
         modifiers={{
           event: eventDates,
         }}
@@ -98,23 +99,29 @@ const EventsCalendar = () => {
         {selectedDateEvents.length > 0 ? (
           <div className="space-y-3">
             {selectedDateEvents.map((event, index) => (
-              <Card key={index} className="card-hover">
-                <CardHeader className="py-3 px-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{event.title}</CardTitle>
-                    {renderEventTypeBadge(event.type)}
+              <Card key={index} className="overflow-hidden transition-all hover:shadow-md">
+                <CardHeader className="py-3 px-4 flex flex-row items-center justify-between space-y-0">
+                  <div className="flex items-center space-x-3">
+                    <CardIcon variant="primary" className="text-blue-600 bg-blue-50">
+                      <CalendarIcon className="h-4 w-4" />
+                    </CardIcon>
+                    <CardTitle className="text-base font-medium">{event.title}</CardTitle>
                   </div>
+                  {renderEventTypeBadge(event.type)}
                 </CardHeader>
-                <CardContent className="py-2 px-4">
+                <CardContent className="py-2 px-4 border-t border-gray-100">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">Horário: {event.time}</p>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5 mr-1.5" />
+                      <span>{event.time}</span>
+                    </div>
                     <Button 
-                      variant="ghost" 
+                      variant="outline" 
                       size="sm" 
-                      className="h-8 px-2"
+                      className="h-8 gap-1.5 text-xs"
                       onClick={() => handleSubscribe(event.title)}
                     >
-                      <Bell className="h-4 w-4 mr-1" />
+                      <Bell className="h-3.5 w-3.5" />
                       Notificar
                     </Button>
                   </div>
@@ -123,7 +130,9 @@ const EventsCalendar = () => {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">Não há eventos para esta data.</p>
+          <p className="text-muted-foreground text-center py-8 bg-gray-50 rounded-lg border border-gray-100">
+            Não há eventos para esta data.
+          </p>
         )}
       </div>
     </div>
