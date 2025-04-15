@@ -1,22 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { 
-  PencilIcon, 
-  Trash2Icon, 
-  UserPlusIcon,
-  ArrowUpDown
-} from "lucide-react";
+import { ArrowRight, UserPlus, User as UserIcon, Pencil, Trash2 } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
@@ -28,9 +15,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/components/AdminLayout";
-import { getAllUsers, isAdmin, isAuthenticated } from "@/lib/authService";
-import { User } from "@/lib/authService";
+import { getAllUsers, isAdmin, isAuthenticated, User } from "@/lib/authService";
 
 const AdminUsers = () => {
   const navigate = useNavigate();
@@ -140,58 +127,49 @@ const AdminUsers = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Usuários do Sistema</h1>
         <Button onClick={handleAddUser}>
-          <UserPlusIcon className="h-4 w-4 mr-2" />
+          <UserPlus className="h-4 w-4 mr-2" />
           Novo Usuário
         </Button>
       </div>
       
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-          </div>
-        ) : (
-          <Table>
-            <TableCaption></TableCaption>
-            <TableHeader>
-              <TableRow>
-                {!isMobile && <TableHead className="w-[80px]">ID</TableHead>}
-                <TableHead>Nome</TableHead>
-                {!isMobile && <TableHead>E-mail</TableHead>}
-                <TableHead>
-                  <div className="flex items-center">
-                    Função
-                    <ArrowUpDown className="ml-1 h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  {!isMobile && <TableCell className="font-medium">{user.id}</TableCell>}
-                  <TableCell>{user.name}</TableCell>
-                  {!isMobile && <TableCell>{user.email}</TableCell>}
-                  <TableCell>{getRoleBadge(user.role)}</TableCell>
-                  <TableCell>{getStatusBadge(user.isActive)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(user.id)}>
-                        <PencilIcon className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(user.id)}>
-                        <Trash2Icon className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3 lg:gap-4 max-w-5xl">
+          {users.map((user) => (
+            <Card 
+              key={user.id} 
+              className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow"
+              onClick={() => handleEdit(user.id)}
+            >
+              <div className="flex flex-col h-full p-2 relative">
+                {/* Ícone de usuário no canto superior esquerdo */}
+                <div className="absolute top-2 left-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                </div>
+                
+                {/* Nome do usuário centralizado */}
+                <div className="flex-1 flex items-center justify-center">
+                  <h3 className="text-xs font-medium text-gray-900">{user.name}</h3>
+                </div>
+                
+                {/* Link de editar no canto inferior esquerdo */}
+                <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                  <span>Editar</span>
+                  <Pencil className="h-2.5 w-2.5 ml-0.5" />
+                </div>
+                
+                {/* Indicador de status (bolinha) no canto inferior direito */}
+                <div className="absolute bottom-2 right-2">
+                  <div className={`h-3 w-3 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -213,4 +191,4 @@ const AdminUsers = () => {
   );
 };
 
-export default AdminUsers; 
+export default AdminUsers;

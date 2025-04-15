@@ -404,19 +404,41 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             </div>
           </div>
           
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-end gap-4 mt-8">
             <Button 
               type="button" 
-              variant="outline"
+              variant="outline" 
               onClick={() => navigate("/admin/usuarios")}
+              disabled={isLoading}
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-            >
-              {isLoading ? "Salvando..." : isEditMode ? "Atualizar" : "Criar Usuário"}
+            {isEditMode && (
+              <Button 
+                type="button" 
+                variant="destructive" 
+                onClick={() => {
+                  // Em um app real, isso seria uma chamada API para excluir o usuário
+                  toast({
+                    title: "Usuário excluído",
+                    description: `${formData.name} foi removido com sucesso`,
+                  });
+                  navigate("/admin/usuarios");
+                }}
+                disabled={isLoading}
+              >
+                Excluir
+              </Button>
+            )}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
+                  Salvando...
+                </>
+              ) : (
+                isEditMode ? "Salvar alterações" : "Criar usuário"
+              )}
             </Button>
           </div>
         </form>
@@ -425,4 +447,4 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
   );
 };
 
-export default UserForm; 
+export default UserForm;
