@@ -149,7 +149,7 @@ const DashboardHeader = () => {
     },
     {
       icon: ShoppingCart,
-      label: "Lista de Compras",
+      label: "Compras",
       path: "/lista-compras",
     },
     {
@@ -188,7 +188,7 @@ const DashboardHeader = () => {
     },
     {
       icon: ShoppingCart,
-      label: "Lista de Compras",
+      label: "Compras",
       path: "/admin/mantimentos",
     },
     {

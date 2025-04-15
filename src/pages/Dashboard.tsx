@@ -95,6 +95,13 @@ const Dashboard = () => {
       description: "História e informações sobre o terreiro.",
       path: "/sobre",
       color: "bg-indigo-50 text-indigo-700",
+    },
+    {
+      title: "Meu Perfil",
+      icon: User,
+      description: "Gerencie suas informações pessoais e preferências.",
+      path: "/profile",
+      color: "bg-gray-50 text-gray-700",
     }
   ];
 
@@ -149,43 +156,26 @@ const Dashboard = () => {
           {/* Acesso rápido às seções */}
           <div className="mb-4 md:mb-5">
             <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3">Visão Geral do Site</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-4 lg:grid-cols-5 md:gap-3 lg:gap-4 max-w-5xl">
               {siteOverview.map((section, index) => (
                 <div 
                   key={index} 
-                  className="bg-white border border-gray-100 rounded p-3 md:p-4 hover:shadow-sm cursor-pointer"
+                  className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer"
                   onClick={() => navigate(section.path)}
                 >
-                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                    <div className={`p-1.5 md:p-2 rounded-full ${section.color} bg-opacity-20`}>
-                      <section.icon className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                  <div className="flex flex-col items-center justify-center h-full text-center p-2">
+                    <div className={`p-2 rounded-full ${section.color} bg-opacity-20 mb-2`}>
+                      <section.icon className="h-4 w-4 md:h-5 md:w-5" />
                     </div>
-                    <h3 className="text-xs md:text-sm font-medium text-gray-900">{section.title}</h3>
-                  </div>
-                  <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3">{section.description}</p>
-                  <div className="flex items-center text-[10px] md:text-xs text-blue-600">
-                    <span>Acessar</span>
-                    <ArrowRight className="h-2.5 w-2.5 md:h-3 md:w-3 ml-1" />
+                    <h3 className="text-xs font-medium text-gray-900 mb-2">{section.title}</h3>
+                    <div className="flex items-center text-[10px] text-blue-600">
+                      <span>Acessar</span>
+                      <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-          
-          {/* Informações do perfil */}
-          <div className="bg-white border border-gray-100 rounded p-3 md:p-4">
-            <div className="flex items-center gap-3 md:gap-4 mb-2 md:mb-3">
-              <User className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500" />
-              <h2 className="text-xs md:text-sm font-medium text-gray-900">Seu Perfil</h2>
-            </div>
-            <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3">Mantenha suas informações atualizadas e gerencie suas preferências.</p>
-            <button 
-              className="text-[10px] md:text-xs text-blue-600 flex items-center"
-              onClick={() => navigate('/profile')}
-            >
-              <span>Editar perfil</span>
-              <ArrowRight className="h-2.5 w-2.5 md:h-3 md:w-3 ml-1" />
-            </button>
           </div>
         </main>
       </div>

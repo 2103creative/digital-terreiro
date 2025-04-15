@@ -81,7 +81,7 @@ const DesktopSidebar = () => {
       path: "/limpeza",
     },
     {
-      label: "Lista de Compras",
+      label: "Compras",
       icon: ShoppingCart,
       path: "/lista-compras",
     },
@@ -120,7 +120,7 @@ const DesktopSidebar = () => {
       path: "/admin/frentes",
     },
     {
-      label: "Lista de Compras",
+      label: "Compras",
       icon: ShoppingCart,
       path: "/admin/mantimentos",
     },
