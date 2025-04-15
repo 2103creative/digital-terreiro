@@ -1,197 +1,22 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Ylê Axé Xangô & Oxum</title>
-    <meta name="description" content="Seu terreiro na palma da mão - Plataforma espiritual para a comunidade Ylê Axé Xangô & Oxum" />
-    <meta name="theme-color" content="#3b82f6" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Terreiro digital para comunidade de umbanda e candomblé" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch/apple-icon-180.png" />
     <meta name="apple-mobile-web-app-title" content="Ylê Axé" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="Ylê Axé" />
-
-    <!-- Ícones para iOS -->
-    <link rel="apple-touch-icon" href="/pwa-192x192.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-512x512.png">
-    
-    <!-- Splash screens para iOS -->
-    <link rel="apple-touch-startup-image" href="/icons/apple-touch/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Ylê Axé Xangô & Oxum" />
-    <meta property="og:description" content="Seu terreiro na palma da mão - Plataforma espiritual para a comunidade Ylê Axé Xangô & Oxum" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <!-- Manifesto do PWA -->
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Fontes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Favicon e ícones -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    
-    <!-- Prompt de instalação personalizado -->
-    <style>
-      #pwa-install-prompt {
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #ffffff;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        padding: 16px;
-        z-index: 9999;
-        text-align: center;
-        border-top: 3px solid #3b82f6;
-      }
-      #pwa-install-prompt .prompt-content {
-        max-width: 500px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      #pwa-install-prompt .icon {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-      }
-      #pwa-install-prompt p {
-        margin: 0 0 12px 0;
-        font-size: 14px;
-        color: #333;
-      }
-      #pwa-install-prompt .title {
-        font-weight: 600;
-        margin-bottom: 4px;
-      }
-      #pwa-install-prompt button {
-        background: #3b82f6;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        margin: 8px;
-        cursor: pointer;
-        font-weight: 500;
-      }
-      #pwa-install-prompt button.dismiss {
-        background: transparent;
-        color: #666;
-      }
-
-      @media (display-mode: standalone) {
-        #pwa-install-prompt {
-          display: none !important;
-        }
-        body {
-          padding-bottom: env(safe-area-inset-bottom);
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <title>Ylê Axé Digital</title>
   </head>
-
   <body>
     <div id="root"></div>
-    
-    <!-- Prompt de instalação PWA personalizado -->
-    <div id="pwa-install-prompt">
-      <div class="prompt-content">
-        <img src="/pwa-192x192.png" alt="Ylê Axé" class="icon" />
-        <p class="title">Instale o aplicativo do Ylê Axé</p>
-        <p>Acesse facilmente e use mesmo sem internet</p>
-        <div>
-          <button id="pwa-install-button">Instalar agora</button>
-          <button id="pwa-dismiss-button" class="dismiss">Depois</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Script para gerenciar a instalação do PWA -->
-    <script>
-      let deferredPrompt;
-      const installPrompt = document.getElementById('pwa-install-prompt');
-      const installButton = document.getElementById('pwa-install-button');
-      const dismissButton = document.getElementById('pwa-dismiss-button');
-      
-      // Verificar se já foi dispensado antes
-      const dismissed = localStorage.getItem('pwa-dismissed');
-      const lastDismissed = parseInt(dismissed || '0', 10);
-      const now = Date.now();
-      const oneDay = 24 * 60 * 60 * 1000; // 1 dia em milissegundos
-      
-      window.addEventListener('beforeinstallprompt', (e) => {
-        // Previne Chrome 76+ de mostrar o prompt automático
-        e.preventDefault();
-        // Guarda o evento para usar depois
-        deferredPrompt = e;
-        console.log('Evento beforeinstallprompt capturado', e);
-        
-        // Só mostra se não foi dispensado nas últimas 24h
-        if (now - lastDismissed > oneDay) {
-          // Atrasa a exibição para melhorar a experiência do usuário
-          setTimeout(() => {
-            installPrompt.style.display = 'block';
-          }, 3000);
-        }
-      });
-      
-      installButton.addEventListener('click', async () => {
-        if (!deferredPrompt) {
-          console.log('Nenhum prompt de instalação disponível');
-          return;
-        }
-        
-        // Esconde nosso prompt
-        installPrompt.style.display = 'none';
-        // Mostra o prompt do navegador
-        deferredPrompt.prompt();
-        // Espera o usuário responder
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`Escolha do usuário: ${outcome}`);
-        // Limpa a referência
-        deferredPrompt = null;
-      });
-      
-      dismissButton.addEventListener('click', () => {
-        // Esconde nosso prompt
-        installPrompt.style.display = 'none';
-        // Salva o timestamp atual
-        localStorage.setItem('pwa-dismissed', Date.now().toString());
-      });
-      
-      // Se já estiver instalado
-      window.addEventListener('appinstalled', () => {
-        // Esconde o prompt
-        installPrompt.style.display = 'none';
-        // Limpa a referência
-        deferredPrompt = null;
-        console.log('PWA instalado com sucesso!');
-      });
-      
-      // Detecta se já está sendo executado como PWA
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        // Já está instalado e rodando como app
-        console.log('Aplicativo já está instalado e rodando em modo standalone');
-      }
-    </script>
-    
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
