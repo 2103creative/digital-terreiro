@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,13 +19,13 @@ import { formatDate } from "@/lib/utils";
 const MESSAGE_UPDATE_EVENT = "message-update";
 
 // Function to emit message updates
-export const emitMessageUpdate = (count: number) => {
+export function emitMessageUpdate(count: number) {
   const event = new CustomEvent(MESSAGE_UPDATE_EVENT, { detail: { count } });
   window.dispatchEvent(event);
-};
+}
 
 // Hook to listen for message updates
-export const useMessageUpdates = () => {
+export function useMessageUpdates() {
   const [messageCount, setMessageCount] = useState(0);
   
   useEffect(() => {
@@ -61,7 +62,7 @@ export const useMessageUpdates = () => {
   }, []);
   
   return messageCount;
-};
+}
 
 // Dados de exemplo para mensagens
 const messages = [
