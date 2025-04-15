@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,55 @@ import {
   X 
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+
+// Custom event for message updates
+const MESSAGE_UPDATE_EVENT = "message-update";
+
+// Function to emit message updates
+export const emitMessageUpdate = (count: number) => {
+  const event = new CustomEvent(MESSAGE_UPDATE_EVENT, { detail: { count } });
+  window.dispatchEvent(event);
+};
+
+// Hook to listen for message updates
+export const useMessageUpdates = () => {
+  const [messageCount, setMessageCount] = useState(0);
+  
+  useEffect(() => {
+    // Check localStorage for unread messages
+    const checkUnreadMessages = () => {
+      try {
+        const storageKey = "yle-axe-messages";
+        const storedMessages = localStorage.getItem(storageKey);
+        if (storedMessages) {
+          const readStatus = JSON.parse(storedMessages);
+          // Count messages that are not marked as read
+          const unreadCount = Object.values(readStatus).filter(isRead => !isRead).length;
+          setMessageCount(unreadCount);
+        }
+      } catch (error) {
+        console.error("Error checking unread messages:", error);
+      }
+    };
+
+    // Initial check
+    checkUnreadMessages();
+    
+    // Listen for update events
+    const handleMessageUpdate = (event: CustomEvent) => {
+      const { count } = event.detail;
+      setMessageCount(count);
+    };
+    
+    window.addEventListener(MESSAGE_UPDATE_EVENT, handleMessageUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener(MESSAGE_UPDATE_EVENT, handleMessageUpdate as EventListener);
+    };
+  }, []);
+  
+  return messageCount;
+};
 
 // Dados de exemplo para mensagens
 const messages = [
