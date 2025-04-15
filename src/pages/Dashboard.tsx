@@ -19,9 +19,6 @@ import {
   ShoppingCart
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -156,7 +153,7 @@ const Dashboard = () => {
           
           {/* Acesso rápido às seções */}
           <div className="mb-4 md:mb-5">
-            <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3">Visão Geral do Site</h2>
+            <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3 text-left">Visão Geral do Site</h2>
             <div className="card-grid">
               {siteOverview.map((section, index) => (
                 <div 
@@ -167,7 +164,7 @@ const Dashboard = () => {
                   <div className={`site-card-icon ${section.color}`}>
                     <section.icon className="h-4 w-4" />
                   </div>
-                  <h3 className="site-card-title">{section.title}</h3>
+                  <div className="site-card-title">{section.title}</div>
                   <div className="site-card-action">
                     <span>Acessar</span>
                     <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
