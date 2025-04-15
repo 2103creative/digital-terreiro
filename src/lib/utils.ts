@@ -54,3 +54,27 @@ export function generateInitials(name: string): string {
     .toUpperCase()
     .slice(0, 2);
 }
+
+// Função para ajustar cards em um grid responsivo
+export function getGridClassByItemCount(count: number): string {
+  if (count <= 3) return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3";
+  if (count <= 4) return "grid-cols-2 sm:grid-cols-2 md:grid-cols-4";
+  if (count <= 6) return "grid-cols-2 sm:grid-cols-3 md:grid-cols-6";
+  return "grid-cols-2 sm:grid-cols-4 md:grid-cols-6";
+}
+
+// Função para formatar data curta
+export function formatShortDate(date: Date): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  }).format(date);
+}
+
+// Função para formatar hora
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}

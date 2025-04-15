@@ -53,11 +53,11 @@ const EventsCalendar = () => {
   const renderEventTypeBadge = (type: string) => {
     switch (type) {
       case "gira":
-        return <Badge className="px-2.5 py-1">Gira</Badge>;
+        return <Badge className="px-1.5 py-0.5 text-[10px]">Gira</Badge>;
       case "festa":
-        return <Badge variant="secondary" className="px-2.5 py-1">Festa</Badge>;
+        return <Badge variant="secondary" className="px-1.5 py-0.5 text-[10px]">Festa</Badge>;
       case "curso":
-        return <Badge variant="outline" className="px-2.5 py-1">Curso</Badge>;
+        return <Badge variant="outline" className="px-1.5 py-0.5 text-[10px]">Curso</Badge>;
       default:
         return null;
     }
@@ -87,8 +87,8 @@ const EventsCalendar = () => {
         }}
       />
 
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-3">
+      <div className="mt-4">
+        <h3 className="text-base font-medium mb-3">
           {date ? (
             <>Eventos para {date.toLocaleDateString('pt-BR')}</>
           ) : (
@@ -97,40 +97,40 @@ const EventsCalendar = () => {
         </h3>
 
         {selectedDateEvents.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {selectedDateEvents.map((event, index) => (
-              <Card key={index} className="overflow-hidden transition-all hover:shadow-md">
-                <CardHeader className="py-3 px-4 flex flex-row items-center justify-between space-y-0">
-                  <div className="flex items-center space-x-3">
-                    <CardIcon variant="primary" className="text-blue-600 bg-blue-50">
-                      <CalendarIcon className="h-4 w-4" />
+              <div key={index} className="list-card">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center">
+                    <CardIcon variant="primary" className="text-blue-600 bg-blue-50 mr-2 h-7 w-7">
+                      <CalendarIcon className="h-3.5 w-3.5" />
                     </CardIcon>
-                    <CardTitle className="text-base font-medium">{event.title}</CardTitle>
+                    <div>
+                      <h4 className="text-sm font-medium">{event.title}</h4>
+                      <div className="flex items-center text-[10px] text-muted-foreground mt-0.5">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{event.time}</span>
+                      </div>
+                    </div>
                   </div>
                   {renderEventTypeBadge(event.type)}
-                </CardHeader>
-                <CardContent className="py-2 px-4 border-t border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5 mr-1.5" />
-                      <span>{event.time}</span>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="h-8 gap-1.5 text-xs"
-                      onClick={() => handleSubscribe(event.title)}
-                    >
-                      <Bell className="h-3.5 w-3.5" />
-                      Notificar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="mt-2 flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs"
+                    onClick={() => handleSubscribe(event.title)}
+                  >
+                    <Bell className="h-3 w-3 mr-1" />
+                    Notificar
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-8 bg-gray-50 rounded-lg border border-gray-100">
+          <p className="text-muted-foreground text-center py-6 bg-gray-50 rounded-lg border border-gray-100 text-sm">
             Não há eventos para esta data.
           </p>
         )}

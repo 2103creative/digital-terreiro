@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -156,22 +157,20 @@ const Dashboard = () => {
           {/* Acesso rápido às seções */}
           <div className="mb-4 md:mb-5">
             <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3">Visão Geral do Site</h2>
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-4 lg:grid-cols-5 md:gap-3 lg:gap-4 max-w-5xl">
+            <div className="card-grid">
               {siteOverview.map((section, index) => (
                 <div 
                   key={index} 
-                  className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer"
+                  className="site-card"
                   onClick={() => navigate(section.path)}
                 >
-                  <div className="flex flex-col items-center justify-center h-full text-center p-2">
-                    <div className={`p-2 rounded-full ${section.color} bg-opacity-20 mb-2`}>
-                      <section.icon className="h-4 w-4 md:h-5 md:w-5" />
-                    </div>
-                    <h3 className="text-xs font-medium text-gray-900 mb-2">{section.title}</h3>
-                    <div className="flex items-center text-[10px] text-blue-600">
-                      <span>Acessar</span>
-                      <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
-                    </div>
+                  <div className={`site-card-icon ${section.color}`}>
+                    <section.icon className="h-4 w-4" />
+                  </div>
+                  <h3 className="site-card-title">{section.title}</h3>
+                  <div className="site-card-action">
+                    <span>Acessar</span>
+                    <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
                   </div>
                 </div>
               ))}

@@ -61,3 +61,56 @@
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Card Grid Layout */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Padrão de cards para o site todo */
+.site-card {
+  @apply bg-white border border-gray-100 rounded-lg p-3 hover:shadow-sm transition-all;
+  height: 140px;
+  width: 100%;
+  max-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-card-icon {
+  @apply flex items-center justify-center rounded-full p-2 mb-2;
+  width: 40px;
+  height: 40px;
+}
+
+.site-card-title {
+  @apply text-sm font-medium mt-1 mb-1;
+  line-height: 1.2;
+}
+
+.site-card-action {
+  @apply text-xs text-blue-600 flex items-center mt-1;
+  line-height: 1;
+}
+
+/* Cards para Frentes e detalhes */
+.content-card {
+  @apply bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all;
+  padding: 1rem;
+}
+
+.list-card {
+  @apply bg-white border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-all;
+  width: 100%;
+}
