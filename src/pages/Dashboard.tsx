@@ -72,7 +72,7 @@ const Dashboard = () => {
       title: "Lista de Compras",
       icon: ShoppingCart,
       description: "Visualize os itens que precisam ser comprados para o terreiro.",
-      path: "/mantimentos",
+      path: "/lista-compras",
       color: "bg-cyan-50 text-cyan-700",
     },
     {

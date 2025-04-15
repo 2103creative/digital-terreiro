@@ -122,7 +122,7 @@ const DesktopSidebar = () => {
     {
       label: "Lista de Compras",
       icon: ShoppingCart,
-      path: "/lista-compras",
+      path: "/admin/mantimentos",
     },
     {
       label: "Eventos",

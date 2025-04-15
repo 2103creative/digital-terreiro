@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
 // Nome e versão do cache
-const CACHE_NAME = 'yle-axe-cache-v5';
+const CACHE_NAME = 'yle-axe-cache-v6';
 const OFFLINE_URL = '/offline.html';
 
 // URLs de páginas da aplicação
@@ -17,6 +17,7 @@ const APP_URLS = [
   '/mensagens',
   '/frentes',
   '/limpeza',
+  '/lista-compras',
   '/profile',
   '/sobre',
   '/login'
@@ -24,10 +25,12 @@ const APP_URLS = [
 
 // Arquivos estáticos para cache prioritário
 const STATIC_ASSETS = [
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/pwa-maskable-192x192.png',
-  '/pwa-maskable-512x512.png',
+  '/icons/icon-144.png',
+  '/icons/icon-384.png',
+  '/icons/icon-48.png',
+  '/icons/icon-72.png',
+  '/icons/icon-96.png',
+  '/icons/icon-128.png',
   '/favicon.ico'
 ];
 
@@ -227,7 +230,7 @@ const syncMessages = async () => {
     
     return self.registration.showNotification('Ylê Axé', {
       body: 'Suas mensagens foram sincronizadas com sucesso!',
-      icon: '/pwa-192x192.png'
+      icon: '/icons/icon-144.png'
     });
   } catch (error) {
     console.error('[Service Worker] Erro ao sincronizar:', error);
@@ -243,8 +246,8 @@ self.addEventListener('push', (event) => {
     
     const options = {
       body: data.body || 'Nova notificação do Ylê Axé',
-      icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
+      icon: '/icons/icon-144.png',
+      badge: '/icons/icon-144.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/dashboard',

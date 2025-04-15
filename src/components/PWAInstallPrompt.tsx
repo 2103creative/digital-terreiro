@@ -15,19 +15,23 @@ const PWAInstallPrompt = ({
   const [showPrompt, setShowPrompt] = useState(false);
   
   useEffect(() => {
-    // Verificar se já está instalado
-    if (window.isPWAInstalled()) {
-      return; // Não mostrar o prompt se já estiver instalado
+    // Verificar se está sendo executado no modo standalone (já instalado)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        (window.navigator as any).standalone === true;
+    
+    if (isStandalone) {
+      return; // Já está instalado, não mostrar o prompt
+    }
+    
+    // Verificar preferência do usuário no localStorage
+    const dismissed = localStorage.getItem('pwaPromptDismissed');
+    if (dismissed === 'true' && dismissable) {
+      return;
     }
     
     // Evento personalizado criado no main.tsx
     const handleInstallAvailable = () => {
-      // Verificar preferência do usuário no localStorage
-      const dismissed = localStorage.getItem('pwaPromptDismissed');
-      if (dismissed === 'true' && dismissable) {
-        return;
-      }
-      
+      console.log('PWA installation available');
       setShowPrompt(true);
     };
     
@@ -36,16 +40,42 @@ const PWAInstallPrompt = ({
     
     // Se o evento já foi disparado antes, verificar deferredPrompt
     if (window.deferredPromptEvent) {
+      console.log('Deferred prompt event already available');
       handleInstallAvailable();
     }
     
+    // Monitora mudanças no estado display-mode
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setShowPrompt(false); // Esconde o prompt se o app for instalado
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    
+    // Verificar novamente após 3 segundos (às vezes o evento não é disparado imediatamente)
+    const timer = setTimeout(() => {
+      if (window.deferredPromptEvent && !isStandalone) {
+        handleInstallAvailable();
+      }
+    }, 3000);
+    
     return () => {
       window.removeEventListener('pwaInstallAvailable', handleInstallAvailable);
+      mediaQuery.removeEventListener('change', handleChange);
+      clearTimeout(timer);
     };
   }, [dismissable]);
   
   const handleInstall = async () => {
     try {
+      if (!window.deferredPromptEvent) {
+        console.error('Prompt de instalação não disponível');
+        return;
+      }
+      
+      // Mostrar o prompt nativo
       await window.installPWA();
       setShowPrompt(false);
     } catch (error) {
@@ -73,7 +103,7 @@ const PWAInstallPrompt = ({
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium mb-1">Instale o Ylê Axé</p>
-              <p className="text-xs text-muted-foreground">Adicione à tela inicial para acesso rápido</p>
+              <p className="text-xs text-muted-foreground">Adicione à tela inicial para acesso rápido e offline</p>
             </div>
             <div className="flex gap-2">
               {dismissable && (

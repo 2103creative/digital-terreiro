@@ -20,17 +20,13 @@ register({
   onSuccess: () => console.log('PWA disponível para uso offline'),
   onUpdate: (registration) => {
     console.log('Nova versão disponível');
-    // Desativando a notificação ao usuário temporariamente
-    // window.dispatchEvent(new CustomEvent('swUpdate', { detail: registration }));
+    // Notifica o usuário sobre atualizações
+    window.dispatchEvent(new CustomEvent('swUpdate', { detail: registration }));
   },
 });
 
-// Desativando temporariamente a escuta de atualizações
-/*
-if (!window.location.pathname.includes('/admin')) {
-  listenForUpdates();
-}
-*/
+// Ativa a escuta de atualizações
+listenForUpdates();
 
 // Detector de instalação PWA
 const pwaInstallEventName = 'pwaInstallAvailable';

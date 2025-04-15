@@ -29,7 +29,6 @@ import AdminMessages from "./pages/AdminMessages";
 import Favoritos from "./pages/Favoritos";
 import Chat from "./pages/Chat";
 import AdminMantimentos from "./pages/AdminMantimentos";
-import Mantimentos from "./pages/Mantimentos";
 import ListaCompras from "./pages/ListaCompras";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
@@ -72,7 +71,6 @@ const App = () => (
                 <Route path="/leitura" element={<Reading />} />
                 <Route path="/mensagens" element={<Messages />} />
                 <Route path="/limpeza" element={<Limpeza />} />
-                <Route path="/mantimentos" element={<Mantimentos />} />
                 <Route path="/lista-compras" element={<ListaCompras />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/profile" element={<Profile />} />

@@ -150,7 +150,7 @@ const DashboardHeader = () => {
     {
       icon: ShoppingCart,
       label: "Lista de Compras",
-      path: "/mantimentos",
+      path: "/lista-compras",
     },
     {
       icon: Heart,
