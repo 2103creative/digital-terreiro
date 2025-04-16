@@ -52,6 +52,12 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
+/* Padronização de espaçamento para grids de cards */
+.grid-cards {
+  display: grid;
+  gap: 1rem;
+}
+
 /* Scrollbar Styling */
 .scrollbar-none {
   -ms-overflow-style: none;
@@ -96,7 +102,7 @@
   border: 1px solid #f0f0f0;
   border-radius: 0.5rem;
   padding: 0.75rem;
-  height: 110px;
+  height: 120px;
   width: 100%;
   max-width: 120px;
   display: flex;
@@ -105,6 +111,7 @@
   justify-content: center;
   transition: all 0.2s;
   cursor: pointer;
+  margin: 0.5rem;
 }
 
 .site-card:hover {
@@ -148,6 +155,7 @@
   transition: all 0.2s;
   padding: 0.75rem;
   height: 130px;
+  margin: 0.5rem;
 }
 
 .content-card:hover {
@@ -173,7 +181,7 @@
   border: 1px solid #f0f0f0;
   border-radius: 0.5rem;
   transition: all 0.2s;
-  height: 110px;
+  height: 120px;
   width: 100%;
   max-width: 120px;
   display: flex;
@@ -181,6 +189,7 @@
   align-items: center;
   justify-content: center;
   padding: 0.75rem;
+  margin: 0.5rem;
 }
 
 .user-card:hover {

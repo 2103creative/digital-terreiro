@@ -137,7 +137,7 @@ const AdminUsers = () => {
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl">
+        <div className="grid-cards grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 max-w-5xl">
           {users.map((user) => (
             <Card 
               key={user.id} 

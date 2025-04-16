@@ -128,7 +128,7 @@ const FrentesContent = () => {
 
   const renderFrentes = (frentesToRender: Frente[]) => {
     return (
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl">
+      <div className="grid-cards grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 max-w-5xl">
         {frentesToRender.map((frente) => (
           <div 
             key={frente.id} 
