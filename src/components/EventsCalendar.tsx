@@ -5,9 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { CardIcon } from "@/components/ui/CardIcon";
 
 // Sample event data
 const events = [
@@ -49,8 +48,8 @@ const EventsCalendar = () => {
     });
   };
 
-  // Function to get icon for event type
-  const getEventTypeIcon = (type: string) => {
+  // Function to render the badge for event type
+  const renderEventTypeBadge = (type: string) => {
     switch (type) {
       case "gira":
         return <Badge>Gira</Badge>;
@@ -59,28 +58,14 @@ const EventsCalendar = () => {
       case "curso":
         return <Badge variant="outline">Curso</Badge>;
       default:
-        return <Calendar className="h-5 w-5 text-gray-600" />;
-    }
-  };
-  
-  // Function to get color for event type indicator
-  const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case "gira":
-        return "bg-blue-500";
-      case "festa":
-        return "bg-green-500";
-      case "curso":
-        return "bg-purple-500";
-      default:
-        return "bg-gray-500";
+        return null;
     }
   };
 
   return (
     <div className="space-y-6 pb-16">
       <Tabs defaultValue="todos" onValueChange={setActiveFilter}>
-        <TabsList className="mb-4 w-full grid grid-cols-4">
+        <TabsList className="mb-4">
           <TabsTrigger value="todos">Todos</TabsTrigger>
           <TabsTrigger value="gira">Giras</TabsTrigger>
           <TabsTrigger value="festa">Festas</TabsTrigger>
@@ -92,7 +77,7 @@ const EventsCalendar = () => {
         mode="single"
         selected={date}
         onSelect={setDate}
-        className="rounded-md border shadow-sm"
+        className="rounded-md border"
         modifiers={{
           event: eventDates,
         }}
@@ -101,8 +86,8 @@ const EventsCalendar = () => {
         }}
       />
 
-      <div className="mt-4">
-        <h3 className="text-base font-medium mb-3">
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold mb-3">
           {date ? (
             <>Eventos para {date.toLocaleDateString('pt-BR')}</>
           ) : (
@@ -138,9 +123,7 @@ const EventsCalendar = () => {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-6 bg-gray-50 rounded-lg border border-gray-100 text-sm">
-            Não há eventos para esta data.
-          </p>
+          <p className="text-muted-foreground">Não há eventos para esta data.</p>
         )}
       </div>
     </div>

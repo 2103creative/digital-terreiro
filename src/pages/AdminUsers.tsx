@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -138,24 +137,33 @@ const AdminUsers = () => {
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 md:gap-2 lg:gap-2 max-w-5xl">
           {users.map((user) => (
             <Card 
               key={user.id} 
-              className="user-card hover:shadow-sm cursor-pointer transition-shadow"
+              className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
               onClick={() => handleEdit(user.id)}
             >
-              <div className="relative flex flex-col h-full items-center justify-center p-2">
-                <UserIcon className="h-6 w-6 text-gray-600 mb-2" />
-                <h3 className="text-xs font-medium text-gray-900 text-center">{user.name}</h3>
+              <div className="flex flex-col h-full p-3 relative">
+                {/* Ícone de usuário no canto superior esquerdo */}
+                <div className="absolute top-2 left-2">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
+                </div>
                 
-                <div className="absolute bottom-2 flex items-center text-[10px] text-blue-600">
+                {/* Nome do usuário centralizado */}
+                <div className="flex-1 flex items-center justify-center px-2 pt-2">
+                  <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{user.name}</h3>
+                </div>
+                
+                {/* Link de editar no canto inferior esquerdo */}
+                <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
                   <span>Editar</span>
                   <Pencil className="h-2.5 w-2.5 ml-0.5" />
                 </div>
                 
+                {/* Indicador de status (bolinha) no canto inferior direito */}
                 <div className="absolute bottom-2 right-2">
-                  <div className={`h-3 w-3 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <div className={`h-2.5 w-2.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 </div>
               </div>
             </Card>

@@ -261,19 +261,19 @@ const AdminEvents = () => {
             </CardHeader>
             <CardContent>
               {sortedEvents.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-2 lg:gap-3">
                   {sortedEvents.map((event) => (
                     <Card 
                       key={event.id} 
-                      className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow"
+                      className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
                       onClick={() => handleEditEvent(event)}
                     >
-                      <div className="flex flex-col h-full p-2 relative">
+                      <div className="flex flex-col h-full p-3 relative">
                         {/* Ícone do tipo de evento no canto superior esquerdo */}
-                        <div className="absolute top-2 left-2">
-                          {event.type === "gira" && <Calendar className="h-5 w-5 text-blue-600" />}
-                          {event.type === "festa" && <Calendar className="h-5 w-5 text-green-600" />}
-                          {event.type === "curso" && <Calendar className="h-5 w-5 text-purple-600" />}
+                        <div className="absolute top-3 left-3">
+                          {event.type === "gira" && <Calendar className="h-6 w-6 text-blue-600" />}
+                          {event.type === "festa" && <Calendar className="h-6 w-6 text-green-600" />}
+                          {event.type === "curso" && <Calendar className="h-6 w-6 text-purple-600" />}
                         </div>
                         
                         {/* Data do evento no canto superior direito */}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Eye, BookOpen, ArrowLeft } from "lucide-react";
+import { Eye, BookOpen, ArrowLeft, Feather, Coffee, Baby, Sparkles, Cloud, Droplets, Sword, Anchor, ArrowRight } from "lucide-react";
 
 interface Frente {
   id: number;
@@ -12,6 +12,8 @@ interface Frente {
   imageUrl?: string;
   type: "umbanda" | "nacao";
   views: number;
+  icon: React.ElementType;
+  color: string;
 }
 
 // Dados de exemplo das frentes
@@ -25,6 +27,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "umbanda" as const,
       views: 128,
+      icon: Feather,
+      color: "bg-green-50 text-green-700",
     },
     {
       id: 2,
@@ -34,6 +38,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "umbanda" as const,
       views: 156,
+      icon: Coffee,
+      color: "bg-amber-50 text-amber-700",
     },
     {
       id: 3,
@@ -43,6 +49,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "umbanda" as const,
       views: 97,
+      icon: Baby,
+      color: "bg-pink-50 text-pink-700",
     },
     {
       id: 4,
@@ -52,6 +60,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "umbanda" as const,
       views: 214,
+      icon: Sparkles,
+      color: "bg-purple-50 text-purple-700",
     },
   ],
   nacao: [
@@ -63,6 +73,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "nacao" as const,
       views: 183,
+      icon: Cloud,
+      color: "bg-red-50 text-red-700",
     },
     {
       id: 6,
@@ -72,6 +84,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "nacao" as const,
       views: 176,
+      icon: Droplets,
+      color: "bg-yellow-50 text-yellow-700",
     },
     {
       id: 7,
@@ -81,6 +95,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "nacao" as const,
       views: 145,
+      icon: Sword,
+      color: "bg-blue-50 text-blue-700",
     },
     {
       id: 8,
@@ -90,6 +106,8 @@ const frentesData = {
       imageUrl: "/placeholder-frente.jpg",
       type: "nacao" as const,
       views: 192,
+      icon: Anchor,
+      color: "bg-cyan-50 text-cyan-700",
     },
   ],
 };
@@ -110,25 +128,39 @@ const FrentesContent = () => {
 
   const renderFrentes = (frentesToRender: Frente[]) => {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
+      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 max-w-5xl">
         {frentesToRender.map((frente) => (
-          <div key={frente.id} className="content-card" onClick={() => handleFrenteClick(frente)}>
-            <div className="flex flex-col h-full">
-              <h3 className="text-base font-medium">{frente.title}</h3>
-              <p className="text-xs text-muted-foreground mt-1 mb-3">{frente.subtitle || ""}</p>
-              <div className="mt-auto flex items-center justify-between">
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Eye className="h-3 w-3 mr-1" />
-                  <span>{frente.views}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-7 text-xs p-0"
-                >
-                  <BookOpen className="h-3.5 w-3.5 mr-1" />
-                  Ver detalhes
-                </Button>
+          <div 
+            key={frente.id} 
+            className="bg-white border border-gray-100 rounded-lg aspect-[1/0.5] hover:shadow-sm cursor-pointer transition-shadow"
+            onClick={() => handleFrenteClick(frente)}
+          >
+            <div className="flex flex-col h-full p-1 relative">
+              {/* Ícone no canto superior esquerdo */}
+              <div className="absolute top-1 left-1">
+                <frente.icon className="h-3 w-3 text-gray-600" />
+              </div>
+              
+              {/* Nome centralizado */}
+              <div className="flex-1 flex items-center justify-center">
+                <h3 className="text-[9px] font-medium text-gray-900">{frente.title}</h3>
+              </div>
+              
+              {/* Link de ver detalhes no canto inferior esquerdo */}
+              <div className="absolute bottom-1 left-1 flex items-center text-[7px] text-blue-600">
+                <span>Ver</span>
+                <ArrowRight className="h-2 w-2 ml-0.5" />
+              </div>
+              
+              {/* Indicador colorido no canto inferior direito */}
+              <div className="absolute bottom-1 right-1">
+                <div className={`h-2 w-2 rounded-full ${frente.color.split(' ')[0]}`}></div>
+              </div>
+              
+              {/* Contador de visualizações */}
+              <div className="absolute top-1 right-1 flex items-center text-[7px] text-gray-500">
+                <Eye className="h-2 w-2 mr-0.5" />
+                <span>{frente.views}</span>
               </div>
             </div>
           </div>
@@ -209,20 +241,22 @@ const FrentesContent = () => {
   }
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6">
       <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}>
-        <TabsList className="mb-4">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
           <TabsTrigger value="nacao">Nação</TabsTrigger>
         </TabsList>
         
         <TabsContent value="umbanda" className="space-y-4">
-          <h3 className="text-lg font-semibold">Frentes de Umbanda</h3>
+          <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3 text-left">Frentes de Umbanda</h2>
+          <p className="text-xs text-gray-500 mb-4">Conheça as frentes espirituais da Umbanda e suas características</p>
           {renderFrentes(frentesData.umbanda)}
         </TabsContent>
         
         <TabsContent value="nacao" className="space-y-4">
-          <h3 className="text-lg font-semibold">Frentes de Nação</h3>
+          <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3 text-left">Frentes de Nação</h2>
+          <p className="text-xs text-gray-500 mb-4">Conheça os orixás cultuados na casa e suas características</p>
           {renderFrentes(frentesData.nacao)}
         </TabsContent>
       </Tabs>
