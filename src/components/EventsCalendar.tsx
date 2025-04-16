@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CardIcon } from "@/components/ui/CardIcon";
 
 // Sample event data
 const events = [
@@ -52,11 +53,11 @@ const EventsCalendar = () => {
   const getEventTypeIcon = (type: string) => {
     switch (type) {
       case "gira":
-        return <Calendar className="h-5 w-5 text-blue-600" />;
+        return <Badge>Gira</Badge>;
       case "festa":
-        return <Calendar className="h-5 w-5 text-green-600" />;
+        return <Badge variant="secondary">Festa</Badge>;
       case "curso":
-        return <Calendar className="h-5 w-5 text-purple-600" />;
+        return <Badge variant="outline">Curso</Badge>;
       default:
         return <Calendar className="h-5 w-5 text-gray-600" />;
     }
@@ -79,7 +80,7 @@ const EventsCalendar = () => {
   return (
     <div className="space-y-6 pb-16">
       <Tabs defaultValue="todos" onValueChange={setActiveFilter}>
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 w-full grid grid-cols-4">
           <TabsTrigger value="todos">Todos</TabsTrigger>
           <TabsTrigger value="gira">Giras</TabsTrigger>
           <TabsTrigger value="festa">Festas</TabsTrigger>
@@ -91,7 +92,7 @@ const EventsCalendar = () => {
         mode="single"
         selected={date}
         onSelect={setDate}
-        className="rounded-md border"
+        className="rounded-md border shadow-sm"
         modifiers={{
           event: eventDates,
         }}
@@ -100,8 +101,8 @@ const EventsCalendar = () => {
         }}
       />
 
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-3">
+      <div className="mt-4">
+        <h3 className="text-base font-medium mb-3">
           {date ? (
             <>Eventos para {date.toLocaleDateString('pt-BR')}</>
           ) : (
@@ -110,46 +111,36 @@ const EventsCalendar = () => {
         </h3>
 
         {selectedDateEvents.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          <div className="space-y-3">
             {selectedDateEvents.map((event, index) => (
-              <Card 
-                key={index} 
-                className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow"
-              >
-                <div className="flex flex-col h-full p-2 relative">
-                  {/* Ícone do tipo de evento no canto superior esquerdo */}
-                  <div className="absolute top-2 left-2">
-                    {getEventTypeIcon(event.type)}
+              <Card key={index} className="card-hover">
+                <CardHeader className="py-3 px-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">{event.title}</CardTitle>
+                    {renderEventTypeBadge(event.type)}
                   </div>
-                  
-                  {/* Horário do evento no canto superior direito */}
-                  <div className="absolute top-2 right-2">
-                    <span className="text-[10px] text-gray-500">
-                      {event.time}
-                    </span>
+                </CardHeader>
+                <CardContent className="py-2 px-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">Horário: {event.time}</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 px-2"
+                      onClick={() => handleSubscribe(event.title)}
+                    >
+                      <Bell className="h-4 w-4 mr-1" />
+                      Notificar
+                    </Button>
                   </div>
-                  
-                  {/* Título do evento centralizado */}
-                  <div className="flex-1 flex items-center justify-center px-2">
-                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{event.title}</h3>
-                  </div>
-                  
-                  {/* Link de notificar no canto inferior esquerdo */}
-                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600" onClick={() => handleSubscribe(event.title)}>
-                    <span>Notificar</span>
-                    <Bell className="h-2.5 w-2.5 ml-0.5" />
-                  </div>
-                  
-                  {/* Indicador de tipo no canto inferior direito */}
-                  <div className="absolute bottom-2 right-2">
-                    <div className={cn("h-3 w-3 rounded-full", getEventTypeColor(event.type))}></div>
-                  </div>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">Não há eventos para esta data.</p>
+          <p className="text-muted-foreground text-center py-6 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+            Não há eventos para esta data.
+          </p>
         )}
       </div>
     </div>

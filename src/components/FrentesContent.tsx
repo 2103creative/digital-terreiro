@@ -109,30 +109,32 @@ const FrentesContent = () => {
   };
 
   const renderFrentes = (frentesToRender: Frente[]) => {
-    return frentesToRender.map((frente) => (
-      <Card key={frente.id} className="card-hover">
-        <CardHeader className="p-4 pb-2">
-          <CardTitle className="text-base">{frente.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <p className="text-sm text-muted-foreground mb-3">{frente.subtitle || frente.description}</p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Eye className="h-3 w-3 mr-1" />
-              <span>{frente.views} visualizações</span>
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
+        {frentesToRender.map((frente) => (
+          <div key={frente.id} className="content-card" onClick={() => handleFrenteClick(frente)}>
+            <div className="flex flex-col h-full">
+              <h3 className="text-base font-medium">{frente.title}</h3>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">{frente.subtitle || ""}</p>
+              <div className="mt-auto flex items-center justify-between">
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <Eye className="h-3 w-3 mr-1" />
+                  <span>{frente.views}</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 text-xs p-0"
+                >
+                  <BookOpen className="h-3.5 w-3.5 mr-1" />
+                  Ver detalhes
+                </Button>
+              </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleFrenteClick(frente)}
-            >
-              <BookOpen className="h-4 w-4 mr-1" />
-              Ver detalhes
-            </Button>
           </div>
-        </CardContent>
-      </Card>
-    ));
+        ))}
+      </div>
+    );
   };
 
   // Renderizar detalhes da frente selecionada
@@ -216,16 +218,12 @@ const FrentesContent = () => {
         
         <TabsContent value="umbanda" className="space-y-4">
           <h3 className="text-lg font-semibold">Frentes de Umbanda</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {renderFrentes(frentesData.umbanda)}
-          </div>
+          {renderFrentes(frentesData.umbanda)}
         </TabsContent>
         
         <TabsContent value="nacao" className="space-y-4">
           <h3 className="text-lg font-semibold">Frentes de Nação</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {renderFrentes(frentesData.nacao)}
-          </div>
+          {renderFrentes(frentesData.nacao)}
         </TabsContent>
       </Tabs>
     </div>

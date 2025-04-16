@@ -1,153 +1,159 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpenCheck, Bookmark, Download } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { BookOpen, Bookmark, Download, Book, Eye } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
-// Sample reading content
-const readings = {
+// Dados de exemplo para materiais de leitura
+const readingMaterials = {
   umbanda: [
     {
       id: 1,
       title: "Fundamentos da Umbanda",
       description: "Conheça os princípios básicos da religião de Umbanda",
-      progress: 100,
-      pages: 45,
       type: "e-book",
+      pages: 45,
+      progress: 100,
+      status: "Concluído",
+      coverImage: "/placeholder-book.jpg",
     },
     {
       id: 2,
       title: "Guia dos Orixás",
       description: "Aprenda sobre os Orixás e suas características",
-      progress: 65,
-      pages: 120,
       type: "e-book",
+      pages: 120,
+      progress: 65,
+      status: "Em progresso",
+      coverImage: "/placeholder-book.jpg",
     },
     {
       id: 3,
       title: "Pontos Riscados",
-      description: "O significado dos símbolos sagrados",
-      progress: 0,
-      pages: 78,
+      description: "Significado e aplicação dos pontos riscados na umbanda",
       type: "e-book",
+      pages: 80,
+      progress: 0,
+      status: "Não iniciado",
+      coverImage: "/placeholder-book.jpg",
+    },
+    {
+      id: 4,
+      title: "Ervas Sagradas",
+      description: "Guia completo sobre ervas sagradas e seus usos rituais",
+      type: "e-book",
+      pages: 150,
+      progress: 25,
+      status: "Em progresso",
+      coverImage: "/placeholder-book.jpg",
     },
   ],
   nacao: [
     {
-      id: 4,
-      title: "Iniciação ao Candomblé",
-      description: "Os primeiros passos na Nação",
+      id: 5,
+      title: "Candomblé: Tradição e Rituais",
+      description: "Tradição africana e rituais do candomblé de ketu",
+      type: "e-book",
+      pages: 200,
       progress: 30,
-      pages: 90,
-      type: "doutrina",
+      status: "Em progresso",
+      coverImage: "/placeholder-book.jpg",
     },
     {
-      id: 5,
-      title: "Rituais e Obrigações",
-      description: "O calendário ritualístico e suas obrigações",
+      id: 6,
+      title: "Yorùbá para Iniciantes",
+      description: "Guia básico de introdução à língua yorùbá",
+      type: "e-book",
+      pages: 85,
       progress: 0,
-      pages: 65,
-      type: "doutrina",
+      status: "Não iniciado",
+      coverImage: "/placeholder-book.jpg",
+    },
+    {
+      id: 7,
+      title: "Oriki e Cantigas",
+      description: "Coletânea de orikis e cantigas tradicionais",
+      type: "e-book",
+      pages: 90,
+      progress: 15,
+      status: "Em progresso",
+      coverImage: "/placeholder-book.jpg",
+    },
+    {
+      id: 8,
+      title: "Comidas de Santo",
+      description: "Receitas tradicionais para os orixás",
+      type: "e-book",
+      pages: 120,
+      progress: 60,
+      status: "Em progresso",
+      coverImage: "/placeholder-book.jpg",
     },
   ],
 };
 
 const ReadingContent = () => {
-  const [activeTab, setActiveTab] = useState("umbanda");
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<"umbanda" | "nacao">("umbanda");
 
-  const handleBookAction = (book: any, action: string) => {
-    switch (action) {
-      case "read":
-        toast({
-          title: `Lendo: ${book.title}`,
-          description: "Conteúdo em desenvolvimento. Em breve!",
-        });
-        break;
-      case "save":
-        toast({
-          title: "Salvo para leitura offline",
-          description: `${book.title} está disponível offline agora`,
-        });
-        break;
-      case "download":
-        toast({
-          title: "Download iniciado",
-          description: `${book.title} está sendo baixado`,
-        });
-        break;
-    }
+  const renderBookStatus = (progress: number) => {
+    if (progress === 0) return <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">Não iniciado</Badge>;
+    if (progress === 100) return <Badge variant="secondary" className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5">Concluído</Badge>;
+    return <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5">{progress}% lido</Badge>;
   };
 
-  const renderBooks = (books: any[]) => {
-    return books.map((book) => (
-      <Card key={book.id} className="card-hover">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <CardTitle className="text-base">{book.title}</CardTitle>
-            <span className="text-xs bg-secondary px-2 py-1 rounded">
-              {book.type === "e-book" ? "E-Book" : "Doutrina"}
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">{book.description}</p>
-          <div className="flex items-center justify-between text-xs">
-            <span>{book.pages} páginas</span>
-            <span>
-              {book.progress > 0 
-                ? book.progress === 100 
-                  ? "Concluído" 
-                  : `${book.progress}% lido` 
-                : "Não iniciado"}
-            </span>
-          </div>
-          {book.progress > 0 && (
-            <div className="w-full h-1.5 bg-secondary rounded-full mt-2">
-              <div 
-                className="h-full bg-primary rounded-full" 
-                style={{ width: `${book.progress}%` }}
-              ></div>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button 
-            variant="default" 
-            size="sm"
-            onClick={() => handleBookAction(book, "read")}
-          >
-            <BookOpenCheck className="h-4 w-4 mr-1" />
-            {book.progress > 0 && book.progress < 100 ? "Continuar" : "Ler"}
-          </Button>
-          <div className="flex gap-1">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-8 w-8"
-              onClick={() => handleBookAction(book, "save")}
-            >
-              <Bookmark className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="h-8 w-8"
-              onClick={() => handleBookAction(book, "download")}
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
-    ));
+  const renderReadingMaterials = (materials: typeof readingMaterials.umbanda) => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {materials.map((material) => (
+          <Card key={material.id} className="overflow-hidden h-full">
+            <CardContent className="p-0 h-full">
+              <div className="p-3 flex flex-col h-full">
+                <div className="mb-2 flex items-start justify-between">
+                  <div className="flex items-center">
+                    <BookOpen className="h-4 w-4 text-primary mr-1.5" />
+                    <h3 className="text-sm font-medium">{material.title}</h3>
+                  </div>
+                  <Badge className="bg-indigo-50 text-indigo-700 text-[10px] px-1.5 py-0.5 ml-1">E-Book</Badge>
+                </div>
+                
+                <p className="text-xs text-muted-foreground mb-3">{material.description}</p>
+                
+                <div className="text-xs text-muted-foreground mb-2">
+                  {material.pages} páginas
+                </div>
+                
+                <Progress value={material.progress} className="h-1.5 mb-2" />
+                
+                <div className="mt-auto pt-2 flex items-center justify-between">
+                  <div>{renderBookStatus(material.progress)}</div>
+                  
+                  <div className="flex items-center space-x-1">
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <Bookmark className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-xs px-2">
+                      <Book className="h-3.5 w-3.5 mr-1" />
+                      {material.progress === 0 ? "Ler" : "Continuar"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="space-y-6 pb-16">
-      <Tabs defaultValue="umbanda" onValueChange={setActiveTab}>
+      <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}>
         <TabsList className="mb-4">
           <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
           <TabsTrigger value="nacao">Nação</TabsTrigger>
@@ -155,12 +161,12 @@ const ReadingContent = () => {
         
         <TabsContent value="umbanda" className="space-y-4">
           <h3 className="text-lg font-semibold">Conhecimento de Umbanda</h3>
-          {renderBooks(readings.umbanda)}
+          {renderReadingMaterials(readingMaterials.umbanda)}
         </TabsContent>
         
         <TabsContent value="nacao" className="space-y-4">
-          <h3 className="text-lg font-semibold">Doutrinas de Nação</h3>
-          {renderBooks(readings.nacao)}
+          <h3 className="text-lg font-semibold">Conhecimento de Nação</h3>
+          {renderReadingMaterials(readingMaterials.nacao)}
         </TabsContent>
       </Tabs>
     </div>
