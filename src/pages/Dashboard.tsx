@@ -154,29 +154,24 @@ const Dashboard = () => {
           {/* Acesso rápido às seções */}
           <div className="mb-4 md:mb-5">
             <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3 text-left">Visão Geral do Site</h2>
-            <div className="flex flex-wrap gap-4 max-w-5xl">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {siteOverview.map((section, index) => (
                 <div 
                   key={index} 
-                  className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                  className="site-card"
                   onClick={() => navigate(section.path)}
                 >
-                  <div className="flex flex-col h-full p-3 relative">
-                    {/* Ícone no canto superior esquerdo */}
-                    <div className="absolute top-3 left-3">
-                      <section.icon className="h-6 w-6 text-gray-600" />
-                    </div>
-                    
-                    {/* Nome centralizado */}
-                    <div className="flex-1 flex items-center justify-center">
-                      <h3 className="text-sm font-medium text-gray-900">{section.title}</h3>
-                    </div>
-                    
-                    {/* Link de acessar no canto inferior esquerdo */}
-                    <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600">
-                      <span>Acessar</span>
-                      <ArrowRight className="h-3 w-3 ml-0.5" />
-                    </div>
+                  <div className="site-card-icon-corner">
+                    <section.icon className="h-5 w-5 text-gray-600" />
+                  </div>
+                  
+                  <div className="site-card-title">
+                    {section.title}
+                  </div>
+                  
+                  <div className="site-card-action">
+                    <span>Acessar</span>
+                    <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
                   </div>
                 </div>
               ))}
