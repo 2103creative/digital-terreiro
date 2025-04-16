@@ -48,17 +48,31 @@ const EventsCalendar = () => {
     });
   };
 
-  // Function to render the badge for event type
-  const renderEventTypeBadge = (type: string) => {
+  // Function to get icon for event type
+  const getEventTypeIcon = (type: string) => {
     switch (type) {
       case "gira":
-        return <Badge>Gira</Badge>;
+        return <Calendar className="h-5 w-5 text-blue-600" />;
       case "festa":
-        return <Badge variant="secondary">Festa</Badge>;
+        return <Calendar className="h-5 w-5 text-green-600" />;
       case "curso":
-        return <Badge variant="outline">Curso</Badge>;
+        return <Calendar className="h-5 w-5 text-purple-600" />;
       default:
-        return null;
+        return <Calendar className="h-5 w-5 text-gray-600" />;
+    }
+  };
+  
+  // Function to get color for event type indicator
+  const getEventTypeColor = (type: string) => {
+    switch (type) {
+      case "gira":
+        return "bg-blue-500";
+      case "festa":
+        return "bg-green-500";
+      case "curso":
+        return "bg-purple-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
@@ -96,29 +110,41 @@ const EventsCalendar = () => {
         </h3>
 
         {selectedDateEvents.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
             {selectedDateEvents.map((event, index) => (
-              <Card key={index} className="card-hover">
-                <CardHeader className="py-3 px-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{event.title}</CardTitle>
-                    {renderEventTypeBadge(event.type)}
+              <Card 
+                key={index} 
+                className="bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow"
+              >
+                <div className="flex flex-col h-full p-2 relative">
+                  {/* Ícone do tipo de evento no canto superior esquerdo */}
+                  <div className="absolute top-2 left-2">
+                    {getEventTypeIcon(event.type)}
                   </div>
-                </CardHeader>
-                <CardContent className="py-2 px-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">Horário: {event.time}</p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 px-2"
-                      onClick={() => handleSubscribe(event.title)}
-                    >
-                      <Bell className="h-4 w-4 mr-1" />
-                      Notificar
-                    </Button>
+                  
+                  {/* Horário do evento no canto superior direito */}
+                  <div className="absolute top-2 right-2">
+                    <span className="text-[10px] text-gray-500">
+                      {event.time}
+                    </span>
                   </div>
-                </CardContent>
+                  
+                  {/* Título do evento centralizado */}
+                  <div className="flex-1 flex items-center justify-center px-2">
+                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{event.title}</h3>
+                  </div>
+                  
+                  {/* Link de notificar no canto inferior esquerdo */}
+                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600" onClick={() => handleSubscribe(event.title)}>
+                    <span>Notificar</span>
+                    <Bell className="h-2.5 w-2.5 ml-0.5" />
+                  </div>
+                  
+                  {/* Indicador de tipo no canto inferior direito */}
+                  <div className="absolute bottom-2 right-2">
+                    <div className={cn("h-3 w-3 rounded-full", getEventTypeColor(event.type))}></div>
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
