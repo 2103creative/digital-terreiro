@@ -207,7 +207,7 @@ create policy "Qualquer pessoa pode ver frentes"
 
 create policy "Apenas administradores podem criar frentes"
   on public.frentes for insert
-  using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+  with check (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
 
 create policy "Apenas administradores podem atualizar frentes"
   on public.frentes for update
@@ -221,7 +221,7 @@ create policy "Qualquer pessoa pode ver eventos públicos"
 
 create policy "Membros e admins podem criar eventos"
   on public.events for insert
-  using (exists (select 1 from public.users where id = auth.uid() and role in ('admin', 'member')));
+  with check (exists (select 1 from public.users where id = auth.uid() and role in ('admin', 'member')));
 
 create policy "Admins e criador podem atualizar eventos"
   on public.events for update
@@ -236,7 +236,7 @@ create policy "Qualquer pessoa pode ver materiais públicos"
 
 create policy "Admins podem criar materiais"
   on public.reading_materials for insert
-  using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+  with check (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
 
 create policy "Admins podem atualizar materiais"
   on public.reading_materials for update
@@ -249,7 +249,7 @@ create policy "Membros e admins podem ver mensagens"
 
 create policy "Admins podem criar mensagens"
   on public.messages for insert
-  using (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
+  with check (exists (select 1 from public.users where id = auth.uid() and role = 'admin'));
 
 create policy "Admins podem atualizar mensagens"
   on public.messages for update
