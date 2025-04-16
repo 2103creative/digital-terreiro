@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { MessageSquare, PlusCircle, Edit, Trash2, ArrowLeftCircle, AlertCircle, CheckCircle } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils"; // Adicionar esta importação
 import {
   Table,
   TableBody,
