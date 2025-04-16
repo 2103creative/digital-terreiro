@@ -85,7 +85,7 @@
 
 @media (min-width: 768px) {
   .card-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 1rem;
   }
 }
@@ -96,15 +96,15 @@
   border: 1px solid #f0f0f0;
   border-radius: 0.5rem;
   padding: 0.75rem;
-  height: 120px;
-  width: 120px;
+  height: 110px;
+  width: 100%;
+  max-width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   cursor: pointer;
-  position: relative;
 }
 
 .site-card:hover {
@@ -116,6 +116,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 9999px;
+  padding: 0.5rem;
   margin-bottom: 0.5rem;
   width: 36px;
   height: 36px;
@@ -127,7 +129,6 @@
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   line-height: 1.2;
-  text-align: center;
 }
 
 .site-card-action {
@@ -135,309 +136,24 @@
   color: #2563eb;
   display: flex;
   align-items: center;
-  position: absolute;
-  bottom: 0.75rem;
-  left: 0.75rem;
+  margin-top: 0.25rem;
   line-height: 1;
 }
 
-.site-card-indicator {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-}
-
-.site-card-views {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  font-size: 0.625rem;
-  color: #6b7280;
-}
-
-.site-card-icon-corner {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-}
-
-/* Cards para Usuários */
-.user-card {
-  background-color: white;
-  border: 1px solid #f0f0f0;
-  border-radius: 0.5rem;
-  height: 120px;
-  width: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  position: relative;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.user-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
-}
-
-.user-card-icon {
-  margin-bottom: 0.5rem;
-}
-
-.user-card-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-.user-card-action {
-  position: absolute;
-  bottom: 0.75rem;
-  left: 0.75rem;
-  font-size: 0.625rem;
-  color: #2563eb;
-  display: flex;
-  align-items: center;
-}
-
-.user-card-status {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-}
-
-/* Cards para Frentes */
-.frente-card {
-  background-color: white;
-  border: 1px solid #f0f0f0;
-  border-radius: 0.5rem;
-  height: 120px;
-  width: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  position: relative;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.frente-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
-}
-
-.frente-card-icon {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-}
-
-.frente-card-views {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  font-size: 0.625rem;
-  color: #6b7280;
-}
-
-.frente-card-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-align: center;
-  padding-top: 0.5rem;
-}
-
-.frente-card-action {
-  position: absolute;
-  bottom: 0.75rem;
-  left: 0.75rem;
-  font-size: 0.625rem;
-  color: #2563eb;
-  display: flex;
-  align-items: center;
-}
-
-.frente-card-indicator {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-}
-
-/* Cards para Mensagens */
-.message-card {
-  background-color: white;
-  border: 1px solid #f0f0f0;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  margin-bottom: 0.75rem;
-  position: relative;
-}
-
-.message-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.message-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.message-card-title {
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.message-card-date {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-.message-card-content {
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
-.message-card-status {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.message-card-indicator {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-}
-
-/* Leitura cards */
-.reading-card {
-  background-color: white;
-  border: 1px solid #f0f0f0;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  transition: all 0.2s;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.reading-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.reading-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
-}
-
-.reading-card-title {
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-}
-
-.reading-card-badge {
-  font-size: 0.625rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 9999px;
-  background-color: #e5edff;
-  color: #3b82f6;
-}
-
-.reading-card-description {
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin-bottom: 0.75rem;
-}
-
-.reading-card-pages {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-}
-
-.reading-card-progress {
-  height: 0.25rem;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  margin-bottom: 0.75rem;
-  overflow: hidden;
-}
-
-.reading-card-progress-bar {
-  height: 100%;
-  border-radius: 9999px;
-}
-
-.reading-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  padding-top: 0.75rem;
-}
-
-.reading-card-status {
-  font-size: 0.75rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 9999px;
-}
-
-.reading-card-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.reading-card-action {
-  cursor: pointer;
-  color: #6b7280;
-}
-
-/* Content cards */
+/* Cards para Frentes e detalhes */
 .content-card {
   background-color: white;
   border: 1px solid #f0f0f0;
   border-radius: 0.5rem;
   transition: all 0.2s;
   padding: 0.75rem;
-  height: 100%;
+  height: 130px;
 }
 
 .content-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* List cards */
 .list-card {
   background-color: white;
   border: 1px solid #f0f0f0;
@@ -445,9 +161,29 @@
   padding: 0.75rem;
   transition: all 0.2s;
   width: 100%;
-  margin-bottom: 0.75rem;
 }
 
 .list-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* User cards for admin view */
+.user-card {
+  background-color: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  height: 110px;
+  width: 100%;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.user-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }

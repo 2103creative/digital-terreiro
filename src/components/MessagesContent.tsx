@@ -167,35 +167,37 @@ const MessagesContent = () => {
     return messagesToRender.length > 0 ? (
       <div className="space-y-4">
         {messagesToRender.map((message) => (
-          <div 
+          <Card 
             key={message.id} 
-            className="message-card"
+            className={`card-hover ${!readStatus[message.id] ? 'border-primary' : ''} cursor-pointer transition-all hover:shadow-md active:bg-gray-50`}
             onClick={() => handleMessageClick(message)}
           >
-            <div className="message-card-header">
-              <div className="message-card-title">
-                <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
-                <span>{message.title}</span>
+            <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2 flex-1">
+                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                  <CardTitle className="text-sm md:text-base">{message.title}</CardTitle>
+                </div>
+                <div className="flex items-center gap-1 ml-1 flex-shrink-0">
+                  {!readStatus[message.id] && (
+                    <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+                  )}
+                  {message.isUrgent && (
+                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Urgente
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <div className="message-card-status">
-                {!readStatus[message.id] && (
-                  <div className="message-card-indicator bg-blue-500"></div>
-                )}
-                {message.isUrgent && (
-                  <Badge variant="destructive" className="text-[10px] py-0 h-5">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Urgente
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="message-card-date">
-              {formatMessageDate(message.date)}
-            </div>
-            <div className="message-card-content">
-              {message.content}
-            </div>
-          </div>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+                {formatMessageDate(message.date)}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 md:p-4 pt-1 md:pt-2">
+              <p className="text-xs md:text-sm line-clamp-2">{message.content}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     ) : (

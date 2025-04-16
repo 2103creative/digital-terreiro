@@ -118,6 +118,7 @@ const FrentesContent = () => {
 
   const handleFrenteClick = (frente: Frente) => {
     setSelectedFrente(frente);
+    // Incrementar visualizações na vida real seria feito com uma chamada de API
     frente.views += 1;
   };
 
@@ -127,29 +128,40 @@ const FrentesContent = () => {
 
   const renderFrentes = (frentesToRender: Frente[]) => {
     return (
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl">
         {frentesToRender.map((frente) => (
           <div 
             key={frente.id} 
-            className="frente-card"
+            className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
             onClick={() => handleFrenteClick(frente)}
           >
-            <div className="frente-card-icon">
-              <frente.icon className="h-5 w-5 text-gray-600" />
-            </div>
-            
-            <div className="frente-card-title">{frente.title}</div>
-            
-            <div className="frente-card-action">
-              <span>Ver</span>
-              <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
-            </div>
-            
-            <div className={`frente-card-indicator ${frente.color.split(' ')[0]}`}></div>
-            
-            <div className="frente-card-views">
-              <Eye className="h-2.5 w-2.5 mr-0.5" />
-              <span>{frente.views}</span>
+            <div className="flex flex-col h-full p-3 relative">
+              {/* Ícone no canto superior esquerdo */}
+              <div className="absolute top-2 left-2">
+                <frente.icon className="h-5 w-5 text-gray-600" />
+              </div>
+              
+              {/* Nome centralizado */}
+              <div className="flex-1 flex items-center justify-center px-2 pt-2">
+                <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{frente.title}</h3>
+              </div>
+              
+              {/* Link de ver detalhes no canto inferior esquerdo */}
+              <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                <span>Ver</span>
+                <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
+              </div>
+              
+              {/* Indicador colorido no canto inferior direito */}
+              <div className="absolute bottom-2 right-2">
+                <div className={`h-2.5 w-2.5 rounded-full ${frente.color.split(' ')[0]}`}></div>
+              </div>
+              
+              {/* Contador de visualizações */}
+              <div className="absolute top-2 right-2 flex items-center text-[10px] text-gray-500">
+                <Eye className="h-2.5 w-2.5 mr-0.5" />
+                <span>{frente.views}</span>
+              </div>
             </div>
           </div>
         ))}
@@ -157,6 +169,7 @@ const FrentesContent = () => {
     );
   };
 
+  // Renderizar detalhes da frente selecionada
   if (selectedFrente) {
     return (
       <div className="space-y-6">

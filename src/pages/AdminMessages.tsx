@@ -28,7 +28,6 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { emitMessageUpdate } from "@/components/MessagesContent";
-import { cn } from "@/lib/utils";
 
 // Interface para o modelo de Mensagem
 interface Message {
@@ -276,56 +275,63 @@ const AdminMessages = () => {
             </CardHeader>
             <CardContent>
               {sortedMessages.length > 0 ? (
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {sortedMessages.map((message) => (
-                    <div 
+                    <Card 
                       key={message.id} 
                       className={cn(
-                        "site-card",
+                        "bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow",
                         message.isRead ? "" : "border-l-4 border-l-blue-500"
                       )}
                       onClick={() => handleEditMessage(message)}
                     >
-                      <div className="site-card-icon-corner">
-                        {message.isRead ? 
-                          <CheckCircle className="h-5 w-5 text-green-600" /> : 
-                          <MessageSquare className="h-5 w-5 text-blue-600" />}
-                      </div>
-                      
-                      <div className="site-card-views">
-                        <span>
-                          {format(message.date, "dd/MM", { locale: ptBR })}
-                        </span>
-                      </div>
-                      
-                      {/* Indicador de urgência */}
-                      {message.isUrgent && (
-                        <div className="absolute top-8 right-2">
-                          <AlertCircle className="h-4 w-4 text-red-500" />
+                      <div className="flex flex-col h-full p-2 relative">
+                        {/* Ícone de status no canto superior esquerdo */}
+                        <div className="absolute top-2 left-2">
+                          {message.isRead ? 
+                            <CheckCircle className="h-5 w-5 text-green-600" /> : 
+                            <MessageSquare className="h-5 w-5 text-blue-600" />}
                         </div>
-                      )}
-                      
-                      <div className="site-card-title line-clamp-3">
-                        {message.title}
+                        
+                        {/* Data da mensagem no canto superior direito */}
+                        <div className="absolute top-2 right-2">
+                          <span className="text-[10px] text-gray-500">
+                            {format(message.date, "dd/MM", { locale: ptBR })}
+                          </span>
+                        </div>
+                        
+                        {/* Indicador de urgência */}
+                        {message.isUrgent && (
+                          <div className="absolute top-8 right-2">
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                          </div>
+                        )}
+                        
+                        {/* Título da mensagem centralizado */}
+                        <div className="flex-1 flex items-center justify-center px-2">
+                          <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{message.title}</h3>
+                        </div>
+                        
+                        {/* Link de editar no canto inferior esquerdo */}
+                        <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                          <span>Editar</span>
+                          <Edit className="h-2.5 w-2.5 ml-0.5" />
+                        </div>
+                        
+                        {/* Botão de excluir no canto inferior direito */}
+                        <div 
+                          className="absolute bottom-2 right-2 flex items-center text-[10px] text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMessage(message);
+                            setShowDeleteDialog(true);
+                          }}
+                        >
+                          <span>Excluir</span>
+                          <Trash2 className="h-2.5 w-2.5 ml-0.5" />
+                        </div>
                       </div>
-                      
-                      <div className="site-card-action">
-                        <span>Editar</span>
-                        <Edit className="h-2.5 w-2.5 ml-0.5" />
-                      </div>
-                      
-                      <div 
-                        className="absolute bottom-0.75rem right-0.75rem flex items-center text-[10px] text-red-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMessage(message);
-                          setShowDeleteDialog(true);
-                        }}
-                      >
-                        <span>Excluir</span>
-                        <Trash2 className="h-2.5 w-2.5 ml-0.5" />
-                      </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               ) : (
