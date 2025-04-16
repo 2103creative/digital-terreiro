@@ -128,38 +128,38 @@ const FrentesContent = () => {
 
   const renderFrentes = (frentesToRender: Frente[]) => {
     return (
-      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3 max-w-5xl">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl">
         {frentesToRender.map((frente) => (
           <div 
             key={frente.id} 
-            className="bg-white border border-gray-100 rounded-lg aspect-[1/0.5] hover:shadow-sm cursor-pointer transition-shadow"
+            className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
             onClick={() => handleFrenteClick(frente)}
           >
-            <div className="flex flex-col h-full p-1 relative">
+            <div className="flex flex-col h-full p-3 relative">
               {/* Ícone no canto superior esquerdo */}
-              <div className="absolute top-1 left-1">
-                <frente.icon className="h-3 w-3 text-gray-600" />
+              <div className="absolute top-2 left-2">
+                <frente.icon className="h-5 w-5 text-gray-600" />
               </div>
               
               {/* Nome centralizado */}
-              <div className="flex-1 flex items-center justify-center">
-                <h3 className="text-[9px] font-medium text-gray-900">{frente.title}</h3>
+              <div className="flex-1 flex items-center justify-center px-2 pt-2">
+                <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{frente.title}</h3>
               </div>
               
               {/* Link de ver detalhes no canto inferior esquerdo */}
-              <div className="absolute bottom-1 left-1 flex items-center text-[7px] text-blue-600">
+              <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
                 <span>Ver</span>
-                <ArrowRight className="h-2 w-2 ml-0.5" />
+                <ArrowRight className="h-2.5 w-2.5 ml-0.5" />
               </div>
               
               {/* Indicador colorido no canto inferior direito */}
-              <div className="absolute bottom-1 right-1">
-                <div className={`h-2 w-2 rounded-full ${frente.color.split(' ')[0]}`}></div>
+              <div className="absolute bottom-2 right-2">
+                <div className={`h-2.5 w-2.5 rounded-full ${frente.color.split(' ')[0]}`}></div>
               </div>
               
               {/* Contador de visualizações */}
-              <div className="absolute top-1 right-1 flex items-center text-[7px] text-gray-500">
-                <Eye className="h-2 w-2 mr-0.5" />
+              <div className="absolute top-2 right-2 flex items-center text-[10px] text-gray-500">
+                <Eye className="h-2.5 w-2.5 mr-0.5" />
                 <span>{frente.views}</span>
               </div>
             </div>
@@ -243,9 +243,9 @@ const FrentesContent = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}>
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
-          <TabsTrigger value="nacao">Nação</TabsTrigger>
+        <TabsList className="grid w-full max-w-[200px] grid-cols-2 mb-6">
+          <TabsTrigger value="umbanda" className="text-xs py-1.5">Umbanda</TabsTrigger>
+          <TabsTrigger value="nacao" className="text-xs py-1.5">Nação</TabsTrigger>
         </TabsList>
         
         <TabsContent value="umbanda" className="space-y-4">
