@@ -1,7 +1,5 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Bookmark, Download, Book, Eye } from "lucide-react";
@@ -96,8 +94,6 @@ const readingMaterials = {
 };
 
 const ReadingContent = () => {
-  const [activeTab, setActiveTab] = useState<"umbanda" | "nacao">("umbanda");
-
   const renderBookStatus = (progress: number) => {
     if (progress === 0) return <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">Não iniciado</Badge>;
     if (progress === 100) return <Badge variant="secondary" className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5">Concluído</Badge>;
@@ -108,7 +104,11 @@ const ReadingContent = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {materials.map((material) => (
-          <Card key={material.id} className="overflow-hidden h-full">
+          <Card
+            key={material.id}
+            className="overflow-hidden h-full cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => window.open("/Os_Nago_e_a_Morte.pdf", "_blank")}
+          >
             <CardContent className="p-0 h-full">
               <div className="p-3 flex flex-col h-full">
                 <div className="mb-2 flex items-start justify-between">
@@ -118,18 +118,11 @@ const ReadingContent = () => {
                   </div>
                   <Badge className="bg-indigo-50 text-indigo-700 text-[10px] px-1.5 py-0.5 ml-1">E-Book</Badge>
                 </div>
-                
                 <p className="text-xs text-muted-foreground mb-3">{material.description}</p>
-                
-                <div className="text-xs text-muted-foreground mb-2">
-                  {material.pages} páginas
-                </div>
-                
+                <div className="text-xs text-muted-foreground mb-2">{material.pages} páginas</div>
                 <Progress value={material.progress} className="h-1.5 mb-2" />
-                
                 <div className="mt-auto pt-2 flex items-center justify-between">
                   <div>{renderBookStatus(material.progress)}</div>
-                  
                   <div className="flex items-center space-x-1">
                     <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                       <Bookmark className="h-3.5 w-3.5 text-muted-foreground" />
@@ -152,23 +145,10 @@ const ReadingContent = () => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
-      <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
-          <TabsTrigger value="nacao">Nação</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="umbanda" className="space-y-4">
-          <h3 className="text-lg font-semibold">Conhecimento de Umbanda</h3>
-          {renderReadingMaterials(readingMaterials.umbanda)}
-        </TabsContent>
-        
-        <TabsContent value="nacao" className="space-y-4">
-          <h3 className="text-lg font-semibold">Conhecimento de Nação</h3>
-          {renderReadingMaterials(readingMaterials.nacao)}
-        </TabsContent>
-      </Tabs>
+    <div>
+      <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Leitura</h1>
+      <p className="text-xs md:text-sm text-gray-500 mb-6">Clique em um material para abrir e ler o documento completo.</p>
+      {renderReadingMaterials([...readingMaterials.umbanda, ...readingMaterials.nacao])}
     </div>
   );
 };

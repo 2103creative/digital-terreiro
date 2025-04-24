@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MessageSquare, PlusCircle, Edit, Trash2, ArrowLeftCircle, AlertCircle, CheckCircle } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { emitMessageUpdate } from "@/components/MessagesContent";
+import { cn } from "@/lib/utils";
 
 // Interface para o modelo de Mensagem
 interface Message {
@@ -77,6 +78,13 @@ const messagesData: Message[] = [
 
 // Chave para armazenamento no localStorage
 const STORAGE_KEY = "yle-axe-messages";
+
+// Utilitário para garantir que date seja sempre um objeto Date
+function ensureDate(date: any): Date {
+  if (date instanceof Date) return date;
+  if (typeof date === 'string' || typeof date === 'number') return new Date(date);
+  return new Date();
+}
 
 const AdminMessages = () => {
   const { toast } = useToast();
@@ -253,7 +261,7 @@ const AdminMessages = () => {
   };
 
   // Ordenar mensagens por data (mais recentes primeiro)
-  const sortedMessages = [...messages].sort((a, b) => b.date.getTime() - a.date.getTime());
+  const sortedMessages = [...messages].sort((a, b) => ensureDate(b.date).getTime() - ensureDate(a.date).getTime());
 
   return (
     <AdminLayout pageTitle="Gerenciar Mensagens" pageDescription="Administre as mensagens enviadas aos membros do terreiro">
@@ -266,86 +274,46 @@ const AdminMessages = () => {
             </Button>
           </div>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Mensagens</CardTitle>
-              <CardDescription>
-                Gerencie as mensagens enviadas à comunidade do terreiro
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {sortedMessages.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {sortedMessages.map((message) => (
-                    <Card 
-                      key={message.id} 
-                      className={cn(
-                        "bg-white border border-gray-100 rounded-lg aspect-square hover:shadow-sm cursor-pointer transition-shadow",
-                        message.isRead ? "" : "border-l-4 border-l-blue-500"
-                      )}
-                      onClick={() => handleEditMessage(message)}
-                    >
-                      <div className="flex flex-col h-full p-2 relative">
-                        {/* Ícone de status no canto superior esquerdo */}
-                        <div className="absolute top-2 left-2">
-                          {message.isRead ? 
-                            <CheckCircle className="h-5 w-5 text-green-600" /> : 
-                            <MessageSquare className="h-5 w-5 text-blue-600" />}
-                        </div>
-                        
-                        {/* Data da mensagem no canto superior direito */}
-                        <div className="absolute top-2 right-2">
-                          <span className="text-[10px] text-gray-500">
-                            {format(message.date, "dd/MM", { locale: ptBR })}
-                          </span>
-                        </div>
-                        
-                        {/* Indicador de urgência */}
-                        {message.isUrgent && (
-                          <div className="absolute top-8 right-2">
-                            <AlertCircle className="h-4 w-4 text-red-500" />
-                          </div>
-                        )}
-                        
-                        {/* Título da mensagem centralizado */}
-                        <div className="flex-1 flex items-center justify-center px-2">
-                          <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{message.title}</h3>
-                        </div>
-                        
-                        {/* Link de editar no canto inferior esquerdo */}
-                        <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
-                          <span>Editar</span>
-                          <Edit className="h-2.5 w-2.5 ml-0.5" />
-                        </div>
-                        
-                        {/* Botão de excluir no canto inferior direito */}
-                        <div 
-                          className="absolute bottom-2 right-2 flex items-center text-[10px] text-red-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedMessage(message);
-                            setShowDeleteDialog(true);
-                          }}
-                        >
-                          <span>Excluir</span>
-                          <Trash2 className="h-2.5 w-2.5 ml-0.5" />
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+          <div className="flex flex-wrap gap-4 max-w-5xl">
+            {sortedMessages.map(message => (
+              <Card
+                key={message.id}
+                className={cn(
+                  "bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]",
+                  message.isRead ? "" : "border-l-4 border-l-blue-500"
+                )}
+                onClick={() => handleEditMessage(message)}
+              >
+                <div className="flex flex-col h-full p-3 relative">
+                  {/* Ícone de mensagem no canto superior esquerdo */}
+                  <div className="absolute top-3 left-3">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
+                  {/* Título da mensagem centralizado */}
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{message.title}</h3>
+                  </div>
+                  {/* Link de editar no canto inferior esquerdo */}
+                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                    onClick={e => { e.stopPropagation(); handleEditMessage(message); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <span>Editar</span>
+                    <Edit className="h-3 w-3 ml-0.5" />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-10">
-                  <MessageSquare className="h-16 w-16 text-primary mb-4" />
-                  <p className="text-xl font-medium text-center">Nenhuma mensagem encontrada</p>
-                  <p className="text-muted-foreground mt-2 text-center">
-                    Não existem mensagens cadastradas.
-                    Clique em "Nova Mensagem" para adicionar.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </Card>
+            ))}
+          </div>
+          {sortedMessages.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-10">
+              <MessageSquare className="h-16 w-16 text-primary mb-4" />
+              <p className="text-xl font-medium text-center">Nenhuma mensagem encontrada</p>
+              <p className="text-muted-foreground mt-2 text-center">
+                Não existem mensagens cadastradas. Clique em "Nova Mensagem" para adicionar.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <Card>
@@ -382,7 +350,6 @@ const AdminMessages = () => {
                   onChange={(e) => setNewMessage({...newMessage, title: e.target.value})}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="message-content">Conteúdo *</Label>
                 <Textarea
@@ -393,48 +360,42 @@ const AdminMessages = () => {
                   rows={5}
                 />
               </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="message-urgent"
                   checked={newMessage.isUrgent}
                   onCheckedChange={(checked) => setNewMessage({...newMessage, isUrgent: checked})}
                 />
-                <Label htmlFor="message-urgent">Marcar como urgente</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="message-read"
-                  checked={newMessage.isRead}
-                  onCheckedChange={(checked) => setNewMessage({...newMessage, isRead: checked})}
-                />
-                <Label htmlFor="message-read">Marcar como lida</Label>
-              </div>
-              
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowForm(false);
-                    setSelectedMessage(null);
-                    setNewMessage({
-                      title: "",
-                      content: "",
-                      date: new Date(),
-                      isUrgent: false,
-                      isRead: false,
-                    });
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
-                  {selectedMessage ? 'Atualizar' : 'Adicionar'} Mensagem
-                </Button>
+                <Label htmlFor="message-urgent">Mensagem urgente</Label>
               </div>
             </div>
           </CardContent>
+          <CardFooter className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowForm(false);
+                setSelectedMessage(null);
+                setNewMessage({
+                  title: "",
+                  content: "",
+                  date: new Date(),
+                  isUrgent: false,
+                  isRead: false,
+                });
+              }}
+            >
+              Cancelar
+            </Button>
+            {selectedMessage && (
+              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+                Excluir
+              </Button>
+            )}
+            <Button onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
+              {selectedMessage ? 'Atualizar Mensagem' : 'Adicionar Mensagem'}
+            </Button>
+          </CardFooter>
         </Card>
       )}
 

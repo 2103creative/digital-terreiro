@@ -1,16 +1,16 @@
-
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
-import FrentesContent from "@/components/FrentesContent";
-import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
+import AdminFrente from "./AdminFrente";
+import UserFrentes from "./UserFrentes";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth from auth context
+import DesktopSidebar from "@/components/DesktopSidebar";
 
 const Frentes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const { isAdmin } = useAuth(); // Get isAdmin from auth context
+
   useEffect(() => {
     // Check if user is authenticated
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
@@ -24,20 +24,15 @@ const Frentes = () => {
     }
   }, [navigate, toast]);
 
-  return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
+  // Renderiza componente de visualização para usuários e admin para admins
+  return isAdmin ? (
+    <AdminFrente />
+  ) : (
+    <div className="min-h-screen bg-gray-50 md:flex">
       <DesktopSidebar />
-      
       <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold mb-6">Frentes</h1>
-          <FrentesContent />
-        </main>
+        <UserFrentes />
       </div>
-      
-      <MobileNav />
     </div>
   );
 };

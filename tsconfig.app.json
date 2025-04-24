@@ -9,9 +9,10 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "noEmit": false,
     "jsx": "react-jsx",
 
     /* Linting */
@@ -21,6 +22,7 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
+    "composite": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

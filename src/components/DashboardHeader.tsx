@@ -267,21 +267,23 @@ const DashboardHeader = () => {
             <HelpCircle className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-7 w-7 md:h-8 md:w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700 relative"
-            onClick={handleNotificationClick}
-            aria-label="Notificações"
-          >
-            <Bell className="h-3.5 w-3.5 md:h-4 md:w-4" />
-            {messageCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-3 w-3 md:h-3.5 md:w-3.5 rounded-full bg-red-500 text-[6px] md:text-[8px] text-white flex items-center justify-center">
-                {messageCount}
-              </span>
-            )}
-          </Button>
-
+          {/* Botão de notificações (apenas para não-admin) */}
+          {!isAdmin && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-7 w-7 md:h-8 md:w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700 relative"
+              onClick={handleNotificationClick}
+              aria-label="Notificações"
+            >
+              <Bell className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              {messageCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-3 w-3 md:h-3.5 md:w-3.5 rounded-full bg-red-500 text-[6px] md:text-[8px] text-white flex items-center justify-center">
+                  {messageCount}
+                </span>
+              )}
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-7 md:h-8 px-1 md:px-1.5 rounded-md hover:bg-gray-100" aria-label="Perfil e Configurações">

@@ -227,7 +227,7 @@
       const firstSaturday = new Date(year, 0, 1 + daysUntilSaturday);
       
       // Loop para gerar todos os sábados do ano
-      let currentDate = new Date(firstSaturday);
+      const currentDate = new Date(firstSaturday);
       
       while (currentDate.getFullYear() === year) {
         // Formatar a data como YYYY-MM-DD
@@ -241,7 +241,7 @@
       }
       
       // Verificação de segurança - confirmar se todas são sábados
-      for (let dateStr of saturdays) {
+      for (const dateStr of saturdays) {
         const testDate = new Date(dateStr);
         if (testDate.getDay() !== 6) {
           console.error(`ERRO: Data ${dateStr} não é um sábado. Dia da semana: ${testDate.getDay()}`);
@@ -424,7 +424,7 @@
               (memberParticipation[a] || 0) - (memberParticipation[b] || 0)
             );
             
-            let currentPair: string[] = [];
+            const currentPair: string[] = [];
             
             // Escolher o primeiro membro (quem participou menos)
             const firstMember = sortedMembers[0];

@@ -31,34 +31,6 @@ const Messages = () => {
         <DashboardHeader />
         
         <main className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <div className="flex justify-center gap-2 md:gap-4 border-b pb-1 overflow-x-auto text-xs md:text-sm whitespace-nowrap scrollbar-none">
-              <button 
-                className="text-muted-foreground px-1 py-0.5"
-                onClick={() => navigate("/dashboard")}
-              >
-                Destaques
-              </button>
-              <button 
-                className="text-muted-foreground px-1 py-0.5"
-                onClick={() => navigate("/eventos")}
-              >
-                Eventos
-              </button>
-              <button 
-                className="text-muted-foreground px-1 py-0.5"
-                onClick={() => navigate("/leitura")}
-              >
-                Leitura
-              </button>
-              <button 
-                className="font-medium text-primary border-b-2 border-primary pb-1 px-1 py-0.5"
-                onClick={() => navigate("/mensagens")}
-              >
-                Mensagens
-              </button>
-            </div>
-          </div>
           <MessagesContent />
         </main>
       </div>

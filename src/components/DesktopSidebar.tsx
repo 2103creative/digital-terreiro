@@ -1,3 +1,4 @@
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Home, 
@@ -13,7 +14,8 @@ import {
   Cog,
   Users,
   Heart,
-  ShoppingCart
+  ShoppingCart,
+  Leaf
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -21,13 +23,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface MenuItemType {
   label: string;
-  icon: React.FC<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   path: string;
 }
 
 interface CategoryMenuItemType {
   category: string;
-  icon: React.FC<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   items: MenuItemType[];
 }
 
@@ -49,7 +51,7 @@ const DesktopSidebar = () => {
   };
 
   // Itens de menu para usuários comuns
-  const userMenuItems: MenuItem[] = [
+  const userMenuItems: MenuItemType[] = [
     {
       label: "Dashboard",
       icon: Home,
@@ -59,6 +61,16 @@ const DesktopSidebar = () => {
       label: "Frentes",
       icon: FileText,
       path: "/frentes",
+    },
+    {
+      label: "Ervas",
+      icon: Leaf,
+      path: "/ervas",
+    },
+    {
+      label: "Compras",
+      icon: ShoppingCart,
+      path: "/lista-compras",
     },
     {
       label: "Eventos",
@@ -71,29 +83,19 @@ const DesktopSidebar = () => {
       path: "/leitura",
     },
     {
-      label: "Mensagens",
-      icon: MessageSquare,
-      path: "/mensagens",
-    },
-    {
       label: "Limpeza",
       icon: Brush,
       path: "/limpeza",
     },
     {
-      label: "Compras",
-      icon: ShoppingCart,
-      path: "/lista-compras",
+      label: "Mensagens",
+      icon: MessageSquare,
+      path: "/mensagens",
     },
     {
       label: "Bate Papo",
       icon: Heart,
       path: "/chat",
-    },
-    {
-      label: "Sobre",
-      icon: Info,
-      path: "/sobre",
     },
     {
       label: "Meu Perfil",
@@ -103,21 +105,21 @@ const DesktopSidebar = () => {
   ];
 
   // Itens de menu para administradores
-  const adminMenuItems: MenuItem[] = [
+  const adminMenuItems: MenuItemType[] = [
     {
       label: "Dashboard",
       icon: Home,
       path: "/dashboard",
     },
     {
-      label: "Usuários",
-      icon: Users,
-      path: "/admin/usuarios",
-    },
-    {
       label: "Frentes",
       icon: FileText,
       path: "/admin/frentes",
+    },
+    {
+      label: "Ervas",
+      icon: Leaf,
+      path: "/admin/ervas",
     },
     {
       label: "Compras",
@@ -150,22 +152,21 @@ const DesktopSidebar = () => {
       path: "/chat",
     },
     {
-      label: "Sobre",
-      icon: Info,
-      path: "/admin/sobre",
+      label: "Usuários",
+      icon: Users,
+      path: "/admin/usuarios",
+    },
+    {
+      label: "Meu Perfil",
+      icon: User,
+      path: "/profile",
     }
   ];
 
   // Seleciona os itens de menu com base no tipo de usuário
   const mainMenuItems = isAdmin ? adminMenuItems : userMenuItems;
 
-  const secondaryMenuItems: MenuItem[] = !isAdmin ? [
-    {
-      label: "Sobre",
-      icon: Info,
-      path: "/sobre",
-    },
-  ] : [];
+  const secondaryMenuItems: MenuItemType[] = [];
 
   const isCategoryMenuItem = (item: MenuItem): item is CategoryMenuItemType => {
     return 'category' in item;
@@ -213,7 +214,9 @@ const DesktopSidebar = () => {
               : "text-gray-700 hover:text-gray-900"
           )}
         >
-          <standardItem.icon className="h-3.5 w-3.5 mr-2.5" />
+          {standardItem.icon && (
+            React.createElement(standardItem.icon, { width: 18, height: 18, style: { marginRight: 8 } })
+          )}
           <span>{standardItem.label}</span>
         </button>
       </li>
@@ -257,6 +260,9 @@ const DesktopSidebar = () => {
             )}
           </li>
         </ul>
+        <div className="flex flex-col items-center mt-6 mb-2">
+          <img src="/canoa.png" alt="Canoa" className="w-32 h-auto opacity-80" />
+        </div>
       </div>
     </aside>
   );

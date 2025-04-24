@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft } from "lucide-react";
 
 interface UserFormProps {
   userId?: number; // Se fornecido, estamos editando um usuário
@@ -30,7 +31,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     santoObrigacao: "",
     status: "active",
     role: "member",
-    avatar: "/placeholder.svg"
+    avatar: "/placeholder.svg",
+    allowedPages: []
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +53,13 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             birthdate: "1990-05-15",
             whatsapp: "11999887766",
             orixa: "Xangô",
-            batismoDate: "2018-03-10",
+            batismoDate: "2010-01-01",
             mataObrigacao: ["Oxóssi", "Ogum"],
-            santoObrigacao: "7 anos",
-            role: "admin", 
+            santoObrigacao: "3 anos",
             status: "active",
-            avatar: "/placeholder.svg"
+            role: "admin", 
+            avatar: "/avatar1.jpg",
+            allowedPages: ["/dashboard", "/frentes"]
           },
           { 
             id: 2, 
@@ -65,12 +68,13 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             birthdate: "1985-10-20",
             whatsapp: "11988776655",
             orixa: "Oxóssi",
-            batismoDate: "2019-06-21",
-            mataObrigacao: ["Oxóssi"],
-            santoObrigacao: "3 anos",
-            role: "member", 
+            batismoDate: "2015-06-01",
+            mataObrigacao: ["Xangô", "Iansã"],
+            santoObrigacao: "5 anos",
             status: "active",
-            avatar: "/placeholder.svg"
+            role: "member", 
+            avatar: "/avatar2.jpg",
+            allowedPages: ["/favoritos", "/events"]
           }
         ];
         
@@ -80,9 +84,7 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             ...formData,
             ...user
           });
-          if (user.avatar) {
-            setImagePreview(user.avatar);
-          }
+          setImagePreview(user.avatar);
         }
         
         setIsLoading(false);
@@ -119,15 +121,11 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
   };
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Em um app real, você enviaria o arquivo para o servidor
-      // Aqui, estamos apenas criando uma URL temporária para exibição
-      const imageUrl = URL.createObjectURL(file);
-      setImagePreview(imageUrl);
+    if (e.target.files && e.target.files[0]) {
+      setImagePreview(URL.createObjectURL(e.target.files[0]));
       setFormData({
         ...formData,
-        avatar: imageUrl
+        avatar: URL.createObjectURL(e.target.files[0])
       });
     }
   };
@@ -175,270 +173,221 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     { value: "pending", label: "Pendente" }
   ];
   
+  // Lista de páginas disponíveis para permissão de visualização
+  const pageOptions = [
+    { value: "/dashboard", label: "Dashboard" },
+    { value: "/frentes", label: "Frentes" },
+    { value: "/ervas", label: "Ervas" },
+    { value: "/lista-compras", label: "Compras" },
+    { value: "/events", label: "Eventos" },
+    { value: "/reading", label: "Leitura" },
+    { value: "/limpeza", label: "Limpeza" },
+    { value: "/messages", label: "Mensagens" },
+    { value: "/chat", label: "Bate Papo" },
+    { value: "/about", label: "Sobre" },
+    { value: "/adminusuarios", label: "Usuários" }
+  ];
+
+  const handleAllowedPagesChange = (page: string, checked: boolean) => {
+    if (checked) {
+      setFormData({
+        ...formData,
+        allowedPages: [...formData.allowedPages, page]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        allowedPages: formData.allowedPages.filter(p => p !== page)
+      });
+    }
+  };
+  
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center">
         <Button 
           variant="ghost" 
           size="icon" 
-          className="mr-2"
+          className="mr-2 h-8 w-8"
           onClick={() => navigate("/admin/usuarios")}
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-xl font-bold">
+        <h1 className="text-lg font-semibold">
           {isEditMode ? `Editar Usuário: ${formData.name}` : "Adicionar Novo Usuário"}
         </h1>
       </div>
-      
       {isLoading && isEditMode ? (
         <div className="flex justify-center p-8">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-medium mb-4">Foto de Perfil</h2>
-            
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex flex-col items-center gap-4">
-                <Avatar className="h-32 w-32">
-                  <AvatarImage src={imagePreview || formData.avatar} alt={formData.name} />
-                  <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                
-                <div className="relative">
-                  <Input
-                    id="avatar"
-                    name="avatar"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                  <Label
-                    htmlFor="avatar"
-                    className="flex items-center gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Alterar foto
-                  </Label>
-                </div>
-              </div>
-              
-              <div className="space-y-2 flex-1">
-                <p className="text-sm text-muted-foreground">
-                  Adicione uma foto de perfil para o usuário. Formatos aceitos: JPG, PNG ou GIF. 
-                  Tamanho máximo recomendado: 2MB.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  A foto será usada na página de perfil do usuário e em listagens do sistema.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-medium mb-4">Informações Pessoais</h2>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome completo *</Label>
+          {/* Foto de perfil */}
+          <div className="rounded-lg border p-4 md:p-6 flex items-center gap-6 bg-white">
+            <div className="flex flex-col items-center gap-3">
+              <Avatar className="h-24 w-24 md:h-28 md:w-28">
+                <AvatarImage src={imagePreview || formData.avatar} alt={formData.name} />
+                <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="relative">
                 <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
+                  id="avatar"
+                  name="avatar"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
                 />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="birthdate">Data de nascimento *</Label>
-                <Input
-                  id="birthdate"
-                  name="birthdate"
-                  type="date"
-                  value={formData.birthdate}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp</Label>
-                <Input
-                  id="whatsapp"
-                  name="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={handleChange}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-medium mb-4">Informações Espirituais</h2>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="orixa">Orixá regente</Label>
-                <Select 
-                  value={formData.orixa} 
-                  onValueChange={(value) => handleSelectChange("orixa", value)}
+                <Label
+                  htmlFor="avatar"
+                  className="flex items-center gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-md text-xs font-medium"
                 >
-                  <SelectTrigger id="orixa">
+                  <Upload className="h-4 w-4" />
+                  Alterar foto
+                </Label>
+              </div>
+            </div>
+            <div className="flex-1 space-y-1 text-xs text-muted-foreground">
+              <div>Adicione uma foto de perfil para o usuário. Formatos aceitos: JPG, PNG ou GIF. Tamanho máximo recomendado: 2MB.</div>
+              <div>A foto será usada na página de perfil do usuário e em listagens do sistema.</div>
+            </div>
+          </div>
+
+          {/* Informações pessoais */}
+          <div className="rounded-lg border p-4 md:p-6 bg-white">
+            <h2 className="text-base font-medium mb-3">Informações Pessoais</h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="name" className="text-xs">Nome completo *</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required className="h-8 text-xs px-2" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="birthdate" className="text-xs">Data de nascimento *</Label>
+                <Input id="birthdate" name="birthdate" type="date" value={formData.birthdate} onChange={handleChange} required className="h-8 text-xs px-2" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-xs">Email *</Label>
+                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className="h-8 text-xs px-2" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="whatsapp" className="text-xs">WhatsApp</Label>
+                <Input id="whatsapp" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="h-8 text-xs px-2" placeholder="(11) 99999-9999" />
+              </div>
+            </div>
+          </div>
+
+          {/* Informações espirituais */}
+          <div className="rounded-lg border p-4 md:p-6 bg-white">
+            <h2 className="text-base font-medium mb-3">Informações Espirituais</h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="orixa" className="text-xs">Orixá regente</Label>
+                <Select value={formData.orixa} onValueChange={v => handleSelectChange("orixa", v)}>
+                  <SelectTrigger id="orixa" className="h-8 text-xs px-2">
                     <SelectValue placeholder="Selecione o Orixá" />
                   </SelectTrigger>
                   <SelectContent>
-                    {orixaOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
+                    {orixaOptions.map(option => (
+                      <SelectItem key={option} value={option} className="text-xs">{option}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="batismoDate">Data de batismo</Label>
-                <Input
-                  id="batismoDate"
-                  name="batismoDate"
-                  type="date"
-                  value={formData.batismoDate}
-                  onChange={handleChange}
-                />
+              <div className="space-y-1">
+                <Label htmlFor="batismoDate" className="text-xs">Data de batismo</Label>
+                <Input id="batismoDate" name="batismoDate" type="date" value={formData.batismoDate} onChange={handleChange} className="h-8 text-xs px-2" />
               </div>
-              
-              <div className="space-y-2 md:col-span-2">
-                <Label>Obrigação de Mata (Mesas Apresentadas)</Label>
-                <div className="grid gap-2 md:grid-cols-3 mt-2">
-                  {linhasDeMata.map((linha) => (
+              <div className="space-y-1 md:col-span-2">
+                <Label className="text-xs">Obrigação de Mata (Mesas Apresentadas)</Label>
+                <div className="grid gap-2 md:grid-cols-3 mt-1">
+                  {linhasDeMata.map(linha => (
                     <div key={linha} className="flex items-center space-x-2">
                       <Checkbox 
                         id={`linha-${linha}`} 
                         checked={formData.mataObrigacao.includes(linha)}
-                        onCheckedChange={(checked) => 
-                          handleMataChange(linha, checked as boolean)
-                        }
+                        onCheckedChange={checked => handleMataChange(linha, checked as boolean)}
                       />
-                      <Label 
-                        htmlFor={`linha-${linha}`}
-                        className="font-normal"
-                      >
-                        {linha}
-                      </Label>
+                      <Label htmlFor={`linha-${linha}`} className="font-normal text-xs">{linha}</Label>
                     </div>
                   ))}
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="santoObrigacao">Obrigação de Santo</Label>
-                <Input
-                  id="santoObrigacao"
-                  name="santoObrigacao"
-                  value={formData.santoObrigacao}
-                  onChange={handleChange}
-                  placeholder="Ex: 3 anos"
-                />
+              <div className="space-y-1">
+                <Label htmlFor="santoObrigacao" className="text-xs">Obrigação de Santo</Label>
+                <Input id="santoObrigacao" name="santoObrigacao" value={formData.santoObrigacao} onChange={handleChange} className="h-8 text-xs px-2" placeholder="Ex: 3 anos" />
               </div>
             </div>
           </div>
-          
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-medium mb-4">Configurações de Conta</h2>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="role">Função</Label>
-                <Select 
-                  value={formData.role} 
-                  onValueChange={(value) => handleSelectChange("role", value)}
-                >
-                  <SelectTrigger id="role">
+
+          {/* Permissões de páginas */}
+          <div className="rounded-lg border p-4 md:p-6 bg-white">
+            <h2 className="text-base font-medium mb-3">Permissões de Visualização</h2>
+            <div className="grid gap-2 md:grid-cols-3">
+              {pageOptions.map(page => (
+                <div key={page.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`page-${page.value}`}
+                    checked={formData.allowedPages.includes(page.value)}
+                    onCheckedChange={checked => handleAllowedPagesChange(page.value, checked as boolean)}
+                  />
+                  <Label htmlFor={`page-${page.value}`} className="font-normal text-xs">{page.label}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Configurações de Conta */}
+          <div className="rounded-lg border p-4 md:p-6 bg-white">
+            <h2 className="text-base font-medium mb-3">Configurações de Conta</h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="role" className="text-xs">Função</Label>
+                <Select value={formData.role} onValueChange={v => handleSelectChange("role", v)}>
+                  <SelectTrigger id="role" className="h-8 text-xs px-2">
                     <SelectValue placeholder="Selecione a função" />
                   </SelectTrigger>
                   <SelectContent>
-                    {roleOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
+                    {roleOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value} className="text-xs">{option.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={formData.status} 
-                  onValueChange={(value) => handleSelectChange("status", value)}
-                >
-                  <SelectTrigger id="status">
+              <div className="space-y-1">
+                <Label htmlFor="status" className="text-xs">Status</Label>
+                <Select value={formData.status} onValueChange={v => handleSelectChange("status", v)}>
+                  <SelectTrigger id="status" className="h-8 text-xs px-2">
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {statusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
+                    {statusOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value} className="text-xs">{option.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
-          
-          <div className="flex justify-end gap-4 mt-8">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate("/admin/usuarios")}
-              disabled={isLoading}
-            >
-              Cancelar
-            </Button>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={() => navigate("/admin/usuarios")}
+              className="h-8 text-xs px-3">Cancelar</Button>
             {isEditMode && (
               <Button 
                 type="button" 
                 variant="destructive" 
                 onClick={() => {
-                  // Em um app real, isso seria uma chamada API para excluir o usuário
                   toast({
                     title: "Usuário excluído",
                     description: `${formData.name} foi removido com sucesso`,
                   });
                   navigate("/admin/usuarios");
                 }}
-                disabled={isLoading}
-              >
-                Excluir
-              </Button>
+                className="h-8 text-xs px-3"
+              >Excluir</Button>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
-                  Salvando...
-                </>
-              ) : (
-                isEditMode ? "Salvar alterações" : "Criar usuário"
-              )}
+            <Button type="submit" disabled={isLoading} className="h-8 text-xs px-4">
+              {isLoading ? "Salvando..." : isEditMode ? "Salvar alterações" : "Criar usuário"}
             </Button>
           </div>
         </form>

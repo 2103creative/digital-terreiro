@@ -157,122 +157,75 @@ const Limpeza = () => {
       <div className="flex-1">
         <DashboardHeader />
         
-        <main className="container mx-auto px-4 py-6">
-          <div className="bg-white shadow-sm rounded-lg py-4 px-6 mb-6">
-            <h1 className="text-xl font-medium text-gray-800 text-center">{viewSettings.pageTitle}</h1>
-            <p className="text-center text-gray-600 text-sm mt-2">
-              {viewSettings.pageSubtitle}
-            </p>
+        <main className="container mx-auto px-2 py-4 md:py-6">
+          <div className="bg-white rounded-md shadow-sm py-3 px-3 md:px-4 mb-4">
+            <h1 className="text-base md:text-lg font-semibold text-gray-800 text-center">{viewSettings.pageTitle}</h1>
+            <p className="text-center text-gray-500 text-xs md:text-sm mt-1">{viewSettings.pageSubtitle}</p>
           </div>
-          
           {isLoading ? (
-            <div className="flex justify-center py-10">
-              <div className="animate-spin h-10 w-10 border-3 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="flex justify-center py-8">
+              <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
               {Object.keys(cleaningItems.reduce((acc, item) => {
                 acc[item.month] = true;
                 return acc;
               }, {})).map(month => (
-                <div key={month} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <h2 className="text-lg font-medium text-gray-800">{month}</h2>
+                <Card key={month} className="bg-white rounded-md shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/admin/mantimentos')}>
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <h2 className="text-sm md:text-base font-medium text-gray-800">{month}</h2>
                   </div>
                   <div className="p-0">
-                    <table className="w-full border-collapse">
+                    <table className="w-full border-collapse text-xs md:text-sm">
                       <tbody>
                         {cleaningItems
                           .filter(item => item.month === month)
                           .map(item => (
                             <tr 
                               key={item.id} 
-                              className={`border-b border-gray-100 hover:bg-gray-50 ${
-                                item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)
-                              }`}
+                              className={`border-b border-gray-100 hover:bg-gray-50 ${item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)}`}
+                              onClick={e => e.stopPropagation()} // impede propagação do clique da linha
                             >
-                              <td className="px-4 py-3 text-center w-16">
-                                <span className="text-sm font-medium text-gray-700">{item.date}</span>
+                              <td className="px-2 py-2 text-center w-12 md:w-16">
+                                <span className="text-xs font-medium text-gray-700">{item.date}</span>
                               </td>
-                              <td className="px-2 py-3">
-                                <span className={`text-sm ${item.isSpecialDay ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
-                                  {item.team}
-                                </span>
+                              <td className="px-1 py-2">
+                                <span className={`text-xs ${item.isSpecialDay ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>{item.team}</span>
                                 {item.isSpecialDay && (
-                                  <div className="text-xs text-blue-600 mt-0.5">
-                                    Todos participam
-                                  </div>
+                                  <span className="ml-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] align-middle">Especial</span>
                                 )}
                               </td>
+                              <td className="px-1 py-2 text-center">
+                                {getStatusIcon(item.status)}
+                              </td>
                               {viewSettings.showStatusButtons && (
-                                <td className="px-2 py-3 w-32 text-right">
-                                  <div className="flex justify-end space-x-2">
-                                    <button 
-                                      onClick={() => handleStatusChange(item.id, "pending")}
-                                      className={`w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${
-                                        item.status === "pending" 
-                                          ? "bg-amber-100 border-amber-300" 
-                                          : "border-gray-200 hover:bg-amber-50"
-                                      }`}
-                                      aria-label="Pendente"
-                                      disabled={!viewSettings.allowStatusChange}
-                                    >
-                                      <Clock className={`h-5 w-5 ${
-                                        item.status === "pending" ? "text-amber-600" : "text-gray-400"
-                                      }`} />
-                                    </button>
-                                    
-                                    <button 
-                                      onClick={() => handleStatusChange(item.id, "completed")}
-                                      className={`w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${
-                                        item.status === "completed" 
-                                          ? "bg-green-100 border-green-300" 
-                                          : "border-gray-200 hover:bg-green-50"
-                                      }`}
-                                      aria-label="Concluído"
-                                      disabled={!viewSettings.allowStatusChange}
-                                    >
-                                      <CheckCircle className={`h-5 w-5 ${
-                                        item.status === "completed" ? "text-green-600" : "text-gray-400"
-                                      }`} />
-                                    </button>
-                                    
-                                    <button 
-                                      onClick={() => handleStatusChange(item.id, "missed")}
-                                      className={`w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${
-                                        item.status === "missed" 
-                                          ? "bg-red-100 border-red-300" 
-                                          : "border-gray-200 hover:bg-red-50"
-                                      }`}
-                                      aria-label="Não realizado"
-                                      disabled={!viewSettings.allowStatusChange}
-                                    >
-                                      <XCircle className={`h-5 w-5 ${
-                                        item.status === "missed" ? "text-red-600" : "text-gray-400"
-                                      }`} />
-                                    </button>
+                                <td className="px-1 py-2 text-right">
+                                  <div className="flex gap-1 justify-end">
+                                    <button
+                                      className="text-xs px-2 py-1 rounded bg-green-50 hover:bg-green-100 text-green-700 border border-green-100"
+                                      onClick={e => { e.stopPropagation(); handleStatusChange(item.id, 'completed'); }}
+                                    >Feito</button>
+                                    <button
+                                      className="text-xs px-2 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 border border-red-100"
+                                      onClick={e => { e.stopPropagation(); handleStatusChange(item.id, 'missed'); }}
+                                    >Faltou</button>
                                   </div>
                                 </td>
                               )}
                             </tr>
-                          ))
-                        }
+                          ))}
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
-          
           {viewSettings.showObservations && (
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-6">
-              <h2 className="text-lg font-medium text-gray-800 mb-4">OBSERVAÇÕES</h2>
-              <div className="space-y-3 text-sm text-gray-600">
-                {viewSettings.observationsText.split('\n\n').map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
+            <div className="mt-4 p-3 md:p-4 bg-white rounded-md border text-xs md:text-sm text-gray-600 whitespace-pre-line">
+              {viewSettings.observationsText}
             </div>
           )}
         </main>

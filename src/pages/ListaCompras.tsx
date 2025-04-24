@@ -329,41 +329,37 @@ const ListaCompras = () => {
       pageDescription="Selecione itens para comprar e ajude a manter nosso estoque"
     >
       <div className="space-y-4">
-        <div className="bg-white p-4 border rounded-lg mb-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center space-x-3">
-              <ShoppingCart className="text-primary h-6 w-6" />
-              <h2 className="text-lg font-medium">Gerencie sua lista de compras</h2>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleExportListaCompras}>
-                <Download className="h-4 w-4 mr-1" />
-                Exportar Minha Lista
-              </Button>
-            </div>
+        <div className="bg-white p-3 md:p-4 border rounded-lg mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="text-primary h-5 w-5" />
+            <h2 className="text-base md:text-lg font-semibold">Gerencie sua lista de compras</h2>
           </div>
+          <Button variant="outline" size="sm" onClick={handleExportListaCompras} className="h-7 px-2 text-xs">
+            <Download className="h-4 w-4 mr-1" />
+            Exportar Minha Lista
+          </Button>
         </div>
-      
-        {/* Lista de itens comprometidos para compra */}
+
+        {/* Itens do usuário */}
         {itemsParaComprar.filter(item => item.usuario === user?.name).length > 0 && (
-          <Card className="mb-4 border-green-200">
-            <CardHeader className="pb-3 bg-green-50 border-b border-green-100">
-              <CardTitle className="text-base flex items-center">
-                <ShoppingCart className="h-5 w-5 mr-2 text-green-600" />
+          <Card className="mb-3 border-green-200 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/admin/mantimentos')}>
+            <CardHeader className="py-2 px-3 bg-green-50 border-b border-green-100">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-green-600" />
                 Meus Itens para Comprar
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-50 border-b">
-                      <th className="py-2 px-3 text-left">Nome</th>
-                      <th className="py-2 px-3 text-left">Categoria</th>
-                      <th className="py-2 px-3 text-left">Quantidade</th>
-                      <th className="py-2 px-3 text-left">Observações</th>
-                      <th className="py-2 px-3 text-right">Ação</th>
+                      <th className="py-1 px-2 text-left font-medium">Nome</th>
+                      <th className="py-1 px-2 text-left font-medium">Categoria</th>
+                      <th className="py-1 px-2 text-left font-medium">Qtd.</th>
+                      <th className="py-1 px-2 text-left font-medium">Obs.</th>
+                      <th className="py-1 px-2 text-right font-medium">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -371,21 +367,17 @@ const ListaCompras = () => {
                       .filter(item => item.usuario === user?.name)
                       .map((item) => (
                         <tr key={`compra-${item.id}`} className="border-b hover:bg-gray-50 bg-green-50">
-                          <td className="py-2 px-3 font-medium">{item.nome}</td>
-                          <td className="py-2 px-3">{item.categoria}</td>
-                          <td className="py-2 px-3 font-medium text-green-600">
-                            {item.quantidade_comprar} {item.unidade}
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {item.observacoes || "-"}
-                          </td>
-                          <td className="py-2 px-3 text-right">
-                            <div className="flex justify-end space-x-2">
+                          <td className="py-1 px-2 font-medium">{item.nome}</td>
+                          <td className="py-1 px-2">{item.categoria}</td>
+                          <td className="py-1 px-2 font-medium text-green-600">{item.quantidade_comprar} {item.unidade}</td>
+                          <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
+                          <td className="py-1 px-2 text-right">
+                            <div className="flex justify-end gap-1">
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                onClick={() => marcarComoComprado(item.id)}
-                                className="text-green-500 hover:text-green-700"
+                                onClick={e => { e.stopPropagation(); marcarComoComprado(item.id); }}
+                                className="h-7 px-2 text-xs text-green-500 hover:text-green-700"
                               >
                                 <Check className="h-4 w-4 mr-1" />
                                 Comprado
@@ -393,8 +385,8 @@ const ListaCompras = () => {
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                onClick={() => removerItemCompra(item.id)}
-                                className="text-red-500 hover:text-red-700"
+                                onClick={e => { e.stopPropagation(); removerItemCompra(item.id); }}
+                                className="h-7 px-2 text-xs text-red-500 hover:text-red-700"
                               >
                                 <Trash className="h-4 w-4 mr-1" />
                                 Remover
@@ -409,26 +401,27 @@ const ListaCompras = () => {
             </CardContent>
           </Card>
         )}
-        
-        {/* Lista de itens que outros membros irão comprar */}
+
+        {/* Itens de outros membros */}
         {itemsParaComprar.filter(item => item.usuario !== user?.name).length > 0 && (
-          <Card className="mb-4 border-blue-200">
-            <CardHeader className="pb-3 bg-blue-50 border-b border-blue-100">
-              <CardTitle className="text-base flex items-center">
-                <Users className="h-5 w-5 mr-2 text-blue-600" />
+          <Card className="mb-3 border-blue-200 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/admin/mantimentos')}>
+            <CardHeader className="py-2 px-3 bg-blue-50 border-b border-blue-100">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Users className="h-4 w-4 text-blue-600" />
                 Itens que Outros Membros Irão Comprar
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-50 border-b">
-                      <th className="py-2 px-3 text-left">Nome</th>
-                      <th className="py-2 px-3 text-left">Categoria</th>
-                      <th className="py-2 px-3 text-left">Quantidade</th>
-                      <th className="py-2 px-3 text-left">Membro</th>
-                      <th className="py-2 px-3 text-left">Observações</th>
+                      <th className="py-1 px-2 text-left font-medium">Nome</th>
+                      <th className="py-1 px-2 text-left font-medium">Categoria</th>
+                      <th className="py-1 px-2 text-left font-medium">Qtd.</th>
+                      <th className="py-1 px-2 text-left font-medium">Membro</th>
+                      <th className="py-1 px-2 text-left font-medium">Obs.</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -436,17 +429,11 @@ const ListaCompras = () => {
                       .filter(item => item.usuario !== user?.name)
                       .map((item) => (
                         <tr key={`compra-outros-${item.id}`} className="border-b hover:bg-gray-50 bg-blue-50">
-                          <td className="py-2 px-3 font-medium">{item.nome}</td>
-                          <td className="py-2 px-3">{item.categoria}</td>
-                          <td className="py-2 px-3 font-medium text-blue-600">
-                            {item.quantidade_comprar} {item.unidade}
-                          </td>
-                          <td className="py-2 px-3 font-medium text-gray-800">
-                            {item.usuario}
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {item.observacoes || "-"}
-                          </td>
+                          <td className="py-1 px-2 font-medium">{item.nome}</td>
+                          <td className="py-1 px-2">{item.categoria}</td>
+                          <td className="py-1 px-2 font-medium text-blue-600">{item.quantidade_comprar} {item.unidade}</td>
+                          <td className="py-1 px-2">{item.usuario}</td>
+                          <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -455,200 +442,186 @@ const ListaCompras = () => {
             </CardContent>
           </Card>
         )}
-        
-        {/* Filtros para a lista de compras */}
-        <div className="flex flex-col md:flex-row gap-3 bg-white p-4 border rounded-lg mb-4">
-          <div className="flex-1 flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Buscar itens para comprar..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
+
+        {/* Filtros e busca */}
+        <div className="bg-white border rounded-lg p-3 md:p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+          <div className="flex flex-col md:flex-row gap-2 md:items-center flex-1">
+            <Input
+              placeholder="Buscar item..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="h-7 text-xs px-2 w-full md:w-56"
+            />
             <Select value={categoriaFiltro} onValueChange={setCategoriaFiltro}>
-              <SelectTrigger className="w-full md:w-44">
+              <SelectTrigger className="h-7 text-xs px-2 w-full md:w-40">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todas Categorias</SelectItem>
+                <SelectItem value="todos" className="text-xs">Todas</SelectItem>
                 {categorias.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        {/* Mensagem informativa sobre a funcionalidade */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
-          <p>Selecione a quantidade de cada item que você está disposto a comprar e clique em "Comprar" para adicioná-lo à sua lista.</p>
+        {/* Tabelas minimalistas dos mantimentos */}
+        <div className="grid gap-2">
+          {/* Lista de itens que precisam ser comprados */}
+          <Card className={itensFaltantes.length > 0 ? "border-red-200 mb-3" : "mb-3"}>
+            <CardHeader className="py-2 px-3 bg-red-50 border-b border-red-100">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                Itens Zerados (Urgente)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {isLoading ? (
+                <div className="flex justify-center p-6">
+                  <p>Carregando...</p>
+                </div>
+              ) : itensFaltantes.length === 0 ? (
+                <div className="text-center p-6">
+                  <p className="text-gray-500">Não há itens com estoque zerado no momento.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 border-b">
+                        <th className="py-1 px-2 text-left font-medium">Nome</th>
+                        <th className="py-1 px-2 text-left font-medium">Categoria</th>
+                        <th className="py-1 px-2 text-left font-medium">Qtd. Necessária</th>
+                        <th className="py-1 px-2 text-left font-medium">Qtd. a Comprar</th>
+                        <th className="py-1 px-2 text-left font-medium">Obs.</th>
+                        <th className="py-1 px-2 text-left font-medium">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itensFaltantes
+                        .filter(item => 
+                          searchTerm === "" || 
+                          item.nome.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .filter(item =>
+                          categoriaFiltro === "todos" || 
+                          item.categoria === categoriaFiltro
+                        )
+                        .map((item) => (
+                          <tr key={item.id} className="border-b hover:bg-gray-50">
+                            <td className="py-1 px-2 font-medium">{item.nome}</td>
+                            <td className="py-1 px-2">{item.categoria}</td>
+                            <td className="py-1 px-2 font-medium text-red-600">{item.estoqueMinimo} {item.unidade}</td>
+                            <td className="py-1 px-2">
+                              <Input 
+                                type="number"
+                                min="1"
+                                max={item.estoqueMinimo}
+                                value={quantidadeComprar[item.id] || ""}
+                                onChange={(e) => handleQuantidadeChange(item.id, parseInt(e.target.value))}
+                                className="w-20 h-7 px-2"
+                                placeholder="Qtd"
+                              />
+                            </td>
+                            <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
+                            <td className="py-1 px-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => adicionarItemCompra(item)}
+                                disabled={!quantidadeComprar[item.id]}
+                              >
+                                <ShoppingCart className="h-4 w-4 mr-1" />
+                                Comprar
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Lista de itens com estoque baixo */}
+          <Card>
+            <CardHeader className="py-2 px-3 bg-amber-50 border-b border-amber-100">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Bell className="h-4 w-4 text-amber-600" />
+                Estoque Baixo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {isLoading ? (
+                <div className="flex justify-center p-6">
+                  <p>Carregando...</p>
+                </div>
+              ) : itensBaixos.length === 0 ? (
+                <div className="text-center p-6">
+                  <p className="text-gray-500">Não há itens com estoque baixo no momento.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 border-b">
+                        <th className="py-1 px-2 text-left font-medium">Nome</th>
+                        <th className="py-1 px-2 text-left font-medium">Categoria</th>
+                        <th className="py-1 px-2 text-left font-medium">Estoque Atual</th>
+                        <th className="py-1 px-2 text-left font-medium">Qtd. a Comprar</th>
+                        <th className="py-1 px-2 text-left font-medium">Obs.</th>
+                        <th className="py-1 px-2 text-left font-medium">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itensBaixos
+                        .filter(item => 
+                          searchTerm === "" || 
+                          item.nome.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .filter(item =>
+                          categoriaFiltro === "todos" || 
+                          item.categoria === categoriaFiltro
+                        )
+                        .map((item) => (
+                          <tr key={item.id} className="border-b hover:bg-gray-50">
+                            <td className="py-1 px-2 font-medium">{item.nome}</td>
+                            <td className="py-1 px-2">{item.categoria}</td>
+                            <td className="py-1 px-2">{item.quantidade} {item.unidade}</td>
+                            <td className="py-1 px-2">
+                              <Input 
+                                type="number"
+                                min="1"
+                                max={item.estoqueMinimo - item.quantidade}
+                                value={quantidadeComprar[item.id] || ""}
+                                onChange={(e) => handleQuantidadeChange(item.id, parseInt(e.target.value))}
+                                className="w-20 h-7 px-2"
+                                placeholder="Qtd"
+                              />
+                            </td>
+                            <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
+                            <td className="py-1 px-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => adicionarItemCompra(item)}
+                                disabled={!quantidadeComprar[item.id]}
+                              >
+                                <ShoppingCart className="h-4 w-4 mr-1" />
+                                Comprar
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-        
-        {/* Lista de itens que precisam ser comprados */}
-        <Card className={itensFaltantes.length > 0 ? "border-red-200 mb-4" : "mb-4"}>
-          <CardHeader className="pb-3 bg-red-50 border-b border-red-100">
-            <CardTitle className="text-base flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
-              Itens Zerados (Urgente)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {isLoading ? (
-              <div className="flex justify-center p-6">
-                <p>Carregando...</p>
-              </div>
-            ) : itensFaltantes.length === 0 ? (
-              <div className="text-center p-6">
-                <p className="text-gray-500">Não há itens com estoque zerado no momento.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="py-2 px-3 text-left">Nome</th>
-                      <th className="py-2 px-3 text-left">Categoria</th>
-                      <th className="py-2 px-3 text-left">Qtd. Necessária</th>
-                      <th className="py-2 px-3 text-left">Qtd. a Comprar</th>
-                      <th className="py-2 px-3 text-left">Observações</th>
-                      <th className="py-2 px-3 text-left">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itensFaltantes
-                      .filter(item => 
-                        searchTerm === "" || 
-                        item.nome.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .filter(item =>
-                        categoriaFiltro === "todos" || 
-                        item.categoria === categoriaFiltro
-                      )
-                      .map((item) => (
-                        <tr key={item.id} className="border-b hover:bg-gray-50">
-                          <td className="py-2 px-3 font-medium">{item.nome}</td>
-                          <td className="py-2 px-3">{item.categoria}</td>
-                          <td className="py-2 px-3 font-medium text-red-600">
-                            {item.estoqueMinimo} {item.unidade}
-                          </td>
-                          <td className="py-2 px-3">
-                            <Input 
-                              type="number"
-                              min="1"
-                              max={item.estoqueMinimo}
-                              value={quantidadeComprar[item.id] || ""}
-                              onChange={(e) => handleQuantidadeChange(item.id, parseInt(e.target.value))}
-                              className="w-20 h-8 px-2"
-                              placeholder="Qtd"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {item.observacoes || "-"}
-                          </td>
-                          <td className="py-2 px-3">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => adicionarItemCompra(item)}
-                              disabled={!quantidadeComprar[item.id]}
-                            >
-                              <ShoppingCart className="h-4 w-4 mr-1" />
-                              Comprar
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        
-        {/* Lista de itens com estoque baixo */}
-        <Card>
-          <CardHeader className="pb-3 bg-amber-50 border-b border-amber-100">
-            <CardTitle className="text-base flex items-center">
-              <Bell className="h-5 w-5 mr-2 text-amber-600" />
-              Estoque Baixo
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {isLoading ? (
-              <div className="flex justify-center p-6">
-                <p>Carregando...</p>
-              </div>
-            ) : itensBaixos.length === 0 ? (
-              <div className="text-center p-6">
-                <p className="text-gray-500">Não há itens com estoque baixo no momento.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="py-2 px-3 text-left">Nome</th>
-                      <th className="py-2 px-3 text-left">Categoria</th>
-                      <th className="py-2 px-3 text-left">Estoque Atual</th>
-                      <th className="py-2 px-3 text-left">Qtd. a Comprar</th>
-                      <th className="py-2 px-3 text-left">Observações</th>
-                      <th className="py-2 px-3 text-left">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itensBaixos
-                      .filter(item => 
-                        searchTerm === "" || 
-                        item.nome.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .filter(item =>
-                        categoriaFiltro === "todos" || 
-                        item.categoria === categoriaFiltro
-                      )
-                      .map((item) => (
-                        <tr key={item.id} className="border-b hover:bg-gray-50">
-                          <td className="py-2 px-3 font-medium">{item.nome}</td>
-                          <td className="py-2 px-3">{item.categoria}</td>
-                          <td className="py-2 px-3">
-                            {item.quantidade} {item.unidade}
-                          </td>
-                          <td className="py-2 px-3">
-                            <Input 
-                              type="number"
-                              min="1"
-                              max={item.estoqueMinimo - item.quantidade}
-                              value={quantidadeComprar[item.id] || ""}
-                              onChange={(e) => handleQuantidadeChange(item.id, parseInt(e.target.value))}
-                              className="w-20 h-8 px-2"
-                              placeholder="Qtd"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {item.observacoes || "-"}
-                          </td>
-                          <td className="py-2 px-3">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => adicionarItemCompra(item)}
-                              disabled={!quantidadeComprar[item.id]}
-                            >
-                              <ShoppingCart className="h-4 w-4 mr-1" />
-                              Comprar
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </AdminLayout>
   );

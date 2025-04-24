@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+ 
 
 // Nome e versão do cache
 const CACHE_NAME = 'yle-axe-cache-v6';

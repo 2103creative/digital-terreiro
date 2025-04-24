@@ -1,20 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Layers, PlusCircle, Edit, Trash2, ArrowLeftCircle } from "lucide-react";
+import { Layers, PlusCircle, Edit, Trash2, ArrowLeftCircle, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -236,7 +228,7 @@ const AdminFrente = () => {
       {!showForm ? (
         <>
           <div className="flex justify-between items-center mb-6">
-            <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}>
+            <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}> 
               <TabsList>
                 <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
                 <TabsTrigger value="nacao">Nação</TabsTrigger>
@@ -247,75 +239,46 @@ const AdminFrente = () => {
               Nova Frente
             </Button>
           </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Frentes de {activeTab === "umbanda" ? "Umbanda" : "Nação"}</CardTitle>
-              <CardDescription>
-                Gerencie as frentes espirituais do {activeTab === "umbanda" ? "terreiro de umbanda" : "culto de nação"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredFrentes.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[100px]">Imagem</TableHead>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Subtítulo</TableHead>
-                      <TableHead className="hidden md:table-cell">Visualizações</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredFrentes.map((frente) => (
-                      <TableRow key={frente.id}>
-                        <TableCell>
-                          <Avatar className="h-10 w-10">
-                            <img src={frente.imageUrl} alt={frente.title} />
-                          </Avatar>
-                        </TableCell>
-                        <TableCell className="font-medium">{frente.title}</TableCell>
-                        <TableCell>{frente.subtitle}</TableCell>
-                        <TableCell className="hidden md:table-cell">{frente.views}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditFrente(frente)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500"
-                              onClick={() => {
-                                setSelectedFrente(frente);
-                                setShowDeleteDialog(true);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-10">
-                  <Layers className="h-16 w-16 text-primary mb-4" />
-                  <p className="text-xl font-medium text-center">Nenhuma frente encontrada</p>
-                  <p className="text-muted-foreground mt-2 text-center">
-                    Não existem frentes de {activeTab === "umbanda" ? "Umbanda" : "Nação"} cadastradas.
-                    Clique em "Nova Frente" para adicionar.
-                  </p>
+
+          {/* Cards de frentes padronizados como os de usuários */}
+          <div className="flex flex-wrap gap-4 max-w-5xl">
+            {filteredFrentes.map(frente => (
+              <Card
+                key={frente.id}
+                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                onClick={() => handleEditFrente(frente)}
+              >
+                <div className="flex flex-col h-full p-3 relative">
+                  {/* Ícone de frentes no canto superior esquerdo */}
+                  <div className="absolute top-3 left-3">
+                    <Layers className="h-5 w-5 text-primary" />
+                  </div>
+                  {/* Nome da frente centralizado */}
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{frente.title}</h3>
+                  </div>
+                  {/* Link de editar no canto inferior esquerdo */}
+                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                    onClick={e => { e.stopPropagation(); handleEditFrente(frente); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <span>Editar</span>
+                    <ArrowRight className="h-3 w-3 ml-0.5" />
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </Card>
+            ))}
+          </div>
+          {filteredFrentes.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-10">
+              <Layers className="h-16 w-16 text-primary mb-4" />
+              <p className="text-xl font-medium text-center">Nenhuma frente encontrada</p>
+              <p className="text-muted-foreground mt-2 text-center">
+                Não existem frentes de {activeTab === "umbanda" ? "Umbanda" : "Nação"} cadastradas.
+                Clique em "Nova Frente" para adicionar.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <Card>
@@ -348,18 +311,17 @@ const AdminFrente = () => {
                   <Label htmlFor="frente-titulo">Título *</Label>
                   <Input
                     id="frente-titulo"
-                    placeholder="Ex: Caboclos"
                     value={newFrente.title}
-                    onChange={(e) => setNewFrente({...newFrente, title: e.target.value})}
+                    onChange={e => setNewFrente({ ...newFrente, title: e.target.value })}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="frente-subtitulo">Subtítulo</Label>
                   <Input
                     id="frente-subtitulo"
-                    placeholder="Ex: Energia de proteção e cura"
                     value={newFrente.subtitle}
-                    onChange={(e) => setNewFrente({...newFrente, subtitle: e.target.value})}
+                    onChange={e => setNewFrente({ ...newFrente, subtitle: e.target.value })}
                   />
                 </div>
               </div>
@@ -367,9 +329,8 @@ const AdminFrente = () => {
                 <Label htmlFor="frente-imagem">URL da Imagem</Label>
                 <Input
                   id="frente-imagem"
-                  placeholder="URL da imagem"
                   value={newFrente.imageUrl}
-                  onChange={(e) => setNewFrente({...newFrente, imageUrl: e.target.value})}
+                  onChange={e => setNewFrente({ ...newFrente, imageUrl: e.target.value })}
                 />
                 <p className="text-xs text-muted-foreground">
                   Deixe vazio para usar a imagem padrão
@@ -379,7 +340,7 @@ const AdminFrente = () => {
                 <Label htmlFor="frente-tipo">Tipo *</Label>
                 <Select
                   value={newFrente.type}
-                  onValueChange={(value) => setNewFrente({...newFrente, type: value as "umbanda" | "nacao"})}
+                  onValueChange={(value) => setNewFrente({ ...newFrente, type: value as "umbanda" | "nacao" })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
@@ -394,35 +355,36 @@ const AdminFrente = () => {
                 <Label htmlFor="frente-descricao">Descrição *</Label>
                 <Textarea
                   id="frente-descricao"
-                  placeholder="Descreva detalhadamente esta frente espiritual"
                   value={newFrente.description}
-                  onChange={(e) => setNewFrente({...newFrente, description: e.target.value})}
-                  rows={5}
+                  onChange={e => setNewFrente({ ...newFrente, description: e.target.value })}
+                  required
                 />
-              </div>
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowForm(false);
-                    setSelectedFrente(null);
-                    setNewFrente({
-                      title: "",
-                      subtitle: "",
-                      description: "",
-                      type: "umbanda",
-                      imageUrl: "/placeholder-frente.jpg",
-                    });
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={selectedFrente ? handleUpdateFrente : handleAddFrente}>
-                  {selectedFrente ? 'Atualizar' : 'Adicionar'} Frente
-                </Button>
               </div>
             </div>
           </CardContent>
+          <CardFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => {
+              setShowForm(false);
+              setSelectedFrente(null);
+              setNewFrente({
+                title: "",
+                subtitle: "",
+                description: "",
+                type: "umbanda",
+                imageUrl: "/placeholder-frente.jpg",
+              });
+            }}>
+              Cancelar
+            </Button>
+            {selectedFrente && (
+              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+                Excluir
+              </Button>
+            )}
+            <Button onClick={selectedFrente ? handleUpdateFrente : handleAddFrente}>
+              {selectedFrente ? 'Atualizar Frente' : 'Adicionar Frente'}
+            </Button>
+          </CardFooter>
         </Card>
       )}
 

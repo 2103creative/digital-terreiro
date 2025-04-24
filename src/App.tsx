@@ -30,6 +30,8 @@ import Favoritos from "./pages/Favoritos";
 import Chat from "./pages/Chat";
 import AdminMantimentos from "./pages/AdminMantimentos";
 import ListaCompras from "./pages/ListaCompras";
+import AdminErvas from "./pages/AdminErvas";
+import Ervas from "./pages/Ervas";
 
 // Lazy loading para páginas administrativas menos frequentemente acessadas
 import { lazy, Suspense } from "react";
@@ -75,6 +77,7 @@ const App = () => (
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/sobre" element={<About />} />
+                <Route path="/ervas" element={<Ervas />} />
               </Route>
               <Route 
                 path="/configuracoes" 
@@ -179,6 +182,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdmin>
                     <CleaningGenerator />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/ervas" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminErvas />
                   </ProtectedRoute>
                 } 
               />

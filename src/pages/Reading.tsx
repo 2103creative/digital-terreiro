@@ -31,34 +31,6 @@ const Reading = () => {
         <DashboardHeader />
         
         <main className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <div className="flex justify-center gap-4 border-b pb-1">
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/dashboard")}
-              >
-                Destaques
-              </button>
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/eventos")}
-              >
-                Eventos
-              </button>
-              <button 
-                className="font-medium text-primary border-b-2 border-primary pb-1 px-1"
-                onClick={() => navigate("/leitura")}
-              >
-                Leitura
-              </button>
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/mensagens")}
-              >
-                Mensagens
-              </button>
-            </div>
-          </div>
           <ReadingContent />
         </main>
       </div>

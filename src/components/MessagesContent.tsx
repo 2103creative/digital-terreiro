@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, AlertCircle, Check, X } from "lucide-react";
 import { format } from "date-fns";
@@ -98,7 +97,6 @@ export const useMessageUpdates = () => {
 };
 
 const MessagesContent = () => {
-  const [activeTab, setActiveTab] = useState("recentes");
   const [selectedMessage, setSelectedMessage] = useState<typeof messages[0] | null>(null);
   
   // Inicializar com dados do localStorage ou dados padrão
@@ -144,10 +142,6 @@ const MessagesContent = () => {
     }
   };
 
-  const recentMessages = messages.sort((a, b) => b.date.getTime() - a.date.getTime());
-  const unreadMessages = messages.filter(msg => !readStatus[msg.id]);
-  const urgentMessages = messages.filter(msg => msg.isUrgent);
-
   const formatMessageDate = (date: Date) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -163,77 +157,30 @@ const MessagesContent = () => {
     }
   };
 
-  const renderMessageList = (messagesToRender: typeof messages) => {
-    return messagesToRender.length > 0 ? (
-      <div className="space-y-4">
-        {messagesToRender.map((message) => (
-          <Card 
-            key={message.id} 
-            className={`card-hover ${!readStatus[message.id] ? 'border-primary' : ''} cursor-pointer transition-all hover:shadow-md active:bg-gray-50`}
-            onClick={() => handleMessageClick(message)}
-          >
-            <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2 flex-1">
-                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                  <CardTitle className="text-sm md:text-base">{message.title}</CardTitle>
-                </div>
-                <div className="flex items-center gap-1 ml-1 flex-shrink-0">
-                  {!readStatus[message.id] && (
-                    <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
-                  )}
-                  {message.isUrgent && (
-                    <Badge variant="destructive" className="text-[10px] py-0 h-5">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      Urgente
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                {formatMessageDate(message.date)}
-              </p>
+  return (
+    <div>
+      <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Mensagens</h1>
+      <p className="text-xs md:text-sm text-gray-500 mb-6">Confira os comunicados e avisos do terreiro:</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {messages.map((msg) => (
+          <Card key={msg.id} className="overflow-hidden h-full" onClick={() => handleMessageClick(msg)}>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                {msg.isUrgent && <AlertCircle className="h-4 w-4 text-red-500" />} {msg.title}
+              </CardTitle>
+              <span className="text-xs text-gray-500">{format(msg.date, 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
             </CardHeader>
-            <CardContent className="p-3 md:p-4 pt-1 md:pt-2">
-              <p className="text-xs md:text-sm line-clamp-2">{message.content}</p>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-2">{msg.content}</p>
+              {msg.isRead ? (
+                <Badge variant="secondary" className="text-[10px]">Lida</Badge>
+              ) : (
+                <Badge variant="outline" className="text-[10px]">Não lida</Badge>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
-    ) : (
-      <p className="text-muted-foreground text-center py-8">
-        Não há mensagens nesta categoria.
-      </p>
-    );
-  };
-
-  return (
-    <div className="space-y-4 pb-16">
-      <Tabs defaultValue="recentes" onValueChange={setActiveTab}>
-        <TabsList className="mb-4 w-full">
-          <TabsTrigger value="recentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
-            Recentes
-          </TabsTrigger>
-          <TabsTrigger value="nao-lidas" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
-            Não lidas {unreadMessages.length > 0 && `(${unreadMessages.length})`}
-          </TabsTrigger>
-          <TabsTrigger value="urgentes" className="flex-1 text-xs md:text-sm py-1 h-8 md:h-10">
-            Urgentes {urgentMessages.length > 0 && `(${urgentMessages.length})`}
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="recentes">
-          {renderMessageList(recentMessages)}
-        </TabsContent>
-        
-        <TabsContent value="nao-lidas">
-          {renderMessageList(unreadMessages)}
-        </TabsContent>
-        
-        <TabsContent value="urgentes">
-          {renderMessageList(urgentMessages)}
-        </TabsContent>
-      </Tabs>
 
       {/* Diálogo de visualização detalhada de mensagem */}
       <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
@@ -246,7 +193,7 @@ const MessagesContent = () => {
                   {selectedMessage.title}
                 </DialogTitle>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-500">
                     {formatMessageDate(selectedMessage.date)}
                   </p>
                   {selectedMessage.isUrgent && (

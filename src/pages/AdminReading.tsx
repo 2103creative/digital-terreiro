@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { BookOpen, PlusCircle, Edit, Trash2, ArrowLeftCircle, Download, FileText, Book } from "lucide-react";
+import { BookOpen, PlusCircle, Edit, Trash2, ArrowLeftCircle, Download, FileText, Book, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -346,102 +346,40 @@ const AdminReading = () => {
               Novo Material
             </Button>
           </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Materiais de Leitura</CardTitle>
-              <CardDescription>
-                Gerencie os materiais de leitura disponíveis para {activeCategory === "umbanda" ? "Umbanda" : "Nação"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredMaterials.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead className="hidden md:table-cell">Autor</TableHead>
-                      <TableHead className="hidden md:table-cell">Páginas</TableHead>
-                      <TableHead className="hidden md:table-cell">Destaque</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredMaterials.map((material) => (
-                      <TableRow key={material.id}>
-                        <TableCell className="font-medium">{material.title}</TableCell>
-                        <TableCell>
-                          <Badge className={cn("rounded-sm font-normal", getMaterialTypeBadgeColor(material.type))}>
-                            <span className="flex items-center">
-                              {getMaterialTypeIcon(material.type)}
-                              {getMaterialTypeName(material.type)}
-                            </span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">{material.author || "Desconhecido"}</TableCell>
-                        <TableCell className="hidden md:table-cell">{material.pages}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {material.isFeatured ? (
-                            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                              Destaque
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">Não</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="text-blue-500"
-                              onClick={() => {
-                                window.open(material.fileUrl, '_blank');
-                                toast({
-                                  title: "Download iniciado",
-                                  description: `O arquivo está sendo baixado.`,
-                                });
-                              }}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditMaterial(material)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500"
-                              onClick={() => {
-                                setSelectedMaterial(material);
-                                setShowDeleteDialog(true);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-10">
-                  <BookOpen className="h-16 w-16 text-primary mb-4" />
-                  <p className="text-xl font-medium text-center">Nenhum material encontrado</p>
-                  <p className="text-muted-foreground mt-2 text-center">
-                    Não existem materiais de leitura para {activeCategory === "umbanda" ? "Umbanda" : "Nação"} cadastrados.
-                    Clique em "Novo Material" para adicionar.
-                  </p>
+          <div className="flex flex-wrap gap-4 max-w-5xl">
+            {filteredMaterials.map(material => (
+              <Card
+                key={material.id}
+                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                onClick={() => handleEditMaterial(material)}
+              >
+                <div className="flex flex-col h-full p-3 relative">
+                  <div className="absolute top-3 left-3">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{material.title}</h3>
+                  </div>
+                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                    onClick={e => { e.stopPropagation(); handleEditMaterial(material); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <span>Editar</span>
+                    <ArrowRight className="h-3 w-3 ml-0.5" />
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </Card>
+            ))}
+          </div>
+          {filteredMaterials.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-10">
+              <BookOpen className="h-16 w-16 text-primary mb-4" />
+              <p className="text-xl font-medium text-center">Nenhum material encontrado</p>
+              <p className="text-muted-foreground mt-2 text-center">
+                Não existem materiais cadastrados nesta categoria. Clique em "Novo Material" para adicionar.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <Card>
@@ -584,7 +522,7 @@ const AdminReading = () => {
                 <Label htmlFor="material-featured">Destacar este material</Label>
               </div>
               
-              <div className="flex justify-end gap-3">
+              <CardFooter className="flex justify-end gap-2">
                 <Button 
                   variant="outline" 
                   onClick={() => {
@@ -606,10 +544,15 @@ const AdminReading = () => {
                 >
                   Cancelar
                 </Button>
+                {selectedMaterial && (
+                  <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+                    Excluir
+                  </Button>
+                )}
                 <Button onClick={selectedMaterial ? handleUpdateMaterial : handleAddMaterial}>
-                  {selectedMaterial ? 'Atualizar' : 'Adicionar'} Material
+                  {selectedMaterial ? 'Atualizar Material' : 'Adicionar Material'}
                 </Button>
-              </div>
+              </CardFooter>
             </div>
           </CardContent>
         </Card>

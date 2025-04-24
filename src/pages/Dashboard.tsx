@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -16,7 +15,8 @@ import {
   User,
   Users,
   Heart,
-  ShoppingCart
+  ShoppingCart,
+  Leaf
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -46,6 +46,20 @@ const Dashboard = () => {
       color: "bg-blue-50 text-blue-700",
     },
     {
+      title: "Ervas",
+      icon: Leaf,
+      description: "Gerencie as ervas cadastradas e seus usos tradicionais.",
+      path: "/ervas",
+      color: "bg-green-50 text-green-700",
+    },
+    {
+      title: "Compras",
+      icon: ShoppingCart,
+      description: "Visualize os itens que precisam ser comprados para o terreiro.",
+      path: "/lista-compras",
+      color: "bg-cyan-50 text-cyan-700",
+    },
+    {
       title: "Eventos",
       icon: Calendar,
       description: "Calendário de giras, festas e eventos especiais do terreiro.",
@@ -67,39 +81,25 @@ const Dashboard = () => {
       color: "bg-green-50 text-green-700",
     },
     {
-      title: "Lista de Compras",
-      icon: ShoppingCart,
-      description: "Visualize os itens que precisam ser comprados para o terreiro.",
-      path: "/lista-compras",
-      color: "bg-cyan-50 text-cyan-700",
-    },
-    {
       title: "Mensagens",
       icon: MessageSquare,
-      description: "Comunicações importantes e mensagens da diretoria.",
+      description: "Envie e gerencie mensagens para a comunidade do terreiro.",
       path: "/mensagens",
-      color: "bg-rose-50 text-rose-700",
-    },
-    {
-      title: "Usuários",
-      icon: Users,
-      description: "Gerencie os usuários e membros do terreiro.",
-      path: "/admin/usuarios",
-      color: "bg-orange-50 text-orange-700",
+      color: "bg-pink-50 text-pink-700",
     },
     {
       title: "Bate Papo",
       icon: Heart,
       description: "Chat comunitário em tempo real entre os membros do terreiro.",
       path: "/chat",
-      color: "bg-pink-50 text-pink-700",
+      color: "bg-rose-50 text-rose-700",
     },
     {
       title: "Sobre",
       icon: Info,
-      description: "História e informações sobre o terreiro.",
+      description: "Informações institucionais sobre o terreiro e o sistema.",
       path: "/sobre",
-      color: "bg-indigo-50 text-indigo-700",
+      color: "bg-gray-50 text-gray-700",
     },
     {
       title: "Meu Perfil",
@@ -107,7 +107,7 @@ const Dashboard = () => {
       description: "Gerencie suas informações pessoais e preferências.",
       path: "/profile",
       color: "bg-gray-50 text-gray-700",
-    }
+    },
   ];
 
   return (

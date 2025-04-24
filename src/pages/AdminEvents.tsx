@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Calendar, PlusCircle, Edit, Trash2, ArrowLeftCircle } from "lucide-react";
+import { Calendar, PlusCircle, Edit, Trash2, ArrowLeftCircle, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -252,72 +252,43 @@ const AdminEvents = () => {
             </Button>
           </div>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Eventos</CardTitle>
-              <CardDescription>
-                Gerencie os eventos do terreiro, incluindo giras, festas e cursos
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {sortedEvents.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {sortedEvents.map((event) => (
-                    <Card 
-                      key={event.id} 
-                      className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
-                      onClick={() => handleEditEvent(event)}
-                    >
-                      <div className="flex flex-col h-full p-3 relative">
-                        {/* Ícone do tipo de evento no canto superior esquerdo */}
-                        <div className="absolute top-3 left-3">
-                          {event.type === "gira" && <Calendar className="h-6 w-6 text-blue-600" />}
-                          {event.type === "festa" && <Calendar className="h-6 w-6 text-green-600" />}
-                          {event.type === "curso" && <Calendar className="h-6 w-6 text-purple-600" />}
-                        </div>
-                        
-                        {/* Data do evento no canto superior direito */}
-                        <div className="absolute top-2 right-2">
-                          <span className="text-[10px] text-gray-500">
-                            {format(event.date, "dd/MM", { locale: ptBR })}
-                          </span>
-                        </div>
-                        
-                        {/* Título do evento centralizado */}
-                        <div className="flex-1 flex items-center justify-center px-2">
-                          <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-3">{event.title}</h3>
-                        </div>
-                        
-                        {/* Link de editar no canto inferior esquerdo */}
-                        <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
-                          <span>Editar</span>
-                          <Edit className="h-2.5 w-2.5 ml-0.5" />
-                        </div>
-                        
-                        {/* Indicador de tipo no canto inferior direito */}
-                        <div className="absolute bottom-2 right-2">
-                          <div className={cn("h-3 w-3 rounded-full", 
-                            event.type === "gira" ? "bg-blue-500" : 
-                            event.type === "festa" ? "bg-green-500" : 
-                            "bg-purple-500"
-                          )}></div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+          <div className="flex flex-wrap gap-4 max-w-5xl">
+            {sortedEvents.map(event => (
+              <Card
+                key={event.id}
+                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                onClick={() => handleEditEvent(event)}
+              >
+                <div className="flex flex-col h-full p-3 relative">
+                  {/* Ícone de evento no canto superior esquerdo */}
+                  <div className="absolute top-3 left-3">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  {/* Nome do evento centralizado */}
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{event.title}</h3>
+                  </div>
+                  {/* Link de editar no canto inferior esquerdo */}
+                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                    onClick={e => { e.stopPropagation(); handleEditEvent(event); }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <span>Editar</span>
+                    <ArrowRight className="h-3 w-3 ml-0.5" />
+                  </div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-10">
-                  <Calendar className="h-16 w-16 text-primary mb-4" />
-                  <p className="text-xl font-medium text-center">Nenhum evento encontrado</p>
-                  <p className="text-muted-foreground mt-2 text-center">
-                    Não existem eventos cadastrados.
-                    Clique em "Novo Evento" para adicionar.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </Card>
+            ))}
+          </div>
+          {events.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-10">
+              <Calendar className="h-16 w-16 text-primary mb-4" />
+              <p className="text-xl font-medium text-center">Nenhum evento encontrado</p>
+              <p className="text-muted-foreground mt-2 text-center">
+                Não existem eventos cadastrados. Clique em "Novo Evento" para adicionar.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <Card>
@@ -442,30 +413,34 @@ const AdminEvents = () => {
                   rows={5}
                 />
               </div>
-              
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowForm(false);
-                    setSelectedEvent(null);
-                    setNewEvent({
-                      title: "",
-                      subtitle: "",
-                      description: "",
-                      date: new Date(),
-                      type: "gira",
-                    });
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
-                  {selectedEvent ? 'Atualizar' : 'Adicionar'} Evento
-                </Button>
-              </div>
             </div>
           </CardContent>
+          <CardFooter className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowForm(false);
+                setSelectedEvent(null);
+                setNewEvent({
+                  title: "",
+                  subtitle: "",
+                  description: "",
+                  date: new Date(),
+                  type: "gira",
+                });
+              }}
+            >
+              Cancelar
+            </Button>
+            {selectedEvent && (
+              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+                Excluir
+              </Button>
+            )}
+            <Button onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
+              {selectedEvent ? 'Atualizar Evento' : 'Adicionar Evento'}
+            </Button>
+          </CardFooter>
         </Card>
       )}
 

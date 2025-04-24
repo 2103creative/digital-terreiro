@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
-import EventsCalendar from "@/components/EventsCalendar";
+import EventsCards from "@/components/EventsCards";
 import MobileNav from "@/components/MobileNav";
 import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -31,35 +31,9 @@ const Events = () => {
         <DashboardHeader />
         
         <main className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <div className="flex justify-center gap-4 border-b pb-1">
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/dashboard")}
-              >
-                Destaques
-              </button>
-              <button 
-                className="font-medium text-primary border-b-2 border-primary pb-1 px-1"
-                onClick={() => navigate("/eventos")}
-              >
-                Eventos
-              </button>
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/leitura")}
-              >
-                Leitura
-              </button>
-              <button 
-                className="text-muted-foreground"
-                onClick={() => navigate("/mensagens")}
-              >
-                Mensagens
-              </button>
-            </div>
-          </div>
-          <EventsCalendar />
+          <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Eventos</h1>
+          <p className="text-xs md:text-sm text-gray-500 mb-6">Confira os próximos eventos do terreiro e marque para ser avisado!</p>
+          <EventsCards />
         </main>
       </div>
       
