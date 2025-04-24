@@ -3,14 +3,30 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ChatProvider } from "@/contexts/ChatContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import UpdateIndicator from "@/components/UpdateIndicator";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import ProtectedRoute from "@/components/ProtectedRoute";
+// Layouts
+import AdminDesktopLayout from "@/layouts/AdminDesktopLayout";
+import AdminMobileLayout from "@/layouts/AdminMobileLayout";
+import UserDesktopLayout from "@/layouts/UserDesktopLayout";
+import UserMobileLayout from "@/layouts/UserMobileLayout";
+
+// Lazy loading para páginas administrativas menos frequentemente acessadas
+const AdminEvents = lazy(() => import("./pages/AdminEvents"));
+const AdminFrente = lazy(() => import("./pages/AdminFrente"));
+const AdminReading = lazy(() => import("./pages/AdminReading"));
+const AdminAbout = lazy(() => import("./pages/AdminAbout"));
+
+// Importação direta das páginas comuns (user)
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import Reading from "./pages/Reading";
@@ -18,7 +34,6 @@ import Messages from "./pages/Messages";
 import Frentes from "./pages/Frentes";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
-import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import AdminUsers from "./pages/AdminUsers";
 import UserFormPage from "./pages/UserFormPage";
@@ -33,14 +48,6 @@ import ListaCompras from "./pages/ListaCompras";
 import AdminErvas from "./pages/AdminErvas";
 import Ervas from "./pages/Ervas";
 
-// Lazy loading para páginas administrativas menos frequentemente acessadas
-import { lazy, Suspense } from "react";
-const AdminEvents = lazy(() => import("./pages/AdminEvents"));
-const AdminFrente = lazy(() => import("./pages/AdminFrente"));
-const AdminReading = lazy(() => import("./pages/AdminReading"));
-const AdminAbout = lazy(() => import("./pages/AdminAbout"));
-
-// Loading fallback
 const AdminLoading = () => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -48,6 +55,29 @@ const AdminLoading = () => (
 );
 
 const queryClient = new QueryClient();
+
+function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
+  const { user, isAdmin, loading } = useAuth();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  if (loading) return null; // Aguarda carregamento do contexto
+  if (!user) return <Login />;
+
+  // Admin
+  if (isAdmin) {
+    return isMobile ? (
+      <AdminMobileLayout>{children}</AdminMobileLayout>
+    ) : (
+      <AdminDesktopLayout>{children}</AdminDesktopLayout>
+    );
+  }
+  // Usuário comum
+  return isMobile ? (
+    <UserMobileLayout>{children}</UserMobileLayout>
+  ) : (
+    <UserDesktopLayout>{children}</UserDesktopLayout>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -64,138 +94,49 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              
-              {/* Rotas protegidas para usuários comuns */}
-              <Route element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/frentes" element={<Frentes />} />
-                <Route path="/eventos" element={<Events />} />
-                <Route path="/leitura" element={<Reading />} />
-                <Route path="/mensagens" element={<Messages />} />
-                <Route path="/limpeza" element={<Limpeza />} />
-                <Route path="/lista-compras" element={<ListaCompras />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/sobre" element={<About />} />
-                <Route path="/ervas" element={<Ervas />} />
-              </Route>
-              <Route 
-                path="/configuracoes" 
+              {/* Rotas protegidas para qualquer usuário logado (admin ou user) */}
+              <Route
+                path="*"
                 element={
                   <ProtectedRoute>
-                    <Settings />
+                    <AppLayoutWrapper>
+                      <Routes>
+                        {/* Rotas comuns */}
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/frentes" element={<Frentes />} />
+                        <Route path="/eventos" element={<Events />} />
+                        <Route path="/leitura" element={<Reading />} />
+                        <Route path="/mensagens" element={<Messages />} />
+                        <Route path="/limpeza" element={<Limpeza />} />
+                        <Route path="/lista-compras" element={<ListaCompras />} />
+                        <Route path="/chat" element={<Chat />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/sobre" element={<About />} />
+                        <Route path="/ervas" element={<Ervas />} />
+                        <Route path="/favoritos" element={<Favoritos />} />
+                        <Route path="/configuracoes" element={<Settings />} />
+
+                        {/* Rotas administrativas (visíveis apenas para admin) */}
+                        <Route path="/adminusuarios" element={<AdminUsers />} />
+                        <Route path="/adminusuarios/novo" element={<UserFormPage />} />
+                        <Route path="/adminusuarios/editar/:userId" element={<UserFormPage />} />
+                        <Route path="/adminevents" element={<Suspense fallback={<AdminLoading />}><AdminEvents /></Suspense>} />
+                        <Route path="/adminfrente" element={<Suspense fallback={<AdminLoading />}><AdminFrente /></Suspense>} />
+                        <Route path="/adminreading" element={<Suspense fallback={<AdminLoading />}><AdminReading /></Suspense>} />
+                        <Route path="/adminabout" element={<Suspense fallback={<AdminLoading />}><AdminAbout /></Suspense>} />
+                        <Route path="/adminlimpeza" element={<AdminLimpeza />} />
+                        <Route path="/adminmantimentos" element={<AdminMantimentos />} />
+                        <Route path="/adminervas" element={<AdminErvas />} />
+                        <Route path="/adminmessages" element={<AdminMessages />} />
+                        <Route path="/cleaning-generator" element={<CleaningGenerator />} />
+                        {/* ...outras rotas admin */}
+                        {/* 404 */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </AppLayoutWrapper>
                   </ProtectedRoute>
-                } 
+                }
               />
-              
-              {/* Rotas administrativas (requerem permissão de admin) */}
-              <Route 
-                path="/admin/usuarios" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminUsers />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/usuarios/novo" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <UserFormPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/usuarios/editar/:userId" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <UserFormPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/eventos" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Suspense fallback={<AdminLoading />}>
-                      <AdminEvents />
-                    </Suspense>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/frentes" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Suspense fallback={<AdminLoading />}>
-                      <AdminFrente />
-                    </Suspense>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/mantimentos" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminMantimentos />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/leitura" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Suspense fallback={<AdminLoading />}>
-                      <AdminReading />
-                    </Suspense>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/mensagens" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminMessages />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/sobre" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Suspense fallback={<AdminLoading />}>
-                      <AdminAbout />
-                    </Suspense>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/limpeza" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminLimpeza />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/gerador-limpeza" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <CleaningGenerator />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/ervas" 
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminErvas />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Página 404 */}
-              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </ChatProvider>
