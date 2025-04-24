@@ -81,6 +81,13 @@ const Dashboard = () => {
       color: "bg-rose-50 text-rose-700",
     },
     {
+      title: "Usuários",
+      icon: Users,
+      description: "Gerencie os usuários e membros do terreiro.",
+      path: "/admin/usuarios",
+      color: "bg-orange-50 text-orange-700",
+    },
+    {
       title: "Bate Papo",
       icon: Heart,
       description: "Chat comunitário em tempo real entre os membros do terreiro.",

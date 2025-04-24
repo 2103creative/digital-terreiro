@@ -137,7 +137,7 @@ const AdminUsers = () => {
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
       ) : (
-        <div className="grid-cards grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 max-w-5xl">
+        <div className="flex flex-wrap gap-4 max-w-5xl">
           {users.map((user) => (
             <Card 
               key={user.id} 
@@ -146,24 +146,24 @@ const AdminUsers = () => {
             >
               <div className="flex flex-col h-full p-3 relative">
                 {/* Ícone de usuário no canto superior esquerdo */}
-                <div className="absolute top-2 left-2">
+                <div className="absolute top-3 left-3">
                   <UserIcon className="h-5 w-5 text-gray-600" />
                 </div>
                 
                 {/* Nome do usuário centralizado */}
-                <div className="flex-1 flex items-center justify-center px-2 pt-2">
+                <div className="flex-1 flex items-center justify-center">
                   <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{user.name}</h3>
                 </div>
                 
                 {/* Link de editar no canto inferior esquerdo */}
-                <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600">
                   <span>Editar</span>
-                  <Pencil className="h-2.5 w-2.5 ml-0.5" />
+                  <ArrowRight className="h-3 w-3 ml-0.5" />
                 </div>
                 
                 {/* Indicador de status (bolinha) no canto inferior direito */}
-                <div className="absolute bottom-2 right-2">
-                  <div className={`h-2.5 w-2.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className="absolute bottom-3 right-3">
+                  <div className={`h-3 w-3 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 </div>
               </div>
             </Card>

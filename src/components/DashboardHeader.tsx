@@ -7,7 +7,6 @@ import {
   Calendar, 
   BookOpen, 
   Info, 
-  FileEdit, 
   Cog, 
   Search,
   Command,
@@ -17,7 +16,6 @@ import {
   X,
   Home,
   Heart,
-  PawPrint,
   Brush,
   FileText,
   User,
@@ -30,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  DropdownMenuGroup,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -95,9 +92,6 @@ const DashboardHeader = () => {
     navigate("/mensagens");
   };
 
-  const navigateToAdmin = (path: string) => {
-    navigate(`/admin/${path}`);
-  };
 
   const handleNavigate = (path: string) => {
     navigate(path);
