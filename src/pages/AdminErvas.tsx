@@ -120,13 +120,12 @@ const AdminErvas = () => {
   };
 
   return (
-    <AdminLayout pageTitle="Ervas" pageSubtitle="Gerencie o catálogo de ervas sagradas do terreiro.">
+    <AdminLayout pageTitle="Ervas" pageDescription="Gerencie o catálogo de ervas sagradas do terreiro.">
       {!showForm ? (
         <>
-          <div className="flex justify-end items-center mb-6">
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Nova Erva
+          <div className="mb-6 flex flex-col items-start gap-2">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
+              Adicionar
             </Button>
           </div>
           <div className="flex flex-wrap gap-4 max-w-5xl">
@@ -239,7 +238,7 @@ const AdminErvas = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => {
+            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
               setShowForm(false);
               setSelectedErva(null);
               setNewErva({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
@@ -247,12 +246,12 @@ const AdminErvas = () => {
               Cancelar
             </Button>
             {selectedErva && (
-              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
                 Excluir
               </Button>
             )}
-            <Button onClick={selectedErva ? handleUpdateErva : handleAddErva}>
-              {selectedErva ? 'Atualizar Erva' : 'Adicionar Erva'}
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedErva ? handleUpdateErva : handleAddErva}>
+              Adicionar
             </Button>
           </CardFooter>
         </Card>

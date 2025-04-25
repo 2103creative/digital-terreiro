@@ -221,10 +221,10 @@ const AdminMantimentos = () => {
       categoriaFiltro === "todos" || 
       item.categoria === categoriaFiltro;
     
-    // Filtro por estoque baixo
+    // Filtro por estoque baixo (apenas > 0 e <= estoqueMinimo)
     const matchesEstoqueBaixo = 
       !filtroEstoqueBaixo || 
-      item.quantidade <= item.estoqueMinimo;
+      (item.quantidade > 0 && item.quantidade <= item.estoqueMinimo);
     
     // Filtro apenas para compras (itens zerados ou abaixo do estoque mínimo)
     const matchesCompras = 
@@ -276,13 +276,35 @@ const AdminMantimentos = () => {
       });
       return;
     }
-    
+    if (form.quantidade < 0) {
+      toast({
+        title: "Quantidade inválida",
+        description: "A quantidade não pode ser negativa.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (form.estoqueMinimo < 0) {
+      toast({
+        title: "Estoque mínimo inválido",
+        description: "O estoque mínimo não pode ser negativo.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (form.dataCompra && new Date(form.dataCompra) > new Date()) {
+      toast({
+        title: "Data de compra inválida",
+        description: "A data de compra não pode ser futura.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (form.id) {
       // Editar item existente
       setMantimentos(mantimentos.map(item => 
-        item.id === form.id ? { ...form, id: form.id } as Mantimento : item
+        item.id === form.id ? { ...form, id: form.id, dataValidade: form.dataValidade || undefined } as Mantimento : item
       ));
-      
       toast({
         title: "Mantimento atualizado",
         description: `${form.nome} foi atualizado com sucesso.`
@@ -290,14 +312,12 @@ const AdminMantimentos = () => {
     } else {
       // Adicionar novo item
       const newId = Math.max(0, ...mantimentos.map(item => item.id)) + 1;
-      setMantimentos([...mantimentos, { ...form, id: newId } as Mantimento]);
-      
+      setMantimentos([...mantimentos, { ...form, id: newId, dataValidade: form.dataValidade || undefined } as Mantimento]);
       toast({
         title: "Mantimento adicionado",
         description: `${form.nome} foi adicionado com sucesso.`
       });
     }
-    
     resetForm();
     setFormOpen(false);
   };
@@ -444,38 +464,33 @@ const AdminMantimentos = () => {
       });
       return;
     }
-    
-    if (!quantidadeComprar[item.id]) {
+    const maxQtd = item.quantidade === 0 ? item.estoqueMinimo : (item.estoqueMinimo - item.quantidade);
+    if (!quantidadeComprar[item.id] || quantidadeComprar[item.id] < 1 || quantidadeComprar[item.id] > maxQtd) {
       toast({
         title: "Erro",
-        description: "Selecione a quantidade que deseja comprar.",
+        description: `Selecione uma quantidade válida (1 até ${maxQtd}).`,
         variant: "destructive",
       });
       return;
     }
-    
     const novoItemCompra: ItemCompra = {
       ...item,
       quantidade_comprar: quantidadeComprar[item.id],
       usuario: user.name
     };
-    
     setItemsParaComprar([...itemsParaComprar, novoItemCompra]);
-    
     // Remover da lista de mantimentos que precisam ser comprados
     setMantimentos(mantimentos.map(m => 
       m.id === item.id 
         ? {...m, quantidade: m.quantidade + quantidadeComprar[item.id]} 
         : m
     ));
-    
     // Limpar quantidade selecionada
     setQuantidadeComprar(prev => {
       const newState = {...prev};
       delete newState[item.id];
       return newState;
     });
-    
     toast({
       title: "Item adicionado à sua lista de compras",
       description: `Você se comprometeu a comprar ${quantidadeComprar[item.id]} ${item.unidade} de ${item.nome}`,
@@ -504,6 +519,7 @@ const AdminMantimentos = () => {
   
   // Atualizar quantidade a ser comprada
   const handleQuantidadeChange = (id: number, valor: number) => {
+    if (isNaN(valor) || valor < 1) return;
     setQuantidadeComprar({
       ...quantidadeComprar,
       [id]: valor
@@ -547,11 +563,16 @@ const AdminMantimentos = () => {
   };
   
   return (
-    <AdminLayout 
-      pageTitle="Mantimentos" 
-      pageSubtitle="Gerencie o estoque e as compras do terreiro."
-    >
+    <AdminLayout pageTitle="Compras" pageDescription="Gerencie o estoque e as compras do terreiro.">
       <div className="space-y-4">
+        <div className="mb-2">
+          <div className="mt-2">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleAddItem}>
+              Adicionar
+            </Button>
+          </div>
+        </div>
+
         {/* Tabs para alternar entre visualizações */}
         <div className="bg-white p-1 border rounded-lg">
           <Tabs defaultValue="admin" onValueChange={(value) => setViewMode(value as "admin" | "compras")}>
@@ -611,11 +632,6 @@ const AdminMantimentos = () => {
                   <Button variant="outline" size="sm" onClick={handleExportCSV}>
                     <Download className="h-4 w-4 mr-1" />
                     Exportar
-                  </Button>
-                  
-                  <Button onClick={handleAddItem}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    Adicionar
                   </Button>
                 </div>
               </div>
@@ -947,7 +963,7 @@ const AdminMantimentos = () => {
                                     variant="outline" 
                                     size="sm" 
                                     onClick={() => adicionarItemCompra(item)}
-                                    disabled={!quantidadeComprar[item.id]}
+                                    disabled={!quantidadeComprar[item.id] || quantidadeComprar[item.id] < 1 || quantidadeComprar[item.id] > item.estoqueMinimo}
                                   >
                                     <ShoppingCart className="h-4 w-4 mr-1" />
                                     Comprar
@@ -1024,7 +1040,7 @@ const AdminMantimentos = () => {
                                     variant="outline" 
                                     size="sm" 
                                     onClick={() => adicionarItemCompra(item)}
-                                    disabled={!quantidadeComprar[item.id]}
+                                    disabled={!quantidadeComprar[item.id] || quantidadeComprar[item.id] < 1 || quantidadeComprar[item.id] > (item.estoqueMinimo - item.quantidade)}
                                   >
                                     <ShoppingCart className="h-4 w-4 mr-1" />
                                     Comprar
@@ -1146,12 +1162,11 @@ const AdminMantimentos = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>
+            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => setFormOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveItem}>
-              <Save className="h-4 w-4 mr-1" />
-              Salvar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleSaveItem}>
+              Adicionar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1160,4 +1175,4 @@ const AdminMantimentos = () => {
   );
 };
 
-export default AdminMantimentos; 
+export default AdminMantimentos;

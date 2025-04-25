@@ -224,19 +224,12 @@ const AdminFrente = () => {
   const filteredFrentes = frentes.filter(frente => frente.type === activeTab);
 
   return (
-    <AdminLayout pageTitle="Frentes" pageSubtitle="Gerencie as frentes espirituais do terreiro.">
+    <AdminLayout pageTitle="Frentes" pageDescription="Gerencie as frentes espirituais do terreiro.">
       {!showForm ? (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveTab(value as "umbanda" | "nacao")}> 
-              <TabsList>
-                <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
-                <TabsTrigger value="nacao">Nação</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Nova Frente
+          <div className="mb-6 flex flex-col items-start gap-2">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
+              Adicionar
             </Button>
           </div>
 
@@ -363,7 +356,7 @@ const AdminFrente = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => {
+            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
               setShowForm(false);
               setSelectedFrente(null);
               setNewFrente({
@@ -377,12 +370,12 @@ const AdminFrente = () => {
               Cancelar
             </Button>
             {selectedFrente && (
-              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
                 Excluir
               </Button>
             )}
-            <Button onClick={selectedFrente ? handleUpdateFrente : handleAddFrente}>
-              {selectedFrente ? 'Atualizar Frente' : 'Adicionar Frente'}
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedFrente ? handleUpdateFrente : handleAddFrente}>
+              Adicionar
             </Button>
           </CardFooter>
         </Card>
@@ -406,4 +399,4 @@ const AdminFrente = () => {
   );
 };
 
-export default AdminFrente; 
+export default AdminFrente;

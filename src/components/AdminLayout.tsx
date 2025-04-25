@@ -42,25 +42,18 @@ const AdminLayout = ({ children, pageTitle, pageDescription }: AdminLayoutProps)
 
   return (
     <div className="flex-1">
-      
       <main className="px-5 py-6">
         {(pageTitle || pageDescription) && (
-          <div className="bg-white border border-gray-100 rounded mb-5">
-            {/* Cabeçalho da página */}
-            <div className="px-5 py-4 border-b border-gray-100">
-              <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center mb-2">
+          <div className="mb-5">
+            <div className="py-4">
+              <div className="flex flex-col">
                 {pageTitle && (
                   <h1 className="text-xl font-medium text-gray-900">{pageTitle}</h1>
                 )}
-                <div className="flex space-x-2 mb-2 md:mb-0">
-                  <button className="h-8 text-xs px-2 text-gray-600 border border-gray-200 bg-white rounded hover:bg-gray-50">
-                    Dispensar
-                  </button>
-                </div>
+                {pageDescription && (
+                  <p className="text-gray-500 text-xs">{pageDescription}</p>
+                )}
               </div>
-              {pageDescription && (
-                <p className="text-gray-500 text-xs">{pageDescription}</p>
-              )}
             </div>
           </div>
         )}

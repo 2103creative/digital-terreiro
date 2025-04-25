@@ -131,18 +131,31 @@ const ReadingContent = () => {
               </div>
             </div>
             <div className="flex justify-end mt-2 gap-2">
-              <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center" onClick={() => window.open('/Os_Nago_e_a_Morte.pdf', '_blank')}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-gray-700 border-gray-300 px-3 py-1 text-xs flex items-center"
+                onClick={() => window.open('/Os_Nago_e_a_Morte.pdf', '_blank')}
+              >
                 <BookOpen className="h-4 w-4 mr-1" />
                 {material.progress === 0 ? 'Ler' : 'Continuar'}
-              </button>
-              <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center">
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-gray-700 border-gray-300 px-3 py-1 text-xs flex items-center"
+              >
                 <Download className="h-4 w-4 mr-1" />
                 Baixar
-              </button>
-              <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center">
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-gray-700 border-gray-300 px-3 py-1 text-xs flex items-center"
+              >
                 <Bookmark className="h-4 w-4 mr-1" />
                 Salvar
-              </button>
+              </Button>
             </div>
           </div>
         ))}

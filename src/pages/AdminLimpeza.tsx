@@ -385,30 +385,28 @@ Agradeço a compreensão de todos!`,
   };
   
   return (
-    <AdminLayout pageTitle="Limpeza" pageSubtitle="Gerencie as listas de limpeza e as datas dos Dias D do terreiro.">
+    <AdminLayout pageTitle="Limpeza" pageDescription="Gerencie as listas de limpeza e as datas dos Dias D do terreiro.">
+      {/* Botão Adicionar logo abaixo do título/subtítulo, antes das abas */}
+      <div className="flex flex-col items-start gap-2 mb-4">
+        <Button 
+          size="sm" 
+          className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" 
+          onClick={handleAddItem}
+        >
+          Adicionar
+        </Button>
+      </div>
       <Tabs defaultValue="list">
         <TabsList className="mb-4">
           <TabsTrigger value="list">Lista de Limpeza</TabsTrigger>
           <TabsTrigger value="settings">Configurações de Exibição</TabsTrigger>
         </TabsList>
-        
         <TabsContent value="list">
-          {/* Página de lista no estilo ERPNext 15 */}
           <div className="bg-white border border-gray-100 rounded px-5 pb-4">
-            {/* Cabeçalho da página */}
+            {/* Filtros e ações */}
             <div className="py-4 border-b border-gray-100">
               <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center mb-2">
-                <h1 className="text-xl font-medium text-gray-900">Lista de Limpeza 2025</h1>
                 <div className="flex flex-wrap gap-2 mb-2 md:mb-0 w-full md:w-auto">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
-                    onClick={handleAddItem}
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1" />
-                    Adicionar
-                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -835,8 +833,8 @@ Agradeço a compreensão de todos!`,
           </div>
           
           <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 px-4 pb-4 pt-2">
-            <Button variant="outline" className="sm:w-auto w-full" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-            <Button className="sm:w-auto w-full" onClick={handleSaveItem}>Salvar</Button>
+            <Button variant="outline" className="sm:w-auto w-full h-8 text-xs px-3" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+            <Button className="sm:w-auto w-full h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleSaveItem}>Adicionar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

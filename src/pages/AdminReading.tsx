@@ -331,20 +331,24 @@ const AdminReading = () => {
   const filteredMaterials = materials.filter(material => material.category === activeCategory);
 
   return (
-    <AdminLayout pageTitle="Leitura" pageSubtitle="Gerencie os materiais de leitura e doutrina do terreiro.">
+    <AdminLayout pageTitle="Leitura" pageDescription="Gerencie os materiais de leitura e doutrina do terreiro.">
       {!showForm ? (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveCategory(value as "umbanda" | "nacao")}>
-              <TabsList>
-                <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
-                <TabsTrigger value="nacao">Nação</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Novo Material
+          {/* Botão Novo Material logo abaixo do título/subtítulo */}
+          <div className="mt-4 mb-2 flex flex-col items-start gap-2">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
+              Adicionar
             </Button>
+          </div>
+          {/* Tabs de categoria logo após o botão */}
+          <Tabs defaultValue="umbanda" onValueChange={(value) => setActiveCategory(value as "umbanda" | "nacao")}>
+            <TabsList>
+              <TabsTrigger value="umbanda">Umbanda</TabsTrigger>
+              <TabsTrigger value="nacao">Nação</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div className="mt-4 mb-6">
+            {/* Espaço reservado para outros filtros ou informações */}
           </div>
           <div className="flex flex-wrap gap-4 max-w-5xl">
             {filteredMaterials.map(material => (
@@ -576,4 +580,4 @@ const AdminReading = () => {
   );
 };
 
-export default AdminReading; 
+export default AdminReading;

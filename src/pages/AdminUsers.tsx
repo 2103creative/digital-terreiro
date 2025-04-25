@@ -123,12 +123,10 @@ const AdminUsers = () => {
   };
 
   return (
-    <AdminLayout pageTitle="Usuários" pageSubtitle="Gerencie os usuários do sistema.">
+    <AdminLayout pageTitle="Usuários" pageDescription="Gerencie os usuários do sistema.">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">Usuários do Sistema</h1>
-        <Button onClick={handleAddUser}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Novo Usuário
+        <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleAddUser}>
+          Adicionar
         </Button>
       </div>
       
@@ -141,7 +139,7 @@ const AdminUsers = () => {
           {users.map((user) => (
             <Card 
               key={user.id} 
-              className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+              className="border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
               onClick={() => handleEdit(user.id)}
             >
               <div className="flex flex-col h-full p-3 relative">

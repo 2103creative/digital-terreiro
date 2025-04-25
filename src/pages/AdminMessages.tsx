@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, PlusCircle, Edit, Trash2, ArrowLeftCircle, AlertCircle, CheckCircle } from "lucide-react";
+import { MessageSquare, PlusCircle, Trash2, ArrowLeftCircle, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -264,22 +264,20 @@ const AdminMessages = () => {
   const sortedMessages = [...messages].sort((a, b) => ensureDate(b.date).getTime() - ensureDate(a.date).getTime());
 
   return (
-    <AdminLayout pageTitle="Gerenciar Mensagens" pageDescription="Administre as mensagens enviadas aos membros do terreiro">
+    <AdminLayout pageTitle="Mensagens" pageDescription="Gerencie as mensagens enviadas para a comunidade.">
       {!showForm ? (
         <>
-          <div className="flex justify-end items-center mb-6">
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Nova Mensagem
+          <div className="mb-6 flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => { setShowForm(true); setSelectedMessage(null); setNewMessage({ title: '', content: '', date: new Date(), isUrgent: false, isRead: false }); }}>
+              Adicionar
             </Button>
           </div>
-          
           <div className="flex flex-wrap gap-4 max-w-5xl">
             {sortedMessages.map(message => (
               <Card
                 key={message.id}
                 className={cn(
-                  "bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]",
+                  "border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px] relative",
                   message.isRead ? "" : "border-l-4 border-l-blue-500"
                 )}
                 onClick={() => handleEditMessage(message)}
@@ -289,6 +287,12 @@ const AdminMessages = () => {
                   <div className="absolute top-3 left-3">
                     <MessageSquare className="h-5 w-5 text-primary" />
                   </div>
+                  {/* Badge urgente no canto superior direito */}
+                  {message.isUrgent && (
+                    <div className="absolute top-3 right-3">
+                      <Badge variant="destructive" className="text-[10px] py-0 h-5 flex items-center gap-1"><AlertCircle className="h-3 w-3 mr-1" />Urgente</Badge>
+                    </div>
+                  )}
                   {/* Título da mensagem centralizado */}
                   <div className="flex-1 flex items-center justify-center">
                     <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{message.title}</h3>
@@ -299,7 +303,7 @@ const AdminMessages = () => {
                     style={{ cursor: 'pointer' }}
                   >
                     <span>Editar</span>
-                    <Edit className="h-3 w-3 ml-0.5" />
+                    <ArrowRight className="h-3 w-3 ml-0.5" />
                   </div>
                 </div>
               </Card>
@@ -392,8 +396,8 @@ const AdminMessages = () => {
                 Excluir
               </Button>
             )}
-            <Button onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
-              {selectedMessage ? 'Atualizar Mensagem' : 'Adicionar Mensagem'}
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
+              Adicionar
             </Button>
           </CardFooter>
         </Card>

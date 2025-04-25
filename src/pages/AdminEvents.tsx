@@ -245,10 +245,9 @@ const AdminEvents = () => {
     <AdminLayout pageTitle="Gerenciar Eventos" pageDescription="Administre os eventos do terreiro">
       {!showForm ? (
         <>
-          <div className="flex justify-end items-center mb-6">
-            <Button onClick={() => setShowForm(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Novo Evento
+          <div className="mb-6 flex flex-col items-start gap-2">
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
+              Adicionar
             </Button>
           </div>
           
@@ -256,7 +255,7 @@ const AdminEvents = () => {
             {sortedEvents.map(event => (
               <Card
                 key={event.id}
-                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                className="border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
                 onClick={() => handleEditEvent(event)}
               >
                 <div className="flex flex-col h-full p-3 relative">
@@ -416,29 +415,26 @@ const AdminEvents = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowForm(false);
-                setSelectedEvent(null);
-                setNewEvent({
-                  title: "",
-                  subtitle: "",
-                  description: "",
-                  date: new Date(),
-                  type: "gira",
-                });
-              }}
-            >
+            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
+              setShowForm(false);
+              setSelectedEvent(null);
+              setNewEvent({
+                title: "",
+                subtitle: "",
+                description: "",
+                date: new Date(),
+                type: "gira",
+              });
+            }}>
               Cancelar
             </Button>
             {selectedEvent && (
-              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
                 Excluir
               </Button>
             )}
-            <Button onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
-              {selectedEvent ? 'Atualizar Evento' : 'Adicionar Evento'}
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
+              Adicionar
             </Button>
           </CardFooter>
         </Card>
