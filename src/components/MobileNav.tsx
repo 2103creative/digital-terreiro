@@ -37,11 +37,11 @@ const NavItem = ({ icon: Icon, label, path, badge, isActive }: NavItemProps) => 
       className={cn(
         "w-10 h-10 flex items-center justify-center rounded-full mb-1 transition-colors",
         isActive
-          ? "bg-primary text-white"
+          ? "bg-primary text-white shadow-lg"
           : "text-gray-500 group-hover:bg-gray-100"
       )}
     >
-      <Icon className="h-5 w-5" />
+      <Icon className="h-6 w-6" />
       {badge && (
         <Badge
           className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 h-5 min-w-5 p-0 flex items-center justify-center"
@@ -51,7 +51,8 @@ const NavItem = ({ icon: Icon, label, path, badge, isActive }: NavItemProps) => 
         </Badge>
       )}
     </div>
-    <span className="text-xs text-gray-500 group-hover:text-gray-900">
+    {/* Esconde o label em telas pequenas para economizar espaço */}
+    <span className="text-xs text-gray-500 group-hover:text-gray-900 hidden xs:block">
       {label}
     </span>
   </Link>
@@ -65,8 +66,8 @@ const MobileNav = () => {
   if (loading) return null;
   if (!user) return null;
 
-  // Rotas administrativas completas
-  const adminNav = [
+  // Todos os ícones/páginas disponíveis para admin
+  const allAdminNav = [
     { icon: Home, label: "Dashboard", path: "/admin/dashboard" },
     { icon: FileText, label: "Frentes", path: "/admin/frentes" },
     { icon: Leaf, label: "Ervas", path: "/admin/ervas" },
@@ -77,11 +78,11 @@ const MobileNav = () => {
     { icon: MessageSquare, label: "Mensagens", path: "/admin/mensagens" },
     { icon: Heart, label: "Bate Papo", path: "/chat" },
     { icon: Users, label: "Usuários", path: "/admin/usuarios" },
-    { icon: User, label: "Meu Perfil", path: "/profile" }
+    { icon: User, label: "Perfil", path: "/profile" }
   ];
 
-  // Rotas para usuários comuns
-  const userNav = [
+  // Todos os ícones/páginas disponíveis para usuário comum
+  const allUserNav = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: FileText, label: "Frentes", path: "/frentes" },
     { icon: Leaf, label: "Ervas", path: "/ervas" },
@@ -91,22 +92,43 @@ const MobileNav = () => {
     { icon: Brush, label: "Limpeza", path: "/limpeza" },
     { icon: MessageSquare, label: "Mensagens", path: "/mensagens" },
     { icon: Heart, label: "Bate Papo", path: "/chat" },
-    { icon: User, label: "Meu Perfil", path: "/profile" }
+    { icon: Users, label: "Usuários", path: "/usuarios" },
+    { icon: User, label: "Perfil", path: "/profile" }
   ];
 
-  const navItems = isAdmin ? adminNav : userNav;
+  const navItems = isAdmin ? allAdminNav : allUserNav;
+
+  // Divide os ícones igualmente em duas linhas
+  const half = Math.ceil(navItems.length / 2);
+  const firstRow = navItems.slice(0, half);
+  const secondRow = navItems.slice(half);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg flex justify-between px-2 py-1 md:hidden">
-      {navItems.map((item) => (
-        <NavItem
-          key={item.path}
-          icon={item.icon}
-          label={item.label}
-          path={item.path}
-          isActive={location.pathname.startsWith(item.path)}
-        />
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg px-1 py-1 md:hidden">
+      <div className="flex flex-col">
+        <div className="flex justify-around w-full mb-1">
+          {firstRow.map((item) => (
+            <NavItem
+              key={item.path}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
+              isActive={location.pathname.startsWith(item.path)}
+            />
+          ))}
+        </div>
+        <div className="flex justify-around w-full">
+          {secondRow.map((item) => (
+            <NavItem
+              key={item.path}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
+              isActive={location.pathname.startsWith(item.path)}
+            />
+          ))}
+        </div>
+      </div>
     </nav>
   );
 };

@@ -567,8 +567,8 @@ const AdminMantimentos = () => {
       <div className="space-y-4">
         <div className="mb-2">
           <div className="mt-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleAddItem}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={handleAddItem}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </div>
         </div>
@@ -902,7 +902,7 @@ const AdminMantimentos = () => {
               )}
               
               {/* Lista de itens que precisam ser comprados */}
-              <Card className={itensFaltantes.length > 0 ? "border-red-200 mb-4" : "mb-4"}>
+              <Card>
                 <CardHeader className="pb-3 bg-red-50 border-b border-red-100">
                   <CardTitle className="text-base flex items-center">
                     <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
@@ -1165,8 +1165,8 @@ const AdminMantimentos = () => {
             <Button variant="outline" className="h-8 text-xs px-3" onClick={() => setFormOpen(false)}>
               Cancelar
             </Button>
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleSaveItem}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={handleSaveItem}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </DialogFooter>
         </DialogContent>

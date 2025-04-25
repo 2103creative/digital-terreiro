@@ -414,8 +414,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
                 className="h-8 text-xs px-3"
               >Excluir</Button>
             )}
-            <Button type="submit" disabled={isLoading} className="h-8 text-xs px-4">
-              {isLoading ? "Salvando..." : isEditMode ? "Salvar alterações" : "Criar usuário"}
+            <Button type="submit" disabled={isLoading} className="h-8 text-xs px-4 flex items-center gap-1">
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </div>
         </form>

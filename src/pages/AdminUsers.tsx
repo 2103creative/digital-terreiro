@@ -125,8 +125,8 @@ const AdminUsers = () => {
   return (
     <AdminLayout pageTitle="Usuários" pageDescription="Gerencie os usuários do sistema.">
       <div className="flex justify-between items-center mb-6">
-        <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleAddUser}>
-          Adicionar
+        <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={handleAddUser}>
+          <span className="text-lg leading-none">+</span> Adicionar
         </Button>
       </div>
       
@@ -135,33 +135,32 @@ const AdminUsers = () => {
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-4 max-w-5xl">
-          {users.map((user) => (
-            <Card 
-              key={user.id} 
-              className="border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+        <div className="flex flex-wrap gap-2 max-w-5xl">
+          {users.map(user => (
+            <Card
+              key={user.id}
+              className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
               onClick={() => handleEdit(user.id)}
             >
-              <div className="flex flex-col h-full p-3 relative">
+              <div className="flex flex-col h-full p-2 relative">
                 {/* Ícone de usuário no canto superior esquerdo */}
-                <div className="absolute top-3 left-3">
-                  <UserIcon className="h-5 w-5 text-gray-600" />
+                <div className="absolute top-2 left-2">
+                  <UserIcon className="h-4 w-4 text-primary" />
                 </div>
-                
                 {/* Nome do usuário centralizado */}
                 <div className="flex-1 flex items-center justify-center">
-                  <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{user.name}</h3>
+                  <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{user.name}</h3>
                 </div>
-                
                 {/* Link de editar no canto inferior esquerdo */}
-                <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600">
+                <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
+                  onClick={e => { e.stopPropagation(); handleEdit(user.id); }}
+                  style={{ cursor: 'pointer' }}
+                >
                   <span>Editar</span>
-                  <ArrowRight className="h-3 w-3 ml-0.5" />
                 </div>
-                
-                {/* Indicador de status (bolinha) no canto inferior direito */}
-                <div className="absolute bottom-3 right-3">
-                  <div className={`h-3 w-3 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                {/* Status do usuário no canto inferior direito */}
+                <div className="absolute bottom-2 right-2">
+                  <div className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 </div>
               </div>
             </Card>

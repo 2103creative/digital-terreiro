@@ -336,8 +336,8 @@ const AdminReading = () => {
         <>
           {/* Botão Novo Material logo abaixo do título/subtítulo */}
           <div className="mt-4 mb-2 flex flex-col items-start gap-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => setShowForm(true)}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </div>
           {/* Tabs de categoria logo após o botão */}
@@ -350,26 +350,30 @@ const AdminReading = () => {
           <div className="mt-4 mb-6">
             {/* Espaço reservado para outros filtros ou informações */}
           </div>
-          <div className="flex flex-wrap gap-4 max-w-5xl">
+          <div className="flex flex-wrap gap-2 max-w-5xl">
             {filteredMaterials.map(material => (
               <Card
                 key={material.id}
-                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
                 onClick={() => handleEditMaterial(material)}
               >
-                <div className="flex flex-col h-full p-3 relative">
-                  <div className="absolute top-3 left-3">
-                    <BookOpen className="h-5 w-5 text-primary" />
+                <div className="flex flex-col h-full p-2 relative">
+                  {/* Ícone do tipo de material no canto superior esquerdo */}
+                  <div className="absolute top-2 left-2">
+                    {material.type === "e-book" && <BookOpen className="h-4 w-4 text-primary" />}
+                    {material.type === "doutrina" && <Book className="h-4 w-4 text-primary" />}
+                    {material.type === "artigo" && <FileText className="h-4 w-4 text-primary" />}
                   </div>
+                  {/* Título do material centralizado */}
                   <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{material.title}</h3>
+                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{material.title}</h3>
                   </div>
-                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                  {/* Link de editar no canto inferior esquerdo */}
+                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
                     onClick={e => { e.stopPropagation(); handleEditMaterial(material); }}
                     style={{ cursor: 'pointer' }}
                   >
                     <span>Editar</span>
-                    <ArrowRight className="h-3 w-3 ml-0.5" />
                   </div>
                 </div>
               </Card>
@@ -553,8 +557,8 @@ const AdminReading = () => {
                     Excluir
                   </Button>
                 )}
-                <Button onClick={selectedMaterial ? handleUpdateMaterial : handleAddMaterial}>
-                  {selectedMaterial ? 'Atualizar Material' : 'Adicionar Material'}
+                <Button className="flex items-center gap-1" onClick={selectedMaterial ? handleUpdateMaterial : handleAddMaterial}>
+                  <span className="text-lg leading-none">+</span> Adicionar
                 </Button>
               </CardFooter>
             </div>

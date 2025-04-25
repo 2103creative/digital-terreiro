@@ -268,42 +268,38 @@ const AdminMessages = () => {
       {!showForm ? (
         <>
           <div className="mb-6 flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => { setShowForm(true); setSelectedMessage(null); setNewMessage({ title: '', content: '', date: new Date(), isUrgent: false, isRead: false }); }}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => { setShowForm(true); setSelectedMessage(null); setNewMessage({ title: '', content: '', date: new Date(), isUrgent: false, isRead: false }); }}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </div>
-          <div className="flex flex-wrap gap-4 max-w-5xl">
+          <div className="flex flex-wrap gap-2 max-w-5xl">
             {sortedMessages.map(message => (
               <Card
                 key={message.id}
-                className={cn(
-                  "border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px] relative",
-                  message.isRead ? "" : "border-l-4 border-l-blue-500"
-                )}
+                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
                 onClick={() => handleEditMessage(message)}
               >
-                <div className="flex flex-col h-full p-3 relative">
+                <div className="flex flex-col h-full p-2 relative">
                   {/* Ícone de mensagem no canto superior esquerdo */}
-                  <div className="absolute top-3 left-3">
-                    <MessageSquare className="h-5 w-5 text-primary" />
+                  <div className="absolute top-2 left-2">
+                    {message.isUrgent ? (
+                      <MessageSquare className="h-4 w-4 text-red-600" />
+                    ) : message.isRead ? (
+                      <MessageSquare className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <MessageSquare className="h-4 w-4 text-blue-600" />
+                    )}
                   </div>
-                  {/* Badge urgente no canto superior direito */}
-                  {message.isUrgent && (
-                    <div className="absolute top-3 right-3">
-                      <Badge variant="destructive" className="text-[10px] py-0 h-5 flex items-center gap-1"><AlertCircle className="h-3 w-3 mr-1" />Urgente</Badge>
-                    </div>
-                  )}
                   {/* Título da mensagem centralizado */}
                   <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{message.title}</h3>
+                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{message.title}</h3>
                   </div>
                   {/* Link de editar no canto inferior esquerdo */}
-                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
                     onClick={e => { e.stopPropagation(); handleEditMessage(message); }}
                     style={{ cursor: 'pointer' }}
                   >
                     <span>Editar</span>
-                    <ArrowRight className="h-3 w-3 ml-0.5" />
                   </div>
                 </div>
               </Card>
@@ -396,8 +392,8 @@ const AdminMessages = () => {
                 Excluir
               </Button>
             )}
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={selectedMessage ? handleUpdateMessage : handleAddMessage}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </CardFooter>
         </Card>

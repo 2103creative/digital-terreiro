@@ -167,10 +167,10 @@ const MessagesContent = () => {
             <div>
               <div className="flex items-start justify-between mb-1">
                 <div>
-                  <h2 className="font-bold text-lg leading-tight mb-0.5 flex items-center gap-2">{msg.isUrgent && <AlertCircle className="h-4 w-4 text-red-500" />} {msg.title}</h2>
+                  <h2 className="font-bold text-lg leading-tight mb-0.5">{msg.title}</h2>
                   <p className="text-xs italic text-gray-500 mb-2">{formatMessageDate(msg.date)}</p>
                 </div>
-                <MessageSquare className="h-5 w-5 text-primary mt-1" />
+                <MessageSquare className={`h-5 w-5 mt-1 ${msg.isUrgent ? 'text-red-500' : readStatus[msg.id] ? 'text-green-500' : 'text-blue-600'}`} />
               </div>
               <p className="text-sm text-gray-700 mb-3">{msg.content}</p>
               <div className="mb-2">
@@ -194,7 +194,7 @@ const MessagesContent = () => {
             <>
               <DialogHeader className="pb-2">
                 <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
+                  <MessageSquare className="h-4 w-4" />
                   {selectedMessage.title}
                 </DialogTitle>
                 <div className="flex items-center justify-between mt-1">

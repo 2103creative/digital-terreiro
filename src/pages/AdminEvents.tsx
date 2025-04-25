@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, PlusCircle, Edit, Trash2, ArrowLeftCircle, ArrowRight } from "lucide-react";
+import { Calendar, CalendarDays, PlusCircle, Edit, Trash2, ArrowLeftCircle, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -246,34 +246,33 @@ const AdminEvents = () => {
       {!showForm ? (
         <>
           <div className="mb-6 flex flex-col items-start gap-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={() => setShowForm(true)}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => setShowForm(true)}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </div>
           
-          <div className="flex flex-wrap gap-4 max-w-5xl">
+          <div className="flex flex-wrap gap-2 max-w-5xl">
             {sortedEvents.map(event => (
               <Card
                 key={event.id}
-                className="border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
+                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
                 onClick={() => handleEditEvent(event)}
               >
-                <div className="flex flex-col h-full p-3 relative">
+                <div className="flex flex-col h-full p-2 relative">
                   {/* Ícone de evento no canto superior esquerdo */}
-                  <div className="absolute top-3 left-3">
-                    <Calendar className="h-5 w-5 text-primary" />
+                  <div className="absolute top-2 left-2">
+                    <CalendarDays className="h-4 w-4 text-primary" />
                   </div>
                   {/* Nome do evento centralizado */}
                   <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{event.title}</h3>
+                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{event.title}</h3>
                   </div>
                   {/* Link de editar no canto inferior esquerdo */}
-                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
+                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
                     onClick={e => { e.stopPropagation(); handleEditEvent(event); }}
                     style={{ cursor: 'pointer' }}
                   >
                     <span>Editar</span>
-                    <ArrowRight className="h-3 w-3 ml-0.5" />
                   </div>
                 </div>
               </Card>
@@ -433,8 +432,8 @@ const AdminEvents = () => {
                 Excluir
               </Button>
             )}
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
-              Adicionar
+            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
+              <span className="text-lg leading-none">+</span> Adicionar
             </Button>
           </CardFooter>
         </Card>

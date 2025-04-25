@@ -124,7 +124,8 @@ const App = () => (
                 <Route path="/admin/usuarios" element={<AdminUsers />} />
                 <Route path="/admin/usuarios/novo" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
                 <Route path="/admin/usuarios/editar/:userId" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
-                <Route path="/admin/usuarios-view" element={<AdminUsersView />} /> // Add the new route
+                <Route path="/admin/usuarios-view" element={<AdminUsersView />} />
+                <Route path="/admin/cleaning-generator" element={<CleaningGenerator />} />
               </Route>
 
               {/* 404 - página não encontrada */}

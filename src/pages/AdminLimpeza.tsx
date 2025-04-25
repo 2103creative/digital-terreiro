@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff, Edit, Trash, Plus, ListPlus } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Filter, Download, Save, Eye, EyeOff, Edit, Trash, Plus, ListPlus, Brush } from "lucide-react";
 
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -390,10 +390,10 @@ Agradeço a compreensão de todos!`,
       <div className="flex flex-col items-start gap-2 mb-4">
         <Button 
           size="sm" 
-          className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" 
+          className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" 
           onClick={handleAddItem}
         >
-          Adicionar
+          <span className="text-lg leading-none">+</span> Adicionar
         </Button>
       </div>
       <Tabs defaultValue="list">
@@ -411,7 +411,7 @@ Agradeço a compreensão de todos!`,
                     variant="outline" 
                     size="sm" 
                     className="h-8 text-xs px-2 text-gray-600 border-gray-200 bg-white flex-1 sm:flex-none"
-                    onClick={() => navigate('/admin/gerador-limpeza')}
+                    onClick={() => navigate('/admin/cleaning-generator')}
                   >
                     <ListPlus className="h-3.5 w-3.5 mr-1" />
                     Gerador
@@ -834,7 +834,9 @@ Agradeço a compreensão de todos!`,
           
           <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 px-4 pb-4 pt-2">
             <Button variant="outline" className="sm:w-auto w-full h-8 text-xs px-3" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-            <Button className="sm:w-auto w-full h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white" onClick={handleSaveItem}>Adicionar</Button>
+            <Button className="sm:w-auto w-full h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={handleSaveItem}>
+              <span className="text-lg leading-none">+</span> Adicionar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

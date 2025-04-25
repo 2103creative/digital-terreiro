@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
   Calendar, 
+  CalendarDays, 
   BookOpen, 
   Brush,
   MessageSquare,
@@ -12,7 +13,8 @@ import {
   Users,
   Heart,
   ShoppingCart,
-  Leaf
+  Leaf,
+  LogOut
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -151,33 +153,44 @@ const Dashboard = () => {
         </div>
         
         {/* Acesso rápido às seções */}
-        <div className="mb-4 md:mb-5">
+        <div className="mb-4 md:mb-5 flex items-center justify-between">
           <h2 className="text-sm md:text-base font-medium text-gray-900 mb-2 md:mb-3 text-left">Visão Geral do Site</h2>
-          <div className="flex flex-wrap gap-4 max-w-5xl">
-            {siteOverview.map((section, index) => (
-              <div 
-                key={index} 
-                className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
-                onClick={() => navigate(section.path)}
-              >
-                <div className="flex flex-col h-full p-3 relative">
-                  {/* Ícone no canto superior esquerdo */}
-                  <div className="absolute top-3 left-3">
-                    <section.icon className="h-6 w-6 text-gray-600" />
-                  </div>
-                  {/* Nome centralizado */}
-                  <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-sm font-medium text-gray-900 text-center line-clamp-2">{section.title}</h3>
-                  </div>
-                  {/* Link de acessar no canto inferior esquerdo */}
-                  <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600">
-                    <span>Acessar</span>
-                    <ArrowRight className="h-3 w-3 ml-0.5" />
-                  </div>
+          <button
+            className="flex items-center gap-1 px-2 py-1 rounded bg-transparent text-xs text-red-600 hover:text-red-700 focus:outline-none border-none shadow-none"
+            style={{ boxShadow: 'none' }}
+            onClick={() => {
+              localStorage.removeItem("isAuthenticated");
+              navigate("/login");
+            }}
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2 max-w-5xl">
+          {siteOverview.map((section, index) => (
+            <div 
+              key={index} 
+              className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
+              onClick={() => navigate(section.path)}
+            >
+              <div className="flex flex-col h-full p-2 relative">
+                {/* Ícone no canto superior esquerdo */}
+                <div className="absolute top-2 left-2">
+                  <section.icon className="h-4 w-4 text-gray-600" />
+                </div>
+                {/* Nome centralizado */}
+                <div className="flex-1 flex items-center justify-center">
+                  <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{section.title}</h3>
+                </div>
+                {/* Link de acessar no canto inferior esquerdo */}
+                <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600">
+                  <span>Acessar</span>
+                  <ArrowRight className="h-3 w-3 ml-0.5" />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </main>
     </div>
