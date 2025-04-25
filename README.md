@@ -1,73 +1,125 @@
-# Welcome to your Lovable project
+# Ylê Axé Xangô & Oxum — Plataforma Digital do Terreiro
 
-## Project info
+Bem-vindo ao sistema digital do terreiro Ylê Axé Xangô & Oxum! Este projeto visa facilitar a comunicação, organização e participação dos membros do terreiro, promovendo acolhimento, transparência e praticidade.
 
-**URL**: https://lovable.dev/projects/300a865a-4f56-4064-8d5d-90c79e82beb0
+---
 
-## How can I edit this code?
+## ✨ Visão Geral
 
-There are several ways of editing your application.
+- **Gerencie eventos, frentes, ervas, mantimentos, mensagens e muito mais**
+- **Acesso diferenciado para membros e administradores**
+- **Experiência otimizada para desktop e mobile**
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/300a865a-4f56-4064-8d5d-90c79e82beb0) and start prompting.
+## 🚀 Tecnologias Utilizadas
 
-Changes made via Lovable will be committed automatically to this repo.
+- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/) (build e dev server)
+- [Tailwind CSS](https://tailwindcss.com/) (estilização)
+- [shadcn-ui](https://ui.shadcn.com/) e [Radix UI](https://www.radix-ui.com/) (componentes acessíveis)
+- [React Router](https://reactrouter.com/) (rotas)
+- [TanStack React Query](https://tanstack.com/query/latest) (gerenciamento de dados)
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📁 Estrutura de Pastas
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- `src/pages/` — Páginas principais do sistema, cada arquivo representa uma rota
+- `src/components/` — Componentes reutilizáveis de UI
+- `src/layouts/` — Layouts para diferentes tipos de usuários (admin, usuário comum, mobile, desktop)
+- `src/contexts/` — Contextos React para autenticação, chat, etc.
+- `src/hooks/` — Hooks customizados para lógica reutilizável
+- `public/` — Assets públicos, imagens, manifest, etc.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🗺️ Principais Rotas
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+| Rota                      | Descrição                         | Permissão    |
+|---------------------------|-----------------------------------|--------------|
+| `/login`                  | Tela de login                     | Pública      |
+| `/register`               | Cadastro de novo usuário          | Pública      |
+| `/dashboard`              | Dashboard do usuário              | Autenticado  |
+| `/frentes`                | Frentes do terreiro               | Autenticado  |
+| `/ervas`                  | Catálogo de ervas                 | Autenticado  |
+| `/eventos`                | Eventos do terreiro               | Autenticado  |
+| `/leitura`                | Leituras e materiais              | Autenticado  |
+| `/mensagens`              | Mensagens da comunidade           | Autenticado  |
+| `/limpeza`                | Limpezas e escalas                | Autenticado  |
+| `/compras`                | Lista de compras                  | Autenticado  |
+| `/chat`                   | Chat interno                      | Autenticado  |
+| `/favoritos`              | Itens favoritos                   | Autenticado  |
+| `/profile`                | Perfil do usuário                 | Autenticado  |
+| `/settings`               | Configurações                     | Autenticado  |
+| `/admin/dashboard`        | Dashboard administrativo          | Admin        |
+| `/admin/frentes`          | Gerenciar frentes                 | Admin        |
+| `/admin/ervas`            | Gerenciar ervas                   | Admin        |
+| `/admin/compras`          | Gerenciar mantimentos/compras     | Admin        |
+| `/admin/eventos`          | Gerenciar eventos                 | Admin        |
+| `/admin/leitura`          | Gerenciar leituras                | Admin        |
+| `/admin/limpeza`          | Gerenciar limpezas                | Admin        |
+| `/admin/mensagens`        | Gerenciar mensagens               | Admin        |
+| `/admin/usuarios`         | Gerenciar usuários                | Admin        |
+| `/admin/usuarios/editar/:userId` | Editar usuário específico  | Admin        |
+| `/admin/usuarios-view`    | Visualizar usuários               | Admin        |
+| `/admin/cleaning-generator`| Gerador de escalas de limpeza   | Admin        |
+| `*`                       | Página 404                        | Todos        |
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🛠️ Como Rodar Localmente
 
-**Edit a file directly in GitHub**
+1. **Clone o repositório:**
+   ```sh
+   git clone <URL_DO_REPOSITORIO>
+   cd <NOME_DA_PASTA>
+   ```
+2. **Instale as dependências:**
+   ```sh
+   npm install
+   ```
+3. **Inicie o servidor de desenvolvimento:**
+   ```sh
+   npm run dev
+   ```
+   O site estará disponível em `http://localhost:5173` (ou porta definida pelo Vite).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📜 Scripts Disponíveis
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `npm run dev` — Inicia o servidor de desenvolvimento
+- `npm run build` — Gera a build de produção
+- `npm run preview` — Visualiza a build de produção localmente
+- `npm run lint` — Verifica padrões de código
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🤝 Como Contribuir
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature ou correção: `git checkout -b minha-feature`
+3. Commit suas mudanças: `git commit -m "feat: minha contribuição"`
+4. Push para seu fork: `git push origin minha-feature`
+5. Abra um Pull Request
 
-## How can I deploy this project?
+Sugestões, correções e novas ideias são sempre bem-vindas!
 
-Simply open [Lovable](https://lovable.dev/projects/300a865a-4f56-4064-8d5d-90c79e82beb0) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 📬 Contato & Suporte
 
-Yes it is!
+- Email: [contato@yleaxe.com.br](mailto:contato@yleaxe.com.br)
+- WhatsApp: (xx) xxxxx-xxxx
+- [Site oficial](https://yleaxe.com.br)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📄 Licença
+
+Este projeto é privado e destinado ao uso interno do terreiro Ylê Axé Xangô & Oxum.
+
+---
+
+> _Axé e bem-vinde à nossa comunidade digital!_

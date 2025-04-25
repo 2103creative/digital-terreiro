@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Terreiro {
+  id        String   @id @default(uuid())
+  nome      String
+  createdAt DateTime @default(now())
+  users     User[]
+  // Adicione outros campos de configuração conforme necessário
+}
+
+model User {
+  id         String   @id @default(uuid())
+  nome       String
+  email      String   @unique
+  senha      String
+  terreiro   Terreiro @relation(fields: [terreiroId], references: [id])
+  terreiroId String
+  role       String   // 'admin', 'membro', etc.
+  createdAt  DateTime @default(now())
+}
