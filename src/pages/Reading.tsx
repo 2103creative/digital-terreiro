@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
 import ReadingContent from "@/components/ReadingContent";
-import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 
 const Reading = () => {
@@ -24,18 +21,10 @@ const Reading = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
-      <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-4 py-6">
-          <ReadingContent />
-        </main>
-      </div>
-      
-      <MobileNav />
+    <div className="flex-1">
+      <main className="container mx-auto px-4 py-6">
+        <ReadingContent />
+      </main>
     </div>
   );
 };

@@ -39,7 +39,6 @@ interface Mantimento {
   dataValidade?: string;
   dataCompra: string;
   estoqueMinimo: number;
-  observacoes?: string;
 }
 
 // Formulário para editar item
@@ -48,7 +47,7 @@ interface MantimentoForm extends Omit<Mantimento, 'id'> {
 }
 
 // Interface para os itens que serão comprados
-interface ItemCompra extends Mantimento {
+interface ItemCompra extends Omit<Mantimento, 'observacoes'> {
   quantidade_comprar: number;
   usuario: string;
 }
@@ -100,7 +99,6 @@ const AdminMantimentos = () => {
     categoria: "Alimentos",
     dataCompra: new Date().toISOString().split('T')[0],
     estoqueMinimo: 1,
-    observacoes: ""
   });
   
   // Carregar dados
@@ -164,7 +162,6 @@ const AdminMantimentos = () => {
           dataValidade: "2024-12-31",
           dataCompra: "2023-06-15",
           estoqueMinimo: 2,
-          observacoes: "Marca Tio João"
         },
         {
           id: 2,
@@ -204,7 +201,6 @@ const AdminMantimentos = () => {
           dataValidade: "2023-11-15",
           dataCompra: "2023-09-01",
           estoqueMinimo: 2,
-          observacoes: "Guaraná"
         }
       ];
       
@@ -218,8 +214,7 @@ const AdminMantimentos = () => {
     // Pesquisa por texto
     const matchesSearch = 
       searchTerm === "" || 
-      item.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.observacoes?.toLowerCase().includes(searchTerm.toLowerCase());
+      item.nome.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Filtro por categoria
     const matchesCategoria = 
@@ -318,7 +313,6 @@ const AdminMantimentos = () => {
       dataValidade: item.dataValidade,
       dataCompra: item.dataCompra,
       estoqueMinimo: item.estoqueMinimo,
-      observacoes: item.observacoes
     });
     
     setFormOpen(true);
@@ -345,7 +339,6 @@ const AdminMantimentos = () => {
       categoria: "Alimentos",
       dataCompra: new Date().toISOString().split('T')[0],
       estoqueMinimo: 1,
-      observacoes: ""
     });
   };
   
@@ -358,7 +351,7 @@ const AdminMantimentos = () => {
   // Exportar lista em CSV
   const handleExportCSV = () => {
     // Cabeçalho do CSV
-    let csvContent = "ID,Nome,Quantidade,Unidade,Categoria,Data Validade,Data Compra,Estoque Mínimo,Observações\n";
+    let csvContent = "ID,Nome,Quantidade,Unidade,Categoria,Data Validade,Data Compra,Estoque Mínimo\n";
     
     // Dados
     mantimentos.forEach(item => {
@@ -371,7 +364,6 @@ const AdminMantimentos = () => {
         item.dataValidade || "",
         item.dataCompra,
         item.estoqueMinimo,
-        item.observacoes || ""
       ].join(",");
       
       csvContent += row + "\n";
@@ -408,7 +400,7 @@ const AdminMantimentos = () => {
     }
     
     // Cabeçalho do CSV
-    let csvContent = "Nome,Quantidade Necessária,Unidade,Categoria,Observações\n";
+    let csvContent = "Nome,Quantidade Necessária,Unidade,Categoria\n";
     
     // Dados
     itensParaComprar.forEach(item => {
@@ -421,7 +413,6 @@ const AdminMantimentos = () => {
         quantidadeNecessaria,
         item.unidade,
         item.categoria,
-        item.observacoes || ""
       ].join(",");
       
       csvContent += row + "\n";
@@ -557,8 +548,8 @@ const AdminMantimentos = () => {
   
   return (
     <AdminLayout 
-      pageTitle="Lista de Compras" 
-      pageDescription="Controle de estoque, compras e validade dos itens"
+      pageTitle="Mantimentos" 
+      pageSubtitle="Gerencie o estoque e as compras do terreiro."
     >
       <div className="space-y-4">
         {/* Tabs para alternar entre visualizações */}
@@ -808,7 +799,6 @@ const AdminMantimentos = () => {
                             <th className="py-2 px-3 text-left">Nome</th>
                             <th className="py-2 px-3 text-left">Categoria</th>
                             <th className="py-2 px-3 text-left">Quantidade</th>
-                            <th className="py-2 px-3 text-left">Observações</th>
                             <th className="py-2 px-3 text-right">Ação</th>
                           </tr>
                         </thead>
@@ -821,9 +811,6 @@ const AdminMantimentos = () => {
                                 <td className="py-2 px-3">{item.categoria}</td>
                                 <td className="py-2 px-3 font-medium text-green-600">
                                   {item.quantidade_comprar} {item.unidade}
-                                </td>
-                                <td className="py-2 px-3 text-gray-600">
-                                  {item.observacoes || "-"}
                                 </td>
                                 <td className="py-2 px-3 text-right">
                                   <div className="flex justify-end space-x-2">
@@ -874,7 +861,6 @@ const AdminMantimentos = () => {
                             <th className="py-2 px-3 text-left">Categoria</th>
                             <th className="py-2 px-3 text-left">Quantidade</th>
                             <th className="py-2 px-3 text-left">Membro</th>
-                            <th className="py-2 px-3 text-left">Observações</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -889,9 +875,6 @@ const AdminMantimentos = () => {
                                 </td>
                                 <td className="py-2 px-3 font-medium text-gray-800">
                                   {item.usuario}
-                                </td>
-                                <td className="py-2 px-3 text-gray-600">
-                                  {item.observacoes || "-"}
                                 </td>
                               </tr>
                             ))}
@@ -928,7 +911,6 @@ const AdminMantimentos = () => {
                             <th className="py-2 px-3 text-left">Categoria</th>
                             <th className="py-2 px-3 text-left">Qtd. Necessária</th>
                             <th className="py-2 px-3 text-left">Qtd. a Comprar</th>
-                            <th className="py-2 px-3 text-left">Observações</th>
                             <th className="py-2 px-3 text-left">Ação</th>
                           </tr>
                         </thead>
@@ -959,9 +941,6 @@ const AdminMantimentos = () => {
                                     className="w-20 h-8 px-2"
                                     placeholder="Qtd"
                                   />
-                                </td>
-                                <td className="py-2 px-3 text-gray-600">
-                                  {item.observacoes || "-"}
                                 </td>
                                 <td className="py-2 px-3">
                                   <Button 
@@ -1009,7 +988,6 @@ const AdminMantimentos = () => {
                             <th className="py-2 px-3 text-left">Categoria</th>
                             <th className="py-2 px-3 text-left">Estoque Atual</th>
                             <th className="py-2 px-3 text-left">Qtd. a Comprar</th>
-                            <th className="py-2 px-3 text-left">Observações</th>
                             <th className="py-2 px-3 text-left">Ação</th>
                           </tr>
                         </thead>
@@ -1040,9 +1018,6 @@ const AdminMantimentos = () => {
                                     className="w-20 h-8 px-2"
                                     placeholder="Qtd"
                                   />
-                                </td>
-                                <td className="py-2 px-3 text-gray-600">
-                                  {item.observacoes || "-"}
                                 </td>
                                 <td className="py-2 px-3">
                                   <Button 
@@ -1168,16 +1143,6 @@ const AdminMantimentos = () => {
                   onChange={(e) => setForm({ ...form, dataValidade: e.target.value })}
                 />
               </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="observacoes">Observações</Label>
-              <Input
-                id="observacoes"
-                value={form.observacoes || ""}
-                onChange={(e) => setForm({ ...form, observacoes: e.target.value })}
-                placeholder="Marca, fornecedor, informações adicionais..."
-              />
             </div>
           </div>
           <DialogFooter>

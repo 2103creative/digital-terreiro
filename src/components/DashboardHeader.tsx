@@ -19,7 +19,8 @@ import {
   Brush,
   FileText,
   User,
-  ShoppingCart
+  ShoppingCart,
+  Layers
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,7 +117,7 @@ const DashboardHeader = () => {
       path: "/dashboard",
     },
     {
-      icon: FileText,
+      icon: Layers,
       label: "Frentes",
       path: "/frentes",
     },
@@ -144,17 +145,12 @@ const DashboardHeader = () => {
     {
       icon: ShoppingCart,
       label: "Compras",
-      path: "/lista-compras",
+      path: "/compras",
     },
     {
       icon: Heart,
       label: "Chat Comunitário",
       path: "/chat",
-    },
-    {
-      icon: Info,
-      label: "Sobre",
-      path: "/sobre",
     },
     {
       icon: User,
@@ -176,14 +172,14 @@ const DashboardHeader = () => {
       path: "/admin/usuarios",
     },
     {
-      icon: FileText,
+      icon: Layers,
       label: "Frentes",
-      path: "/admin/frentes",
+      path: "/frentes",
     },
     {
       icon: ShoppingCart,
       label: "Compras",
-      path: "/admin/mantimentos",
+      path: "/compras",
     },
     {
       icon: Calendar,
@@ -210,11 +206,6 @@ const DashboardHeader = () => {
       icon: Heart,
       label: "Chat Comunitário",
       path: "/chat",
-    },
-    {
-      icon: Info,
-      label: "Sobre",
-      path: "/admin/sobre",
     },
     {
       icon: User,
@@ -384,11 +375,11 @@ const DashboardHeader = () => {
                 <li className="mt-48">
                   <div className="flex items-center text-gray-500 py-2 px-1 space-x-4">
                     <button
-                      onClick={() => handleNavigate('/configuracoes')}
+                      onClick={() => handleNavigate(isAdmin ? '/configuracoes' : '/profile')}
                       className="flex items-center"
                     >
                       <Settings className="h-5 w-5 mr-2" />
-                      <span className="text-base font-medium">Configurações</span>
+                      <span className="text-base font-medium">{isAdmin ? 'Configurações' : 'Meu Perfil'}</span>
                     </button>
                     <div>|</div>
                     <button

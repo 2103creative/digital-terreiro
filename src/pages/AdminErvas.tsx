@@ -120,7 +120,7 @@ const AdminErvas = () => {
   };
 
   return (
-    <AdminLayout pageTitle="Gerenciar Ervas" pageDescription="Administre as ervas cadastradas e seus usos tradicionais.">
+    <AdminLayout pageTitle="Ervas" pageSubtitle="Gerencie o catálogo de ervas sagradas do terreiro.">
       {!showForm ? (
         <>
           <div className="flex justify-end items-center mb-6">

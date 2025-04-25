@@ -63,35 +63,47 @@ const MobileNav = () => {
 
   // Corrige: só renderiza após carregamento e usuário admin validado
   if (loading) return null;
-  if (!user || !isAdmin) return null;
+  if (!user) return null;
 
   // Rotas administrativas completas
   const adminNav = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Users, label: "Usuários", path: "/adminusuarios" },
-    { icon: FileText, label: "Frentes", path: "/adminfrente" },
-    { icon: Leaf, label: "Ervas", path: "/adminervas" },
-    { icon: ShoppingCart, label: "Compras", path: "/adminmantimentos" },
-    { icon: CalendarDays, label: "Eventos", path: "/adminevents" },
-    { icon: BookOpen, label: "Leitura", path: "/adminreading" },
-    { icon: Brush, label: "Limpeza", path: "/adminlimpeza" },
-    { icon: MessageSquare, label: "Mensagens", path: "/messages", badge: 3 },
-    { icon: Heart, label: "Chat", path: "/chat" },
-    { icon: Info, label: "Sobre", path: "/adminabout" },
-    { icon: User, label: "Meu Perfil", path: "/profile" },
-    { icon: Settings, label: "Configurações", path: "/settings" },
-    { icon: LogOut, label: "Sair", path: "/logout" },
+    { icon: Home, label: "Dashboard", path: "/admin/dashboard" },
+    { icon: FileText, label: "Frentes", path: "/admin/frentes" },
+    { icon: Leaf, label: "Ervas", path: "/admin/ervas" },
+    { icon: ShoppingCart, label: "Compras", path: "/admin/compras" },
+    { icon: CalendarDays, label: "Eventos", path: "/admin/eventos" },
+    { icon: BookOpen, label: "Leitura", path: "/admin/leitura" },
+    { icon: Brush, label: "Limpeza", path: "/admin/limpeza" },
+    { icon: MessageSquare, label: "Mensagens", path: "/admin/mensagens" },
+    { icon: Heart, label: "Bate Papo", path: "/chat" },
+    { icon: Users, label: "Usuários", path: "/admin/usuarios" },
+    { icon: User, label: "Meu Perfil", path: "/profile" }
   ];
+
+  // Rotas para usuários comuns
+  const userNav = [
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: FileText, label: "Frentes", path: "/frentes" },
+    { icon: Leaf, label: "Ervas", path: "/ervas" },
+    { icon: ShoppingCart, label: "Compras", path: "/compras" },
+    { icon: CalendarDays, label: "Eventos", path: "/eventos" },
+    { icon: BookOpen, label: "Leitura", path: "/leitura" },
+    { icon: Brush, label: "Limpeza", path: "/limpeza" },
+    { icon: MessageSquare, label: "Mensagens", path: "/mensagens" },
+    { icon: Heart, label: "Bate Papo", path: "/chat" },
+    { icon: User, label: "Meu Perfil", path: "/profile" }
+  ];
+
+  const navItems = isAdmin ? adminNav : userNav;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg flex justify-between px-2 py-1 md:hidden">
-      {adminNav.map((item) => (
+      {navItems.map((item) => (
         <NavItem
           key={item.path}
           icon={item.icon}
           label={item.label}
           path={item.path}
-          badge={item.badge}
           isActive={location.pathname.startsWith(item.path)}
         />
       ))}

@@ -80,29 +80,40 @@ const UserFrentes = () => {
         </TabsList>
       </Tabs>
       {!selectedFrente ? (
-        <div className="flex flex-wrap gap-4 max-w-5xl mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
           {filteredFrentes.map(frente => (
-            <Card
-              key={frente.id}
-              className="bg-white border border-gray-100 rounded-[15px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[120px] h-[120px]"
-              onClick={() => setSelectedFrente(frente)}
-            >
-              <div className="flex flex-col h-full p-3 relative">
-                <div className="absolute top-3 left-3">
-                  <Layers className="h-5 w-5 text-primary" />
+            <div key={frente.id} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col h-full justify-between">
+              <div>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <h2 className="font-bold text-lg leading-tight mb-0.5">{frente.title}</h2>
+                    {frente.subtitle && <p className="text-xs italic text-gray-500 mb-2">{frente.subtitle}</p>}
+                  </div>
+                  <Layers className="h-5 w-5 text-primary mt-1" />
                 </div>
-                <div className="flex-1 flex items-center justify-center">
-                  <h3 className="text-xs font-medium text-gray-900 text-center line-clamp-2">{frente.title}</h3>
+                <p className="text-sm text-gray-700 mb-3">{frente.description}</p>
+                <div className="mb-2">
+                  <span className="font-semibold text-xs">Tipo:</span>
+                  <span className="ml-1">
+                    <span className="inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 font-normal rounded-full">
+                      {frente.type === 'umbanda' ? 'Umbanda' : 'Nação'}
+                    </span>
+                  </span>
                 </div>
-                <div className="absolute bottom-3 left-3 flex items-center text-xs text-blue-600"
-                  onClick={e => { e.stopPropagation(); setSelectedFrente(frente); }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <span>Acessar</span>
-                  <ArrowRight className="h-3 w-3 ml-0.5" />
+                <div className="mb-2">
+                  <span className="font-semibold text-xs">Visualizações:</span>
+                  <span className="ml-1">
+                    <span className="inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{frente.views}</span>
+                  </span>
                 </div>
               </div>
-            </Card>
+              <div className="flex justify-end mt-2">
+                <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center" onClick={() => setSelectedFrente(frente)}>
+                  <ArrowRight className="h-4 w-4" />
+                  Detalhes
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       ) : (

@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import UserForm from "@/components/UserForm";
-import DashboardHeader from "@/components/DashboardHeader";
-import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 
 const UserFormPage = () => {
@@ -39,18 +36,10 @@ const UserFormPage = () => {
   }, [navigate, toast]);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
-      <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-4 py-6">
-          <UserForm userId={userId ? parseInt(userId) : undefined} />
-        </main>
-      </div>
-      
-      <MobileNav />
+    <div className="flex-1">
+      <main className="container mx-auto px-4 py-6">
+        <UserForm userId={userId ? parseInt(userId) : undefined} />
+      </main>
     </div>
   );
 };

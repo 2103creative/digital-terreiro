@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell } from "lucide-react";
 
@@ -37,28 +36,37 @@ const EventsCards = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.map((event, idx) => (
-          <Card
-            key={idx}
-            className="overflow-hidden h-full cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => handleCardClick(event)}
-          >
-            <div className="p-3 flex flex-col h-full">
-              <div className="mb-2 flex items-start justify-between">
-                <span className="font-semibold text-sm text-gray-800">{event.title}</span>
-                {renderEventTypeBadge(event.type)}
+          <div key={idx} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col h-full justify-between cursor-pointer hover:shadow-lg transition-shadow">
+            <div>
+              <div className="flex items-start justify-between mb-1">
+                <div>
+                  <h2 className="font-bold text-lg leading-tight mb-0.5">{event.title}</h2>
+                  <p className="text-xs italic text-gray-500 mb-2">{event.type === 'gira' ? 'Gira' : event.type === 'festa' ? 'Festa' : 'Curso'}</p>
+                </div>
+                <Bell className="h-5 w-5 text-primary mt-1" />
               </div>
-              <div className="flex justify-between items-end mt-auto">
-                <span className="text-xs text-gray-500 font-medium">{event.time}</span>
-                <Bell className="h-4 w-4 text-gray-400 hover:text-blue-500 cursor-pointer" />
+              <p className="text-sm text-gray-700 mb-3">{event.description}</p>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Horário:</span>
+                <span className="ml-1 inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 font-normal rounded-full">{event.time}</span>
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Data:</span>
+                <span className="ml-1 inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{event.date.toLocaleDateString('pt-BR')}</span>
               </div>
             </div>
-          </Card>
+            <div className="flex justify-end mt-2">
+              <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center" onClick={() => handleCardClick(event)}>
+                Detalhes
+              </button>
+            </div>
+          </div>
         ))}
       </div>
       {showNotif && selectedEvent && (
-        <div className="fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[260px] animate-fade-in">
+        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[260px] animate-fade-in">
           <div className="flex justify-between items-center mb-2">
             <span className="font-semibold text-base text-gray-800">{selectedEvent.title}</span>
             {renderEventTypeBadge(selectedEvent.type)}

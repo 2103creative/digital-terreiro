@@ -385,7 +385,7 @@ Agradeço a compreensão de todos!`,
   };
   
   return (
-    <AdminLayout pageTitle="Gerenciar Limpeza" pageDescription="Configure e gerencie a lista de limpezas do terreiro.">
+    <AdminLayout pageTitle="Limpeza" pageSubtitle="Gerencie as listas de limpeza e as datas dos Dias D do terreiro.">
       <Tabs defaultValue="list">
         <TabsList className="mb-4">
           <TabsTrigger value="list">Lista de Limpeza</TabsTrigger>

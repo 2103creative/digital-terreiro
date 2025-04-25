@@ -5,6 +5,10 @@ export interface User {
   email: string;
   role: 'admin' | 'user';
   isActive: boolean;
+  avatar?: string;
+  orixa?: string;
+  batismoDate?: string;
+  birthdate?: string;
 }
 
 // Usuários fictícios

@@ -31,11 +31,10 @@ interface Mantimento {
   dataValidade?: string;
   dataCompra: string;
   estoqueMinimo: number;
-  observacoes?: string;
 }
 
 // Interface para os itens que serão comprados
-interface ItemCompra extends Mantimento {
+interface ItemCompra extends Omit<Mantimento, 'observacoes'> {
   quantidade_comprar: number;
   usuario: string;
 }
@@ -121,7 +120,6 @@ const ListaCompras = () => {
           dataValidade: "2024-12-31",
           dataCompra: "2023-06-15",
           estoqueMinimo: 2,
-          observacoes: "Marca Tio João"
         },
         {
           id: 2,
@@ -161,7 +159,6 @@ const ListaCompras = () => {
           dataValidade: "2023-11-15",
           dataCompra: "2023-09-01",
           estoqueMinimo: 2,
-          observacoes: "Guaraná"
         }
       ];
       
@@ -188,7 +185,7 @@ const ListaCompras = () => {
     }
     
     // Cabeçalho do CSV
-    let csvContent = "Nome,Quantidade,Unidade,Categoria,Observações\n";
+    let csvContent = "Nome,Quantidade,Unidade,Categoria\n";
     
     // Dados
     userItems.forEach(item => {
@@ -197,7 +194,6 @@ const ListaCompras = () => {
         item.quantidade_comprar,
         item.unidade,
         item.categoria,
-        item.observacoes || ""
       ].join(",");
       
       csvContent += row + "\n";
@@ -324,22 +320,10 @@ const ListaCompras = () => {
   };
   
   return (
-    <AdminLayout 
-      pageTitle="Minha Lista de Compras" 
-      pageDescription="Selecione itens para comprar e ajude a manter nosso estoque"
-    >
-      <div className="space-y-4">
-        <div className="bg-white p-3 md:p-4 border rounded-lg mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="text-primary h-5 w-5" />
-            <h2 className="text-base md:text-lg font-semibold">Gerencie sua lista de compras</h2>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleExportListaCompras} className="h-7 px-2 text-xs">
-            <Download className="h-4 w-4 mr-1" />
-            Exportar Minha Lista
-          </Button>
-        </div>
-
+    <div className="flex-1">
+      <main className="container mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold mt-8 mb-1">Compras</h1>
+        <p className="text-gray-600 mb-6">Confira e organize os itens necessários para o terreiro. Marque o que já foi comprado!</p>
         {/* Itens do usuário */}
         {itemsParaComprar.filter(item => item.usuario === user?.name).length > 0 && (
           <Card className="mb-3 border-green-200 cursor-pointer hover:shadow-md transition-shadow"
@@ -355,11 +339,10 @@ const ListaCompras = () => {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-50 border-b">
-                      <th className="py-1 px-2 text-left font-medium">Nome</th>
-                      <th className="py-1 px-2 text-left font-medium">Categoria</th>
-                      <th className="py-1 px-2 text-left font-medium">Qtd.</th>
-                      <th className="py-1 px-2 text-left font-medium">Obs.</th>
-                      <th className="py-1 px-2 text-right font-medium">Ação</th>
+                      <th className="py-1 px-1 text-left font-medium">Nome</th>
+                      <th className="py-1 px-1 text-left font-medium">Categoria</th>
+                      <th className="py-1 px-1 text-left font-medium">Qtd.</th>
+                      <th className="py-1 px-1 text-right font-medium">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -367,11 +350,10 @@ const ListaCompras = () => {
                       .filter(item => item.usuario === user?.name)
                       .map((item) => (
                         <tr key={`compra-${item.id}`} className="border-b hover:bg-gray-50 bg-green-50">
-                          <td className="py-1 px-2 font-medium">{item.nome}</td>
-                          <td className="py-1 px-2">{item.categoria}</td>
-                          <td className="py-1 px-2 font-medium text-green-600">{item.quantidade_comprar} {item.unidade}</td>
-                          <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
-                          <td className="py-1 px-2 text-right">
+                          <td className="py-1 px-1 font-medium">{item.nome}</td>
+                          <td className="py-1 px-1">{item.categoria}</td>
+                          <td className="py-1 px-1 font-medium text-green-600">{item.quantidade_comprar} {item.unidade}</td>
+                          <td className="py-1 px-1 text-right">
                             <div className="flex justify-end gap-1">
                               <Button 
                                 variant="outline" 
@@ -417,11 +399,10 @@ const ListaCompras = () => {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-50 border-b">
-                      <th className="py-1 px-2 text-left font-medium">Nome</th>
-                      <th className="py-1 px-2 text-left font-medium">Categoria</th>
-                      <th className="py-1 px-2 text-left font-medium">Qtd.</th>
-                      <th className="py-1 px-2 text-left font-medium">Membro</th>
-                      <th className="py-1 px-2 text-left font-medium">Obs.</th>
+                      <th className="py-1 px-1 text-left font-medium">Nome</th>
+                      <th className="py-1 px-1 text-left font-medium">Categoria</th>
+                      <th className="py-1 px-1 text-left font-medium">Qtd.</th>
+                      <th className="py-1 px-1 text-left font-medium">Membro</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -429,11 +410,10 @@ const ListaCompras = () => {
                       .filter(item => item.usuario !== user?.name)
                       .map((item) => (
                         <tr key={`compra-outros-${item.id}`} className="border-b hover:bg-gray-50 bg-blue-50">
-                          <td className="py-1 px-2 font-medium">{item.nome}</td>
-                          <td className="py-1 px-2">{item.categoria}</td>
-                          <td className="py-1 px-2 font-medium text-blue-600">{item.quantidade_comprar} {item.unidade}</td>
-                          <td className="py-1 px-2">{item.usuario}</td>
-                          <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
+                          <td className="py-1 px-1 font-medium">{item.nome}</td>
+                          <td className="py-1 px-1">{item.categoria}</td>
+                          <td className="py-1 px-1 font-medium text-blue-600">{item.quantidade_comprar} {item.unidade}</td>
+                          <td className="py-1 px-1">{item.usuario}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -490,12 +470,11 @@ const ListaCompras = () => {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-gray-50 border-b">
-                        <th className="py-1 px-2 text-left font-medium">Nome</th>
-                        <th className="py-1 px-2 text-left font-medium">Categoria</th>
-                        <th className="py-1 px-2 text-left font-medium">Qtd. Necessária</th>
-                        <th className="py-1 px-2 text-left font-medium">Qtd. a Comprar</th>
-                        <th className="py-1 px-2 text-left font-medium">Obs.</th>
-                        <th className="py-1 px-2 text-left font-medium">Ação</th>
+                        <th className="py-1 px-1 text-left font-medium">Nome</th>
+                        <th className="py-1 px-1 text-left font-medium">Categoria</th>
+                        <th className="py-1 px-1 text-left font-medium">Qtd. Necessária</th>
+                        <th className="py-1 px-1 text-left font-medium">Qtd. a Comprar</th>
+                        <th className="py-1 px-1 text-left font-medium">Ação</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -510,10 +489,10 @@ const ListaCompras = () => {
                         )
                         .map((item) => (
                           <tr key={item.id} className="border-b hover:bg-gray-50">
-                            <td className="py-1 px-2 font-medium">{item.nome}</td>
-                            <td className="py-1 px-2">{item.categoria}</td>
-                            <td className="py-1 px-2 font-medium text-red-600">{item.estoqueMinimo} {item.unidade}</td>
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-1 font-medium">{item.nome}</td>
+                            <td className="py-1 px-1">{item.categoria}</td>
+                            <td className="py-1 px-1 font-medium text-red-600">{item.estoqueMinimo} {item.unidade}</td>
+                            <td className="py-1 px-1">
                               <Input 
                                 type="number"
                                 min="1"
@@ -524,8 +503,7 @@ const ListaCompras = () => {
                                 placeholder="Qtd"
                               />
                             </td>
-                            <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-1">
                               <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -567,12 +545,11 @@ const ListaCompras = () => {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-gray-50 border-b">
-                        <th className="py-1 px-2 text-left font-medium">Nome</th>
-                        <th className="py-1 px-2 text-left font-medium">Categoria</th>
-                        <th className="py-1 px-2 text-left font-medium">Estoque Atual</th>
-                        <th className="py-1 px-2 text-left font-medium">Qtd. a Comprar</th>
-                        <th className="py-1 px-2 text-left font-medium">Obs.</th>
-                        <th className="py-1 px-2 text-left font-medium">Ação</th>
+                        <th className="py-1 px-1 text-left font-medium">Nome</th>
+                        <th className="py-1 px-1 text-left font-medium">Categoria</th>
+                        <th className="py-1 px-1 text-left font-medium">Estoque Atual</th>
+                        <th className="py-1 px-1 text-left font-medium">Qtd. a Comprar</th>
+                        <th className="py-1 px-1 text-left font-medium">Ação</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -587,10 +564,10 @@ const ListaCompras = () => {
                         )
                         .map((item) => (
                           <tr key={item.id} className="border-b hover:bg-gray-50">
-                            <td className="py-1 px-2 font-medium">{item.nome}</td>
-                            <td className="py-1 px-2">{item.categoria}</td>
-                            <td className="py-1 px-2">{item.quantidade} {item.unidade}</td>
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-1 font-medium">{item.nome}</td>
+                            <td className="py-1 px-1">{item.categoria}</td>
+                            <td className="py-1 px-1">{item.quantidade} {item.unidade}</td>
+                            <td className="py-1 px-1">
                               <Input 
                                 type="number"
                                 min="1"
@@ -601,8 +578,7 @@ const ListaCompras = () => {
                                 placeholder="Qtd"
                               />
                             </td>
-                            <td className="py-1 px-2 text-gray-600">{item.observacoes || "-"}</td>
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-1">
                               <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -622,8 +598,8 @@ const ListaCompras = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </AdminLayout>
+      </main>
+    </div>
   );
 };
 

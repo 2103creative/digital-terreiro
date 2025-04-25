@@ -331,7 +331,7 @@ const AdminReading = () => {
   const filteredMaterials = materials.filter(material => material.category === activeCategory);
 
   return (
-    <AdminLayout pageTitle="Gerenciar Materiais de Leitura" pageDescription="Administre os materiais de leitura disponíveis para os membros">
+    <AdminLayout pageTitle="Leitura" pageSubtitle="Gerencie os materiais de leitura e doutrina do terreiro.">
       {!showForm ? (
         <>
           <div className="flex justify-between items-center mb-6">

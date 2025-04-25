@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
 import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -26,14 +24,9 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
       <div className="flex-1">
-        <DashboardHeader />
-        
         <main className="container mx-auto px-4 py-4">
           <h2 className="text-xl font-semibold mb-6">Configurações</h2>
-          
           <Card className="overflow-hidden">
             <CardContent className="p-6">
               <div className="space-y-8">

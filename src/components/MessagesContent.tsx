@@ -161,24 +161,29 @@ const MessagesContent = () => {
     <div>
       <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Mensagens</h1>
       <p className="text-xs md:text-sm text-gray-500 mb-6">Confira os comunicados e avisos do terreiro:</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {messages.map((msg) => (
-          <Card key={msg.id} className="overflow-hidden h-full" onClick={() => handleMessageClick(msg)}>
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                {msg.isUrgent && <AlertCircle className="h-4 w-4 text-red-500" />} {msg.title}
-              </CardTitle>
-              <span className="text-xs text-gray-500">{format(msg.date, 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-xs text-muted-foreground mb-2">{msg.content}</p>
-              {msg.isRead ? (
-                <Badge variant="secondary" className="text-[10px]">Lida</Badge>
-              ) : (
-                <Badge variant="outline" className="text-[10px]">Não lida</Badge>
-              )}
-            </CardContent>
-          </Card>
+          <div key={msg.id} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col h-full justify-between cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleMessageClick(msg)}>
+            <div>
+              <div className="flex items-start justify-between mb-1">
+                <div>
+                  <h2 className="font-bold text-lg leading-tight mb-0.5 flex items-center gap-2">{msg.isUrgent && <AlertCircle className="h-4 w-4 text-red-500" />} {msg.title}</h2>
+                  <p className="text-xs italic text-gray-500 mb-2">{formatMessageDate(msg.date)}</p>
+                </div>
+                <MessageSquare className="h-5 w-5 text-primary mt-1" />
+              </div>
+              <p className="text-sm text-gray-700 mb-3">{msg.content}</p>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Status:</span>
+                <span className="ml-1 inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{readStatus[msg.id] ? 'Lida' : 'Não lida'}</span>
+              </div>
+            </div>
+            <div className="flex justify-end mt-2">
+              <button className="gap-1 text-gray-700 border border-gray-300 rounded-md px-3 py-1 text-xs hover:bg-gray-50 flex items-center" onClick={() => handleMessageClick(msg)}>
+                Detalhes
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 

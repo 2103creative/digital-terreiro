@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Leaf, Info } from 'lucide-react';
@@ -86,75 +84,74 @@ const Ervas = () => {
   );
 
   return (
-    <MainLayout title="Catálogo de Ervas">
-      <p className="text-terreiro-600 mb-6">
-        Explore nosso catálogo de ervas sagradas, suas propriedades e usos nos trabalhos espirituais.
-      </p>
+    <div className="max-w-7xl mx-auto px-4">
+      <h1 className="text-2xl font-bold mt-8 mb-1">Ervas</h1>
+      <p className="text-gray-600 mb-6">Explore nosso catálogo de ervas sagradas, suas propriedades e usos nos trabalhos espirituais.</p>
       {/* Barra de busca */}
-      <div className="relative mt-6 mb-10">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-terreiro-500" />
-        <Input
-          placeholder="Buscar por nome, nome científico ou orixá..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="pl-10 pr-4 py-2"
-        />
+      <div className="relative mt-6 mb-10 flex justify-start">
+        <div className="w-full max-w-[340px]">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-terreiro-500" />
+          <Input
+            type="text"
+            placeholder="Buscar por nome, nome científico ou orixá..."
+            className="pl-10 pr-4 py-2 text-sm rounded-lg border border-gray-200 shadow-sm focus:border-terreiro-500 focus:ring-terreiro-500"
+            value={busca}
+            onChange={e => setBusca(e.target.value)}
+          />
+        </div>
       </div>
+      {/* Cards de ervas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ervasFiltradas.length > 0 ? (
-          ervasFiltradas.map((erva) => (
-            <Card key={erva.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-serif">{erva.nome}</CardTitle>
-                  <Leaf className="h-5 w-5 text-green-600" />
-                </div>
-                <p className="text-sm italic text-terreiro-500">{erva.nomeCientifico}</p>
-              </CardHeader>
-              <CardContent>
-                <p className="text-terreiro-600 mb-4">{erva.descricao}</p>
-                <div className="mb-3">
-                  <h4 className="text-sm font-medium mb-1.5">Propriedades:</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {erva.propriedades.map((prop, idx) => (
-                      <Badge key={idx} variant="outline">{prop}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <h4 className="text-sm font-medium mb-1.5">Usos:</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {erva.usos.map((uso, idx) => (
-                      <Badge key={idx} variant="secondary">{uso}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium mb-1.5">Orixás associados:</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {erva.orixas.map((orixa, idx) => (
-                      <Badge key={idx}>{orixa}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-6 flex justify-end">
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    <span>Detalhes</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+        {ervasFiltradas.length === 0 ? (
+          <div className="col-span-full text-center text-gray-500">Nenhuma erva encontrada.</div>
         ) : (
-          <div className="col-span-full text-center p-8 border rounded-md">
-            <p className="text-terreiro-500">
-              Nenhuma erva encontrada para a sua busca. Tente outros termos.
-            </p>
-          </div>
+          ervasFiltradas.map((erva) => (
+            <div key={erva.id} className="bg-white border rounded-xl p-5 shadow-sm flex flex-col h-full justify-between">
+              <div>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <h2 className="font-bold text-lg leading-tight mb-0.5">{erva.nome}</h2>
+                    <p className="text-xs italic text-gray-500 mb-2">{erva.nomeCientifico}</p>
+                  </div>
+                  <Leaf className="h-5 w-5 text-green-600 mt-1" />
+                </div>
+                <p className="text-sm text-gray-700 mb-3">{erva.descricao}</p>
+                <div className="mb-2">
+                  <span className="font-semibold text-xs">Propriedades:</span>
+                  <span className="ml-1">
+                    {erva.propriedades.map((prop, idx) => (
+                      <Badge key={idx} className="mr-1 mb-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 font-normal rounded-full">{prop}</Badge>
+                    ))}
+                  </span>
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-xs">Usos:</span>
+                  <span className="ml-1">
+                    {erva.usos.map((uso, idx) => (
+                      <Badge key={idx} className="mr-1 mb-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 font-normal rounded-full">{uso}</Badge>
+                    ))}
+                  </span>
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-xs">Orixás associados:</span>
+                  <span className="ml-1">
+                    {erva.orixas.map((orixa, idx) => (
+                      <Badge key={idx} className="mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{orixa}</Badge>
+                    ))}
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-end mt-2">
+                <Button variant="outline" size="sm" className="gap-1 text-gray-700 border-gray-300 hover:bg-gray-50">
+                  <Info className="h-4 w-4" />
+                  Detalhes
+                </Button>
+              </div>
+            </div>
+          ))
         )}
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

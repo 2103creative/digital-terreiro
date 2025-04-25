@@ -32,7 +32,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     status: "active",
     role: "member",
     avatar: "/placeholder.svg",
-    allowedPages: []
+    allowedPages: [],
+    editPages: []
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +60,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             status: "active",
             role: "admin", 
             avatar: "/avatar1.jpg",
-            allowedPages: ["/dashboard", "/frentes"]
+            allowedPages: ["/dashboard", "/frentes"],
+            editPages: ["/dashboard", "/frentes"]
           },
           { 
             id: 2, 
@@ -74,7 +76,8 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             status: "active",
             role: "member", 
             avatar: "/avatar2.jpg",
-            allowedPages: ["/favoritos", "/events"]
+            allowedPages: ["/favoritos", "/events"],
+            editPages: ["/favoritos", "/events"]
           }
         ];
         
@@ -184,7 +187,6 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
     { value: "/limpeza", label: "Limpeza" },
     { value: "/messages", label: "Mensagens" },
     { value: "/chat", label: "Bate Papo" },
-    { value: "/about", label: "Sobre" },
     { value: "/adminusuarios", label: "Usuários" }
   ];
 
@@ -320,23 +322,6 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
             </div>
           </div>
 
-          {/* Permissões de páginas */}
-          <div className="rounded-lg border p-4 md:p-6 bg-white">
-            <h2 className="text-base font-medium mb-3">Permissões de Visualização</h2>
-            <div className="grid gap-2 md:grid-cols-3">
-              {pageOptions.map(page => (
-                <div key={page.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`page-${page.value}`}
-                    checked={formData.allowedPages.includes(page.value)}
-                    onCheckedChange={checked => handleAllowedPagesChange(page.value, checked as boolean)}
-                  />
-                  <Label htmlFor={`page-${page.value}`} className="font-normal text-xs">{page.label}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Configurações de Conta */}
           <div className="rounded-lg border p-4 md:p-6 bg-white">
             <h2 className="text-base font-medium mb-3">Configurações de Conta</h2>
@@ -369,6 +354,49 @@ const UserForm = ({ userId, onComplete }: UserFormProps) => {
               </div>
             </div>
           </div>
+
+          {/* Permissões de Visualização */}
+          <div className="rounded-lg border p-4 md:p-6 bg-white">
+            <h2 className="text-base font-medium mb-3">Permissões de Visualização</h2>
+            <div className="grid gap-2 md:grid-cols-3">
+              {pageOptions.map(page => (
+                <div key={page.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`page-${page.value}`}
+                    checked={formData.allowedPages.includes(page.value)}
+                    onCheckedChange={checked => handleAllowedPagesChange(page.value, checked as boolean)}
+                  />
+                  <Label htmlFor={`page-${page.value}`} className="font-normal text-xs">{page.label}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Permissões de Edição */}
+          {["admin","editor"].includes(formData.role) && (
+            <div className="rounded-lg border p-4 md:p-6 bg-white">
+              <h2 className="text-base font-medium mb-3">Permissões de Edição</h2>
+              <div className="grid gap-2 md:grid-cols-3">
+                {pageOptions.map(page => (
+                  <div key={page.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`edit-page-${page.value}`}
+                      checked={formData.editPages?.includes(page.value) || false}
+                      onCheckedChange={checked => {
+                        setFormData({
+                          ...formData,
+                          editPages: checked
+                            ? [...(formData.editPages || []), page.value]
+                            : (formData.editPages || []).filter(p => p !== page.value)
+                        });
+                      }}
+                    />
+                    <Label htmlFor={`edit-page-${page.value}`} className="font-normal text-xs">{page.label}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex justify-end gap-2 mt-4">
             <Button type="button" variant="outline" onClick={() => navigate("/admin/usuarios")}
               className="h-8 text-xs px-3">Cancelar</Button>

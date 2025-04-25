@@ -224,7 +224,7 @@ const AdminFrente = () => {
   const filteredFrentes = frentes.filter(frente => frente.type === activeTab);
 
   return (
-    <AdminLayout pageTitle="Gerenciar Frentes" pageDescription="Administre as frentes espirituais do terreiro">
+    <AdminLayout pageTitle="Frentes" pageSubtitle="Gerencie as frentes espirituais do terreiro.">
       {!showForm ? (
         <>
           <div className="flex justify-between items-center mb-6">

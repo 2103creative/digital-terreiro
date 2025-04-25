@@ -70,7 +70,7 @@ const DesktopSidebar = () => {
     {
       label: "Compras",
       icon: ShoppingCart,
-      path: "/lista-compras",
+      path: "/compras",
     },
     {
       label: "Eventos",
@@ -109,7 +109,7 @@ const DesktopSidebar = () => {
     {
       label: "Dashboard",
       icon: Home,
-      path: "/dashboard",
+      path: "/admin/dashboard",
     },
     {
       label: "Frentes",
@@ -124,7 +124,7 @@ const DesktopSidebar = () => {
     {
       label: "Compras",
       icon: ShoppingCart,
-      path: "/admin/mantimentos",
+      path: "/admin/compras",
     },
     {
       label: "Eventos",
@@ -160,7 +160,7 @@ const DesktopSidebar = () => {
       label: "Meu Perfil",
       icon: User,
       path: "/profile",
-    }
+    },
   ];
 
   // Seleciona os itens de menu com base no tipo de usuário

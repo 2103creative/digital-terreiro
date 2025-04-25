@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "@/components/DashboardHeader";
 import MobileNav from "@/components/MobileNav";
-import DesktopSidebar from "@/components/DesktopSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
@@ -150,88 +148,36 @@ const Limpeza = () => {
     }
   };
 
+  const groupedByMonth = cleaningItems.reduce((acc, item) => {
+    acc[item.month] = acc[item.month] || [];
+    acc[item.month].push(item);
+    return acc;
+  }, {});
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0 md:flex">
-      <DesktopSidebar />
-      
-      <div className="flex-1">
-        <DashboardHeader />
-        
-        <main className="container mx-auto px-2 py-4 md:py-6">
-          <div className="bg-white rounded-md shadow-sm py-3 px-3 md:px-4 mb-4">
-            <h1 className="text-base md:text-lg font-semibold text-gray-800 text-center">{viewSettings.pageTitle}</h1>
-            <p className="text-center text-gray-500 text-xs md:text-sm mt-1">{viewSettings.pageSubtitle}</p>
-          </div>
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-              {Object.keys(cleaningItems.reduce((acc, item) => {
-                acc[item.month] = true;
-                return acc;
-              }, {})).map(month => (
-                <Card key={month} className="bg-white rounded-md shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => navigate('/admin/mantimentos')}>
-                  <div className="px-3 py-2 border-b border-gray-100">
-                    <h2 className="text-sm md:text-base font-medium text-gray-800">{month}</h2>
-                  </div>
-                  <div className="p-0">
-                    <table className="w-full border-collapse text-xs md:text-sm">
-                      <tbody>
-                        {cleaningItems
-                          .filter(item => item.month === month)
-                          .map(item => (
-                            <tr 
-                              key={item.id} 
-                              className={`border-b border-gray-100 hover:bg-gray-50 ${item.isSpecialDay ? 'bg-blue-50' : getStatusClass(item.status)}`}
-                              onClick={e => e.stopPropagation()} // impede propagação do clique da linha
-                            >
-                              <td className="px-2 py-2 text-center w-12 md:w-16">
-                                <span className="text-xs font-medium text-gray-700">{item.date}</span>
-                              </td>
-                              <td className="px-1 py-2">
-                                <span className={`text-xs ${item.isSpecialDay ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>{item.team}</span>
-                                {item.isSpecialDay && (
-                                  <span className="ml-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] align-middle">Especial</span>
-                                )}
-                              </td>
-                              <td className="px-1 py-2 text-center">
-                                {getStatusIcon(item.status)}
-                              </td>
-                              {viewSettings.showStatusButtons && (
-                                <td className="px-1 py-2 text-right">
-                                  <div className="flex gap-1 justify-end">
-                                    <button
-                                      className="text-xs px-2 py-1 rounded bg-green-50 hover:bg-green-100 text-green-700 border border-green-100"
-                                      onClick={e => { e.stopPropagation(); handleStatusChange(item.id, 'completed'); }}
-                                    >Feito</button>
-                                    <button
-                                      className="text-xs px-2 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 border border-red-100"
-                                      onClick={e => { e.stopPropagation(); handleStatusChange(item.id, 'missed'); }}
-                                    >Faltou</button>
-                                  </div>
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </Card>
+    <div className="max-w-7xl mx-auto px-4">
+      <h1 className="text-2xl font-bold mt-8 mb-1">Limpeza</h1>
+      <p className="text-gray-600 mb-6">Confira as listas de limpeza e os "Dias D" do terreiro. Todos participam!</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+        {Object.entries(groupedByMonth).map(([month, items]) => (
+          <div key={month} className="bg-gray-50 border rounded-xl p-0 shadow-sm flex flex-col h-full min-h-[180px]">
+            <span className="font-bold text-base px-6 pt-5 pb-2">{month}</span>
+            <ul className="text-sm text-gray-700">
+              {items.map(item => (
+                <li key={item.id}
+                  className={`flex items-center px-6 py-2 border-t last:rounded-b-xl last:border-b-0 border-gray-100 ${item.isSpecialDay ? 'bg-blue-50' : ''}`}
+                >
+                  <span className="w-16 text-xs font-medium text-gray-500">{item.date}</span>
+                  <span className={`ml-2 flex-1 ${item.isSpecialDay ? 'text-blue-700 font-semibold uppercase' : ''}`}>{item.team}</span>
+                  {item.isSpecialDay && (
+                    <span className="block ml-2 text-xs text-blue-500">Todos participam</span>
+                  )}
+                </li>
               ))}
-            </div>
-          )}
-          {viewSettings.showObservations && (
-            <div className="mt-4 p-3 md:p-4 bg-white rounded-md border text-xs md:text-sm text-gray-600 whitespace-pre-line">
-              {viewSettings.observationsText}
-            </div>
-          )}
-        </main>
+            </ul>
+          </div>
+        ))}
       </div>
-      
-      <MobileNav />
     </div>
   );
 };

@@ -123,7 +123,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <AdminLayout pageTitle="Gerenciar Usuários">
+    <AdminLayout pageTitle="Usuários" pageSubtitle="Gerencie os usuários do sistema.">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Usuários do Sistema</h1>
         <Button onClick={handleAddUser}>

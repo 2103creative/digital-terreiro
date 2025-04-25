@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatComunitario from '@/components/ChatComunitario';
-import DashboardHeader from '@/components/DashboardHeader';
-import DesktopSidebar from '@/components/DesktopSidebar';
 import MobileNav from '@/components/MobileNav';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, ArrowLeft } from 'lucide-react';
@@ -55,14 +53,14 @@ const Chat = () => {
   if (isMobile) {
     return (
       <div className="fixed inset-0 bg-white z-50 flex flex-col h-full">
-        <div className="border-b p-3 flex items-center">
+        <div className="border-b p-2 flex items-center">
           <button 
             onClick={() => window.history.back()} 
-            className="p-2 rounded-full hover:bg-gray-100"
+            className="p-1 rounded-full hover:bg-gray-100"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </button>
-          <h1 className="font-semibold ml-2">Chat Comunitário</h1>
+          <h1 className="font-medium ml-2 text-base">Chat Comunitário</h1>
         </div>
         <div className="flex-1 overflow-hidden">
           <ChatComunitario />
@@ -74,27 +72,17 @@ const Chat = () => {
   // Layout para desktop
   return (
     <div className="min-h-screen bg-gray-50 md:flex">
-      <DesktopSidebar />
-      
       <div className="flex-1">
-        <DashboardHeader />
-        <main className="container mx-auto px-4 py-4">
-          <div className="flex items-center mb-6">
-            <Heart className="h-6 w-6 mr-2 text-pink-600" />
-            <div>
-              <h1 className="text-2xl font-bold">Bate Papo</h1>
-              <p className="text-sm text-gray-500">
-                Comunicação em tempo real com a comunidade
-              </p>
-            </div>
+        <main className="container mx-auto px-2 py-3 max-w-lg">
+          <div className="flex items-center mb-3">
+            <Heart className="h-5 w-5 mr-2 text-pink-600" />
+            <h1 className="text-xl font-semibold">Bate Papo</h1>
           </div>
-          <div className="h-[calc(100vh-12rem)]">
+          <div className="bg-white rounded-lg shadow-sm p-2 md:p-3">
             <ChatComunitario />
           </div>
         </main>
       </div>
-      
-      <MobileNav />
     </div>
   );
 };

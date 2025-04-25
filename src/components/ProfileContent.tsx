@@ -113,78 +113,14 @@ const ProfileContent = () => {
 
   return (
     <div className="space-y-4 pb-16">
-      <h1 className="text-xl font-bold mb-6">Perfil</h1>
+      <h1 className="text-2xl font-bold mb-8 text-left">Perfil</h1>
       
       {!isEditing ? (
-        <>
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                <Avatar className="h-24 w-24 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
-                  <AvatarImage src={avatar} alt={formData.name} />
-                  <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Camera className="h-8 w-8 text-white" />
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </div>
-              
-              <div className="flex-1">
-                <h2 className="font-semibold mb-2">Informações Pessoais</h2>
-                
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nome Completo</p>
-                    <p>{formData.name}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-muted-foreground">Data de Nascimento</p>
-                    <p>{formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : "Não informado"}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p>{formData.email}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h2 className="font-semibold mb-2">Informações Espirituais</h2>
-              
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Orixá Regente</p>
-                  <p>{formData.orixa}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-muted-foreground">Data de Iniciação</p>
-                  <p>{formData.iniciationDate || "Não informado"}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-muted-foreground">Casa de Umbanda</p>
-                  <p>{formData.templeAffiliation}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 md:p-10 flex flex-col md:flex-row gap-8 max-w-3xl mx-auto">
+          {/* Avatar e dados pessoais */}
+          <div className="flex flex-col items-center md:items-start gap-4 md:w-1/3">
             <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-              <Avatar className="h-24 w-24 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
+              <Avatar className="h-28 w-28 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
                 <AvatarImage src={avatar} alt={formData.name} />
                 <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
@@ -199,93 +135,142 @@ const ProfileContent = () => {
                 onChange={handleAvatarChange}
               />
             </div>
-            
-            <div className="flex-1">
-              <h2 className="font-semibold mb-2">Informações Pessoais</h2>
-              
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome completo</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
+            <div className="text-center md:text-left mt-2">
+              <p className="font-semibold text-lg">{formData.name || "Nome Completo"}</p>
+              <p className="text-xs text-muted-foreground">{formData.email || "Email não informado"}</p>
+            </div>
+          </div>
+          {/* Informações pessoais e espirituais */}
+          <div className="flex-1 flex flex-col gap-8">
+            <div>
+              <h2 className="font-semibold mb-2 text-base text-gray-900">Informações Pessoais</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Data de Nascimento</p>
+                  <p className="text-sm">{formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : "Não informado"}</p>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="birthdate">Data de nascimento</Label>
-                  <Input
-                    id="birthdate"
-                    name="birthdate"
-                    type="date"
-                    value={formData.birthdate}
-                    onChange={handleChange}
-                    required
-                  />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Email</p>
+                  <p className="text-sm">{formData.email || "Não informado"}</p>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
+              </div>
+            </div>
+            <div>
+              <h2 className="font-semibold mb-2 text-base text-gray-900">Informações Espirituais</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Orixá Regente</p>
+                  <p className="text-sm">{formData.orixa}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Data de Iniciação</p>
+                  <p className="text-sm">{formData.iniciationDate || "Não informado"}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-xs text-muted-foreground mb-1">Casa de Umbanda</p>
+                  <p className="text-sm">{formData.templeAffiliation}</p>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div>
-            <h2 className="font-semibold mb-2">Informações Espirituais</h2>
-            
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="orixa">Orixá regente</Label>
-                <Select 
-                  value={formData.orixa} 
-                  onValueChange={handleOrixaChange}
-                >
-                  <SelectTrigger id="orixa">
-                    <SelectValue placeholder="Selecione seu Orixá" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {orixaOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="iniciationDate">Data de iniciação</Label>
-                <Input
-                  id="iniciationDate"
-                  name="iniciationDate"
-                  value={formData.iniciationDate}
-                  onChange={handleChange}
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-white rounded-xl shadow-sm p-6 md:p-10 flex flex-col md:flex-row gap-8 max-w-3xl mx-auto">
+            {/* Avatar e dados pessoais */}
+            <div className="flex flex-col items-center md:items-start gap-4 md:w-1/3">
+              <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                <Avatar className="h-28 w-28 border-2 border-primary/20 group-hover:border-primary/50 transition-all">
+                  <AvatarImage src={avatar} alt={formData.name} />
+                  <AvatarFallback>{formData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="templeAffiliation">Casa de Umbanda</Label>
-                <Input
-                  id="templeAffiliation"
-                  name="templeAffiliation"
-                  value={formData.templeAffiliation}
-                  onChange={handleChange}
-                />
+              <div className="text-center md:text-left mt-2">
+                <p className="font-semibold text-lg">{formData.name || "Nome Completo"}</p>
+                <p className="text-xs text-muted-foreground">{formData.email || "Email não informado"}</p>
+              </div>
+            </div>
+            {/* Informações pessoais e espirituais */}
+            <div className="flex-1 flex flex-col gap-8">
+              <div>
+                <h2 className="font-semibold mb-2 text-base text-gray-900">Informações Pessoais</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="birthdate">Data de nascimento</Label>
+                    <Input
+                      id="birthdate"
+                      name="birthdate"
+                      type="date"
+                      value={formData.birthdate}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2 className="font-semibold mb-2 text-base text-gray-900">Informações Espirituais</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orixa">Orixá regente</Label>
+                    <Select 
+                      value={formData.orixa} 
+                      onValueChange={handleOrixaChange}
+                    >
+                      <SelectTrigger id="orixa">
+                        <SelectValue placeholder="Selecione seu Orixá" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {orixaOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="iniciationDate">Data de iniciação</Label>
+                    <Input
+                      id="iniciationDate"
+                      name="iniciationDate"
+                      value={formData.iniciationDate}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="templeAffiliation">Casa de Umbanda</Label>
+                    <Input
+                      id="templeAffiliation"
+                      name="templeAffiliation"
+                      value={formData.templeAffiliation}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
           <div className="flex gap-4 pt-2">
             <Button 
               type="submit" 
