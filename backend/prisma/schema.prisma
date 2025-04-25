@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "terreiro_1", "terreiro_2"]
 }
 
 model Terreiro {
@@ -13,6 +15,8 @@ model Terreiro {
   createdAt DateTime @default(now())
   users     User[]
   frentes   Frente[]
+  theme     Json?
+  @@schema("public")
 }
 
 model User {
@@ -24,6 +28,7 @@ model User {
   terreiroId String
   role       String
   createdAt  DateTime @default(now())
+  @@schema("public")
 }
 
 model Frente {
@@ -33,4 +38,5 @@ model Frente {
   terreiro    Terreiro @relation(fields: [terreiroId], references: [id])
   terreiroId  String
   createdAt   DateTime @default(now())
+  @@schema("public")
 }

@@ -3,206 +3,110 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user';
-  isActive: boolean;
+  role: 'admin' | 'membro' | 'user';
+  isActive?: boolean;
   avatar?: string;
   orixa?: string;
   batismoDate?: string;
   birthdate?: string;
+  terreiroId?: string;
 }
 
-// Usuários fictícios
-const USERS = [
-  {
-    id: '1',
-    name: 'Administrador',
-    email: 'root@admin.com',
-    password: '057841',
-    role: 'admin',
-    isActive: true
-  },
-  {
-    id: '2',
-    name: 'Usuário Padrão',
-    email: 'user@user.com',
-    password: '148750',
-    role: 'user',
-    isActive: true
-  },
-  // Adicionando os usuários solicitados
-  {
-    id: '3',
-    name: 'Karina',
-    email: 'karina@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '4',
-    name: 'Nicole',
-    email: 'nicole@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '5',
-    name: 'Tita',
-    email: 'tita@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '6',
-    name: 'Maicon',
-    email: 'maicon@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '7',
-    name: 'Jeferson',
-    email: 'jeferson@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '8',
-    name: 'Leno',
-    email: 'leno@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '9',
-    name: 'Carol',
-    email: 'carol@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '10',
-    name: 'Camila',
-    email: 'camila@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
-  },
-  {
-    id: '11',
-    name: 'Baby',
-    email: 'baby@terreiro.com',
-    password: '123456',
-    role: 'user',
-    isActive: true
+// Corrigido para o endpoint correto do backend
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000/api/users';
+
+export async function authenticate(email: string, password: string): Promise<User | null> {
+  const response = await fetch(`${API_URL}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, senha: password })
+  });
+  if (!response.ok) return null;
+  const data = await response.json();
+  if (data.token && data.user) {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return {
+      id: data.user.id,
+      name: data.user.nome || data.user.name,
+      email: data.user.email,
+      role: data.user.role,
+      isActive: true,
+      terreiroId: data.user.terreiroId
+    };
   }
-];
+  return null;
+}
 
-// Autenticar usuário
-export const authenticate = (email: string, password: string): Promise<User | null> => {
-  return new Promise((resolve) => {
-    // Simular uma chamada de API
-    setTimeout(() => {
-      const user = USERS.find(u => u.email === email && u.password === password);
-      
-      if (user) {
-        // Não retornamos a senha
-        const { password, ...userWithoutPassword } = user;
-        
-        // Salvar informações no localStorage
-        localStorage.setItem('userId', userWithoutPassword.id);
-        localStorage.setItem('userEmail', userWithoutPassword.email);
-        localStorage.setItem('userName', userWithoutPassword.name);
-        localStorage.setItem('userRole', userWithoutPassword.role);
-        localStorage.setItem('isAuthenticated', 'true');
-        
-        resolve(userWithoutPassword as User);
-      } else {
-        resolve(null);
-      }
-    }, 800);
+export function isAuthenticated(): boolean {
+  return !!localStorage.getItem('token');
+}
+
+export function isAdmin(): boolean {
+  const user = getCurrentUserSync();
+  return user?.role === 'admin';
+}
+
+export async function getCurrentUser(): Promise<User | null> {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch {
+    return null;
+  }
+}
+
+function getCurrentUserSync(): User | null {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch {
+    return null;
+  }
+}
+
+export async function logout(): Promise<void> {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+export async function getAllUsers(): Promise<User[]> {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_URL}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
   });
-};
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.map((u: any) => ({
+    id: u.id,
+    name: u.nome || u.name,
+    email: u.email,
+    role: u.role,
+    isActive: true,
+    terreiroId: u.terreiroId
+  }));
+}
 
-// Verificar se o usuário está autenticado
-export const isAuthenticated = (): boolean => {
-  return localStorage.getItem('isAuthenticated') === 'true';
-};
-
-// Verificar se o usuário é administrador
-export const isAdmin = (): boolean => {
-  return localStorage.getItem('userRole') === 'admin';
-};
-
-// Obter usuário atual
-export const getCurrentUser = (): Promise<User | null> => {
-  return new Promise((resolve) => {
-    const userId = localStorage.getItem('userId');
-    const userEmail = localStorage.getItem('userEmail');
-    const userName = localStorage.getItem('userName');
-    const userRole = localStorage.getItem('userRole');
-    const isAuthenticatedValue = localStorage.getItem('isAuthenticated');
-    
-    if (isAuthenticatedValue === 'true' && userId && userEmail && userRole) {
-      // Buscar informações do usuário (simulado)
-      setTimeout(() => {
-        const userFound = USERS.find(u => u.id === userId);
-        
-        if (userFound) {
-          const { password, ...userWithoutPassword } = userFound;
-          resolve(userWithoutPassword as User);
-        } else {
-          // Se não encontrar no array, tenta recriar com os dados do localStorage
-          if (userName) {
-            resolve({
-              id: userId,
-              name: userName,
-              email: userEmail,
-              role: userRole as 'admin' | 'user',
-              isActive: true
-            });
-          } else {
-            resolve(null);
-          }
-        }
-      }, 300);
-    } else {
-      resolve(null);
-    }
+export async function registerUser(nome: string, email: string, senha: string, terreiroId: string): Promise<User | null> {
+  const response = await fetch(`${API_URL}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, email, senha, terreiroId })
   });
-};
-
-// Obter lista de todos os usuários (para admin)
-export const getAllUsers = (): Promise<User[]> => {
-  return new Promise((resolve) => {
-    // Simular uma chamada de API
-    setTimeout(() => {
-      // Retorna todos os usuários sem as senhas
-      const usersWithoutPasswords = USERS.map(user => {
-        const { password, ...userWithoutPassword } = user;
-        return userWithoutPassword as User;
-      });
-      
-      resolve(usersWithoutPasswords);
-    }, 500);
-  });
-};
-
-// Logout
-export const logout = (): Promise<void> => {
-  return new Promise((resolve) => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('isAuthenticated');
-    
-    resolve();
-  });
-}; 
+  if (!response.ok) return null;
+  const data = await response.json();
+  if (data.user) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return {
+      id: data.user.id,
+      name: data.user.nome || data.user.name,
+      email: data.user.email,
+      role: data.user.role,
+      isActive: true,
+      terreiroId: data.user.terreiroId
+    };
+  }
+  return null;
+}

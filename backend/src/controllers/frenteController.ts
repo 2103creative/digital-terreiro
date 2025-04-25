@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import prisma from '../prismaClient';
+import { emitFrenteCreated, emitFrenteUpdated, emitFrenteDeleted } from '../socket';
 
 interface AuthRequest extends Request {
   user?: {
@@ -18,9 +18,11 @@ export const criarFrente = async (req: AuthRequest, res: Response) => {
     if (!terreiroId) {
       return res.status(400).json({ error: 'TerreiroId não encontrado no usuário autenticado.' });
     }
-    const frente = await prisma.frente.create({
+    const frente = await (req as any).prisma.frente.create({
       data: { nome, descricao, terreiroId }
     });
+    // Emite evento real-time para todos conectados ao terreiro
+    emitFrenteCreated(terreiroId, frente);
     return res.status(201).json(frente);
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao criar frente.' });
@@ -33,7 +35,7 @@ export const listarFrentes = async (req: AuthRequest, res: Response) => {
     if (!terreiroId) {
       return res.status(400).json({ error: 'TerreiroId não encontrado no usuário autenticado.' });
     }
-    const frentes = await prisma.frente.findMany({
+    const frentes = await (req as any).prisma.frente.findMany({
       where: { terreiroId }
     });
     return res.json(frentes);
@@ -50,11 +52,13 @@ export const editarFrente = async (req: AuthRequest, res: Response) => {
     if (!terreiroId) {
       return res.status(400).json({ error: 'TerreiroId não encontrado no usuário autenticado.' });
     }
-    const frente = await prisma.frente.updateMany({
+    const frente = await (req as any).prisma.frente.updateMany({
       where: { id, terreiroId },
       data: { nome, descricao }
     });
     if (frente.count === 0) return res.status(404).json({ error: 'Frente não encontrada.' });
+    const frenteAtualizada = await (req as any).prisma.frente.findUnique({ where: { id } });
+    emitFrenteUpdated(terreiroId, frenteAtualizada);
     return res.json({ message: 'Frente atualizada com sucesso.' });
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao editar frente.' });
@@ -68,10 +72,11 @@ export const removerFrente = async (req: AuthRequest, res: Response) => {
     if (!terreiroId) {
       return res.status(400).json({ error: 'TerreiroId não encontrado no usuário autenticado.' });
     }
-    const frente = await prisma.frente.deleteMany({
+    const frente = await (req as any).prisma.frente.deleteMany({
       where: { id, terreiroId }
     });
     if (frente.count === 0) return res.status(404).json({ error: 'Frente não encontrada.' });
+    emitFrenteDeleted(terreiroId, id);
     return res.json({ message: 'Frente removida com sucesso.' });
   } catch (error) {
     return res.status(500).json({ error: 'Erro ao remover frente.' });

@@ -20,10 +20,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
 
 // Interface para os mantimentos
 interface Mantimento {
-  id: number;
+  id: string;
   nome: string;
   quantidade: number;
   unidade: string;
@@ -31,6 +32,7 @@ interface Mantimento {
   dataValidade?: string;
   dataCompra: string;
   estoqueMinimo: number;
+  terreiroId: string;
 }
 
 // Interface para os itens que serão comprados
@@ -48,6 +50,8 @@ const categorias = [
   "Outros"
 ];
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
+
 const ListaCompras = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -57,7 +61,7 @@ const ListaCompras = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todos");
   const [itemsParaComprar, setItemsParaComprar] = useState<ItemCompra[]>([]);
-  const [quantidadeComprar, setQuantidadeComprar] = useState<Record<number, number>>({});
+  const [quantidadeComprar, setQuantidadeComprar] = useState<Record<string, number>>({});
   
   // Verificar autenticação
   useEffect(() => {
@@ -72,11 +76,34 @@ const ListaCompras = () => {
     }
   }, [navigate, toast]);
   
-  // Carregar dados
   useEffect(() => {
-    loadMantimentos();
-    
-    // Carregar lista de compras do localStorage
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+    fetch(`${API_URL}/mantimentos?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setMantimentos(data);
+        setIsLoading(false);
+      });
+    const socket = connectSocket(terreiroId);
+    socket.on('mantimentoCreated', (m: Mantimento) => setMantimentos(prev => [...prev, m]));
+    socket.on('mantimentoUpdated', (m: Mantimento) => setMantimentos(prev => prev.map(e => e.id === m.id ? m : e)));
+    socket.on('mantimentoDeleted', ({ id }: { id: string }) => setMantimentos(prev => prev.filter(e => e.id !== id)));
+    return () => {
+      socket.off('mantimentoCreated');
+      socket.off('mantimentoUpdated');
+      socket.off('mantimentoDeleted');
+      disconnectSocket();
+    };
+  }, [user]);
+
+  // Carregar lista de compras do localStorage
+  useEffect(() => {
     const savedItems = localStorage.getItem('listaCompras');
     if (savedItems && user?.name) {
       try {
@@ -95,7 +122,7 @@ const ListaCompras = () => {
       }
     }
   }, [user]);
-  
+
   // Salvar lista de compras no localStorage quando mudar
   useEffect(() => {
     if (itemsParaComprar.length > 0) {
@@ -104,68 +131,6 @@ const ListaCompras = () => {
       localStorage.removeItem('listaCompras');
     }
   }, [itemsParaComprar]);
-  
-  const loadMantimentos = () => {
-    setIsLoading(true);
-    
-    // Em um app real, isso seria uma requisição para uma API
-    setTimeout(() => {
-      const dadosExemplo: Mantimento[] = [
-        {
-          id: 1,
-          nome: "Arroz",
-          quantidade: 5,
-          unidade: "kg",
-          categoria: "Alimentos",
-          dataValidade: "2024-12-31",
-          dataCompra: "2023-06-15",
-          estoqueMinimo: 2,
-        },
-        {
-          id: 2,
-          nome: "Feijão Preto",
-          quantidade: 0,
-          unidade: "kg",
-          categoria: "Alimentos",
-          dataValidade: "2024-10-20",
-          dataCompra: "2023-06-15",
-          estoqueMinimo: 2
-        },
-        {
-          id: 3,
-          nome: "Velas Brancas",
-          quantidade: 20,
-          unidade: "un",
-          categoria: "Rituais",
-          dataCompra: "2023-07-01",
-          estoqueMinimo: 10
-        },
-        {
-          id: 4,
-          nome: "Água Sanitária",
-          quantidade: 0,
-          unidade: "L",
-          categoria: "Limpeza",
-          dataValidade: "2024-05-20",
-          dataCompra: "2023-05-20",
-          estoqueMinimo: 1
-        },
-        {
-          id: 5,
-          nome: "Refrigerante",
-          quantidade: 1,
-          unidade: "L",
-          categoria: "Bebidas",
-          dataValidade: "2023-11-15",
-          dataCompra: "2023-09-01",
-          estoqueMinimo: 2,
-        }
-      ];
-      
-      setMantimentos(dadosExemplo);
-      setIsLoading(false);
-    }, 1000);
-  };
   
   // Dados para a visualização de compras
   const itensFaltantes = mantimentos.filter(item => item.quantidade === 0);
@@ -264,7 +229,7 @@ const ListaCompras = () => {
   };
   
   // Remover item da lista de compras do usuário
-  const removerItemCompra = (id: number) => {
+  const removerItemCompra = (id: string) => {
     const item = itemsParaComprar.find(i => i.id === id);
     if (!item) return;
     
@@ -284,7 +249,7 @@ const ListaCompras = () => {
   };
   
   // Atualizar quantidade a ser comprada
-  const handleQuantidadeChange = (id: number, valor: number) => {
+  const handleQuantidadeChange = (id: string, valor: number) => {
     setQuantidadeComprar({
       ...quantidadeComprar,
       [id]: valor
@@ -292,7 +257,7 @@ const ListaCompras = () => {
   };
   
   // Marcar item como comprado
-  const marcarComoComprado = (itemId: number) => {
+  const marcarComoComprado = (itemId: string) => {
     const item = itemsParaComprar.find(i => i.id === itemId && i.usuario === user?.name);
     if (!item) return;
     

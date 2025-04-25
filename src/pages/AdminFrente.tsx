@@ -25,375 +25,173 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
 
-// Interface para o modelo Frente
 interface Frente {
-  id: number;
-  title: string;
-  description: string;
-  subtitle?: string;
-  imageUrl?: string;
-  type: "umbanda" | "nacao";
-  views: number;
+  id: string;
+  nome: string;
+  descricao: string;
+  tipo: "umbanda" | "nacao";
+  terreiroId: string;
+  visualizacoes: number;
 }
 
-// Dados de exemplo das frentes
-const frentesData: Frente[] = [
-  {
-    id: 1,
-    title: "Caboclos",
-    subtitle: "Energia de proteção e cura",
-    description: "Energia de proteção e cura da natureza. Os caboclos são espíritos que representam os nativos brasileiros e trabalham com as forças da natureza para cura e orientação espiritual.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 128,
-  },
-  {
-    id: 2,
-    title: "Pretos Velhos",
-    subtitle: "Sabedoria ancestral",
-    description: "Sabedoria ancestral e acolhimento. Os pretos velhos são espíritos de antigos escravos que viveram no Brasil e trazem consigo conhecimento, caridade e paciência.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 156,
-  },
-  {
-    id: 3,
-    title: "Crianças",
-    subtitle: "Energia de pureza",
-    description: "Energia de pureza e alegria. As crianças na umbanda representam a pureza, a inocência e a alegria, trazendo leveza aos trabalhos espirituais.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 97,
-  },
-  {
-    id: 4,
-    title: "Exus e Pombagiras",
-    subtitle: "Guardiões e orientadores",
-    description: "Guardiões e orientadores dos caminhos. Trabalham na quebra de demandas, proteção espiritual e remoção de obstáculos da vida dos médiuns e consulentes.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 214,
-  },
-  {
-    id: 5,
-    title: "Xangô",
-    subtitle: "Orixá da justiça",
-    description: "Orixá da justiça e do trovão. Xangô é o senhor da justiça, representado pelas pedreiras, trovões e pela força que equilibra o bem e o mal.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "nacao",
-    views: 183,
-  },
-  {
-    id: 6,
-    title: "Oxum",
-    subtitle: "Orixá das águas doces",
-    description: "Orixá das águas doces e do amor. Oxum representa a fertilidade, beleza, riqueza e o amor materno, sendo a dona dos rios e cachoeiras.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "nacao",
-    views: 176,
-  },
-];
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
 
 const AdminFrente = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [frentes, setFrentes] = useState<Frente[]>(frentesData);
-  const [activeTab, setActiveTab] = useState<"umbanda" | "nacao">("umbanda");
-  const [showForm, setShowForm] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedFrente, setSelectedFrente] = useState<Frente | null>(null);
-  const [newFrente, setNewFrente] = useState<Partial<Frente>>({
-    title: "",
-    subtitle: "",
-    description: "",
-    type: "umbanda",
-    imageUrl: "/placeholder-frente.jpg",
-  });
+  const [frentes, setFrentes] = useState<Frente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editFrente, setEditFrente] = useState<Frente | null>(null);
+  const [form, setForm] = useState<{ nome: string; descricao: string; tipo: "umbanda" | "nacao" }>({ nome: '', descricao: '', tipo: 'umbanda' });
 
-  // Função para adicionar nova frente
-  const handleAddFrente = () => {
-    if (!newFrente.title || !newFrente.description || !newFrente.type) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+
+    fetch(`${API_URL}/frentes?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setFrentes(data);
+        setLoading(false);
       });
-      return;
-    }
 
-    const newId = Math.max(...frentes.map(f => f.id), 0) + 1;
-    const frenteToAdd: Frente = {
-      id: newId,
-      title: newFrente.title,
-      subtitle: newFrente.subtitle || "",
-      description: newFrente.description,
-      imageUrl: newFrente.imageUrl || "/placeholder-frente.jpg",
-      type: newFrente.type as "umbanda" | "nacao",
-      views: 0,
+    const socket = connectSocket(terreiroId);
+    socket.on('frenteCreated', (frente: Frente) => setFrentes(prev => [...prev, frente]));
+    socket.on('frenteUpdated', (frente: Frente) => setFrentes(prev => prev.map(f => f.id === frente.id ? frente : f)));
+    socket.on('frenteDeleted', ({ id }: { id: string }) => setFrentes(prev => prev.filter(f => f.id !== id)));
+    return () => {
+      socket.off('frenteCreated');
+      socket.off('frenteUpdated');
+      socket.off('frenteDeleted');
+      disconnectSocket();
     };
+  }, []);
 
-    setFrentes([...frentes, frenteToAdd]);
-    setNewFrente({
-      title: "",
-      subtitle: "",
-      description: "",
-      type: "umbanda",
-      imageUrl: "/placeholder-frente.jpg",
+  const handleCreate = async () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!form.nome || !form.descricao || !terreiroId) return;
+    const res = await fetch(`${API_URL}/frentes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ ...form, terreiroId })
     });
-    setShowForm(false);
-
-    toast({
-      title: "Frente adicionada",
-      description: `A frente "${frenteToAdd.title}" foi adicionada com sucesso.`,
-    });
-  };
-
-  // Função para editar frente
-  const handleEditFrente = (frente: Frente) => {
-    setSelectedFrente(frente);
-    setNewFrente({
-      title: frente.title,
-      subtitle: frente.subtitle,
-      description: frente.description,
-      type: frente.type,
-      imageUrl: frente.imageUrl,
-    });
-    setShowForm(true);
-  };
-
-  // Função para atualizar frente
-  const handleUpdateFrente = () => {
-    if (!selectedFrente) return;
-    
-    if (!newFrente.title || !newFrente.description || !newFrente.type) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
-      return;
+    if (res.ok) {
+      toast({ title: 'Frente criada com sucesso!' });
+      setDialogOpen(false);
+      setForm({ nome: '', descricao: '', tipo: 'umbanda' });
+    } else {
+      toast({ title: 'Erro ao criar frente', variant: 'destructive' });
     }
-
-    const updatedFrentes = frentes.map(f => 
-      f.id === selectedFrente.id 
-        ? { 
-            ...f, 
-            title: newFrente.title!, 
-            subtitle: newFrente.subtitle || "", 
-            description: newFrente.description!, 
-            type: newFrente.type as "umbanda" | "nacao",
-            imageUrl: newFrente.imageUrl || f.imageUrl
-          } 
-        : f
-    );
-
-    setFrentes(updatedFrentes);
-    setNewFrente({
-      title: "",
-      subtitle: "",
-      description: "",
-      type: "umbanda",
-      imageUrl: "/placeholder-frente.jpg",
-    });
-    setSelectedFrente(null);
-    setShowForm(false);
-
-    toast({
-      title: "Frente atualizada",
-      description: `A frente "${newFrente.title}" foi atualizada com sucesso.`,
-    });
   };
 
-  // Função para confirmar exclusão
-  const handleConfirmDelete = () => {
-    if (!selectedFrente) return;
-    
-    const updatedFrentes = frentes.filter(f => f.id !== selectedFrente.id);
-    setFrentes(updatedFrentes);
-    setShowDeleteDialog(false);
-    setSelectedFrente(null);
-
-    toast({
-      title: "Frente excluída",
-      description: `A frente "${selectedFrente.title}" foi excluída com sucesso.`,
+  const handleEdit = async () => {
+    if (!editFrente) return;
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/frentes/${editFrente.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ ...form, terreiroId })
     });
+    if (res.ok) {
+      toast({ title: 'Frente atualizada com sucesso!' });
+      setDialogOpen(false);
+      setEditFrente(null);
+      setForm({ nome: '', descricao: '', tipo: 'umbanda' });
+    } else {
+      toast({ title: 'Erro ao atualizar frente', variant: 'destructive' });
+    }
   };
 
-  // Filtrar frentes por tipo
-  const filteredFrentes = frentes.filter(frente => frente.type === activeTab);
+  const handleDelete = async (id: string) => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/frentes/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ terreiroId })
+    });
+    if (res.ok) {
+      toast({ title: 'Frente removida com sucesso!' });
+    } else {
+      toast({ title: 'Erro ao remover frente', variant: 'destructive' });
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">Carregando frentes...</div>;
 
   return (
-    <AdminLayout pageTitle="Frentes" pageDescription="Gerencie as frentes espirituais do terreiro.">
-      {!showForm ? (
-        <>
-          <div className="mb-6 flex flex-col items-start gap-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => setShowForm(true)}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </div>
-
-          {/* Cards de frentes padronizados como os de usuários */}
-          <div className="flex flex-wrap gap-2 max-w-5xl">
-            {filteredFrentes.map(frente => (
-              <Card
-                key={frente.id}
-                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
-                onClick={() => handleEditFrente(frente)}
-              >
-                <div className="flex flex-col h-full p-2 relative">
-                  {/* Ícone de frentes no canto superior esquerdo */}
-                  <div className="absolute top-2 left-2">
-                    <Layers className="h-4 w-4 text-primary" />
-                  </div>
-                  {/* Nome da frente centralizado */}
-                  <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{frente.title}</h3>
-                  </div>
-                  {/* Link de editar no canto inferior esquerdo */}
-                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
-                    onClick={e => { e.stopPropagation(); handleEditFrente(frente); }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <span>Editar</span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {filteredFrentes.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-10">
-              <Layers className="h-16 w-16 text-primary mb-4" />
-              <p className="text-xl font-medium text-center">Nenhuma frente encontrada</p>
-              <p className="text-muted-foreground mt-2 text-center">
-                Não existem frentes de {activeTab === "umbanda" ? "Umbanda" : "Nação"} cadastradas.
-                Clique em "Nova Frente" para adicionar.
-              </p>
+    <AdminLayout>
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Frentes</h1>
+          <Button onClick={() => setDialogOpen(true)}><PlusCircle className="mr-2" />Nova Frente</Button>
+        </div>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {frentes.map(frente => (
+            <Card key={frente.id} className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Layers className="text-primary" />
+                <span className="font-bold">{frente.nome}</span>
+              </div>
+              <div className="text-muted-foreground text-sm mb-2">{frente.descricao}</div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={() => { setEditFrente(frente); setForm({ nome: frente.nome, descricao: frente.descricao, tipo: frente.tipo }); setDialogOpen(true); }}><Edit className="w-4 h-4" /></Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(frente.id)}><Trash2 className="w-4 h-4" /></Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editFrente ? 'Editar Frente' : 'Nova Frente'}</DialogTitle>
+              <DialogDescription>Preencha os dados da frente</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome</Label>
+              <Input id="nome" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
+              <Label htmlFor="descricao">Descrição</Label>
+              <Textarea id="descricao" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+              <Label htmlFor="tipo">Tipo</Label>
+              <Select value={form.tipo} onValueChange={v => setForm(f => ({ ...f, tipo: v as "umbanda" | "nacao" }))}>
+                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="umbanda">Umbanda</SelectItem>
+                  <SelectItem value="nacao">Nação</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-        </>
-      ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{selectedFrente ? 'Editar' : 'Nova'} Frente</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => {
-                setShowForm(false);
-                setSelectedFrente(null);
-                setNewFrente({
-                  title: "",
-                  subtitle: "",
-                  description: "",
-                  type: "umbanda",
-                  imageUrl: "/placeholder-frente.jpg",
-                });
-              }}>
-                <ArrowLeftCircle className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-            </div>
-            <CardDescription>
-              {selectedFrente ? 'Edite as informações da frente espiritual' : 'Preencha as informações para adicionar uma nova frente espiritual'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="frente-titulo">Título *</Label>
-                  <Input
-                    id="frente-titulo"
-                    value={newFrente.title}
-                    onChange={e => setNewFrente({ ...newFrente, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="frente-subtitulo">Subtítulo</Label>
-                  <Input
-                    id="frente-subtitulo"
-                    value={newFrente.subtitle}
-                    onChange={e => setNewFrente({ ...newFrente, subtitle: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="frente-imagem">URL da Imagem</Label>
-                <Input
-                  id="frente-imagem"
-                  value={newFrente.imageUrl}
-                  onChange={e => setNewFrente({ ...newFrente, imageUrl: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Deixe vazio para usar a imagem padrão
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="frente-tipo">Tipo *</Label>
-                <Select
-                  value={newFrente.type}
-                  onValueChange={(value) => setNewFrente({ ...newFrente, type: value as "umbanda" | "nacao" })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="umbanda">Umbanda</SelectItem>
-                    <SelectItem value="nacao">Nação</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="frente-descricao">Descrição *</Label>
-                <Textarea
-                  id="frente-descricao"
-                  value={newFrente.description}
-                  onChange={e => setNewFrente({ ...newFrente, description: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
-              setShowForm(false);
-              setSelectedFrente(null);
-              setNewFrente({
-                title: "",
-                subtitle: "",
-                description: "",
-                type: "umbanda",
-                imageUrl: "/placeholder-frente.jpg",
-              });
-            }}>
-              Cancelar
-            </Button>
-            {selectedFrente && (
-              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
-                Excluir
-              </Button>
-            )}
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={selectedFrente ? handleUpdateFrente : handleAddFrente}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar exclusão</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir a frente "{selectedFrente?.title}"? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>Excluir</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button onClick={editFrente ? handleEdit : handleCreate}>{editFrente ? 'Salvar' : 'Criar'}</Button>
+              <Button variant="secondary" onClick={() => { setDialogOpen(false); setEditFrente(null); setForm({ nome: '', descricao: '', tipo: 'umbanda' }); }}>Cancelar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AdminLayout>
   );
 };

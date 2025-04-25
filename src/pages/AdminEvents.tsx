@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, CalendarDays, PlusCircle, Edit, Trash2, ArrowLeftCircle, ArrowRight } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -41,418 +41,176 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
 
-// Interface para o modelo de Evento
 interface Event {
-  id: number;
-  title: string;
-  subtitle?: string;
-  description: string;
-  date: Date;
-  type: "gira" | "festa" | "curso";
+  id: string;
+  titulo: string;
+  descricao: string;
+  data: string;
+  tipo: "gira" | "festa" | "curso";
+  terreiroId: string;
 }
 
-// Dados de exemplo dos eventos
-const eventsData: Event[] = [
-  {
-    id: 1,
-    title: "Gira de Caboclos",
-    subtitle: "Força e proteção da natureza",
-    description: "Gira aberta para todos os médiuns e consulentes. Trabalho de cura e orientação espiritual.",
-    date: new Date(2025, 3, 15, 19, 0),
-    type: "gira",
-  },
-  {
-    id: 2,
-    title: "Festa de Oxóssi",
-    subtitle: "Celebração ao Orixá das matas",
-    description: "Celebração anual em homenagem a Oxóssi, Orixá das matas e da caça. Traga flores, frutas e champagne.",
-    date: new Date(2025, 4, 20, 16, 0),
-    type: "festa",
-  },
-  {
-    id: 3,
-    title: "Curso de Desenvolvimento Mediúnico",
-    subtitle: "Iniciante ao intermediário",
-    description: "Curso voltado para médiuns iniciantes e em desenvolvimento. Serão abordados temas como concentração, sintonia e incorporação.",
-    date: new Date(2025, 5, 5, 14, 0),
-    type: "curso",
-  },
-  {
-    id: 4,
-    title: "Gira de Pretos Velhos",
-    subtitle: "Sabedoria e acolhimento",
-    description: "Gira dedicada aos Pretos Velhos. Traga velas brancas, café e fumo de corda para oferendas.",
-    date: new Date(2025, 3, 30, 19, 0),
-    type: "gira",
-  },
-];
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
 
 const AdminEvents = () => {
   const { toast } = useToast();
-  const [events, setEvents] = useState<Event[]>(eventsData);
-  const [showForm, setShowForm] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [newEvent, setNewEvent] = useState<Partial<Event>>({
-    title: "",
-    subtitle: "",
-    description: "",
-    date: new Date(),
-    type: "gira",
-  });
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editEvent, setEditEvent] = useState<Event | null>(null);
+  const [form, setForm] = useState<{ titulo: string; descricao: string; data: string; tipo: "gira" | "festa" | "curso" }>({ titulo: '', descricao: '', data: '', tipo: 'gira' });
 
-  // Função para adicionar novo evento
-  const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.description || !newEvent.date || !newEvent.type) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+
+    fetch(`${API_URL}/eventos?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setEvents(data);
+        setLoading(false);
       });
-      return;
-    }
 
-    const newId = Math.max(...events.map(e => e.id), 0) + 1;
-    const eventToAdd: Event = {
-      id: newId,
-      title: newEvent.title,
-      subtitle: newEvent.subtitle,
-      description: newEvent.description!,
-      date: newEvent.date!,
-      type: newEvent.type as "gira" | "festa" | "curso",
+    const socket = connectSocket(terreiroId);
+    socket.on('eventoCreated', (evento: Event) => setEvents(prev => [...prev, evento]));
+    socket.on('eventoUpdated', (evento: Event) => setEvents(prev => prev.map(e => e.id === evento.id ? evento : e)));
+    socket.on('eventoDeleted', ({ id }: { id: string }) => setEvents(prev => prev.filter(e => e.id !== id)));
+    return () => {
+      socket.off('eventoCreated');
+      socket.off('eventoUpdated');
+      socket.off('eventoDeleted');
+      disconnectSocket();
     };
+  }, []);
 
-    setEvents([...events, eventToAdd]);
-    setNewEvent({
-      title: "",
-      subtitle: "",
-      description: "",
-      date: new Date(),
-      type: "gira",
+  const handleCreate = async () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!form.titulo || !form.descricao || !form.data || !terreiroId) return;
+    const res = await fetch(`${API_URL}/eventos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ ...form, terreiroId })
     });
-    setShowForm(false);
-
-    toast({
-      title: "Evento adicionado",
-      description: `O evento "${eventToAdd.title}" foi adicionado com sucesso.`,
-    });
-  };
-
-  // Função para editar evento
-  const handleEditEvent = (event: Event) => {
-    setSelectedEvent(event);
-    setNewEvent({
-      title: event.title,
-      subtitle: event.subtitle,
-      description: event.description,
-      date: event.date,
-      type: event.type,
-    });
-    setShowForm(true);
-  };
-
-  // Função para atualizar evento
-  const handleUpdateEvent = () => {
-    if (!selectedEvent) return;
-    
-    if (!newEvent.title || !newEvent.description || !newEvent.date || !newEvent.type) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const updatedEvents = events.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            title: newEvent.title!, 
-            subtitle: newEvent.subtitle, 
-            description: newEvent.description!, 
-            date: newEvent.date!,
-            type: newEvent.type as "gira" | "festa" | "curso"
-          } 
-        : e
-    );
-
-    setEvents(updatedEvents);
-    setNewEvent({
-      title: "",
-      subtitle: "",
-      description: "",
-      date: new Date(),
-      type: "gira",
-    });
-    setSelectedEvent(null);
-    setShowForm(false);
-
-    toast({
-      title: "Evento atualizado",
-      description: `O evento "${newEvent.title}" foi atualizado com sucesso.`,
-    });
-  };
-
-  // Função para confirmar exclusão
-  const handleConfirmDelete = () => {
-    if (!selectedEvent) return;
-    
-    const updatedEvents = events.filter(e => e.id !== selectedEvent.id);
-    setEvents(updatedEvents);
-    setShowDeleteDialog(false);
-    setSelectedEvent(null);
-
-    toast({
-      title: "Evento excluído",
-      description: `O evento "${selectedEvent.title}" foi excluído com sucesso.`,
-    });
-  };
-
-  // Função para obter a cor da badge com base no tipo de evento
-  const getEventTypeBadgeColor = (type: string) => {
-    switch (type) {
-      case "gira":
-        return "bg-blue-100 text-blue-800";
-      case "festa":
-        return "bg-green-100 text-green-800";
-      case "curso":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+    if (res.ok) {
+      toast({ title: 'Evento criado com sucesso!' });
+      setDialogOpen(false);
+      setForm({ titulo: '', descricao: '', data: '', tipo: 'gira' });
+    } else {
+      toast({ title: 'Erro ao criar evento', variant: 'destructive' });
     }
   };
 
-  // Função para obter o nome do tipo de evento
-  const getEventTypeName = (type: string) => {
-    switch (type) {
-      case "gira":
-        return "Gira";
-      case "festa":
-        return "Festa";
-      case "curso":
-        return "Curso";
-      default:
-        return type;
+  const handleEdit = async () => {
+    if (!editEvent) return;
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/eventos/${editEvent.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ ...form, terreiroId })
+    });
+    if (res.ok) {
+      toast({ title: 'Evento atualizado com sucesso!' });
+      setDialogOpen(false);
+      setEditEvent(null);
+      setForm({ titulo: '', descricao: '', data: '', tipo: 'gira' });
+    } else {
+      toast({ title: 'Erro ao atualizar evento', variant: 'destructive' });
     }
   };
 
-  // Ordenar eventos por data
-  const sortedEvents = [...events].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const handleDelete = async (id: string) => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/eventos/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ terreiroId })
+    });
+    if (res.ok) {
+      toast({ title: 'Evento removido com sucesso!' });
+    } else {
+      toast({ title: 'Erro ao remover evento', variant: 'destructive' });
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">Carregando eventos...</div>;
 
   return (
-    <AdminLayout pageTitle="Gerenciar Eventos" pageDescription="Administre os eventos do terreiro">
-      {!showForm ? (
-        <>
-          <div className="mb-6 flex flex-col items-start gap-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => setShowForm(true)}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 max-w-5xl">
-            {sortedEvents.map(event => (
-              <Card
-                key={event.id}
-                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
-                onClick={() => handleEditEvent(event)}
-              >
-                <div className="flex flex-col h-full p-2 relative">
-                  {/* Ícone de evento no canto superior esquerdo */}
-                  <div className="absolute top-2 left-2">
-                    <CalendarDays className="h-4 w-4 text-primary" />
-                  </div>
-                  {/* Nome do evento centralizado */}
-                  <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{event.title}</h3>
-                  </div>
-                  {/* Link de editar no canto inferior esquerdo */}
-                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
-                    onClick={e => { e.stopPropagation(); handleEditEvent(event); }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <span>Editar</span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {events.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-10">
-              <Calendar className="h-16 w-16 text-primary mb-4" />
-              <p className="text-xl font-medium text-center">Nenhum evento encontrado</p>
-              <p className="text-muted-foreground mt-2 text-center">
-                Não existem eventos cadastrados. Clique em "Novo Evento" para adicionar.
-              </p>
-            </div>
-          )}
-        </>
-      ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{selectedEvent ? 'Editar' : 'Novo'} Evento</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => {
-                setShowForm(false);
-                setSelectedEvent(null);
-                setNewEvent({
-                  title: "",
-                  subtitle: "",
-                  description: "",
-                  date: new Date(),
-                  type: "gira",
-                });
-              }}>
-                <ArrowLeftCircle className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-            </div>
-            <CardDescription>
-              {selectedEvent ? 'Edite as informações do evento' : 'Preencha as informações para adicionar um novo evento'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="event-title">Título *</Label>
-                  <Input
-                    id="event-title"
-                    placeholder="Ex: Gira de Caboclos"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="event-subtitle">Subtítulo</Label>
-                  <Input
-                    id="event-subtitle"
-                    placeholder="Ex: Trabalho de cura e proteção"
-                    value={newEvent.subtitle}
-                    onChange={(e) => setNewEvent({...newEvent, subtitle: e.target.value})}
-                  />
-                </div>
+    <AdminLayout>
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Eventos</h1>
+          <Button onClick={() => setDialogOpen(true)}><PlusCircle className="mr-2" />Novo Evento</Button>
+        </div>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {events.map(event => (
+            <Card key={event.id} className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="text-primary" />
+                <span className="font-bold">{event.titulo}</span>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="event-date">Data e Hora *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !newEvent.date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {newEvent.date ? (
-                          format(newEvent.date, "PPP 'às' HH:mm", { locale: ptBR })
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <CalendarComponent
-                        mode="single"
-                        selected={newEvent.date}
-                        onSelect={(date) => setNewEvent({...newEvent, date: date || new Date()})}
-                        initialFocus
-                        locale={ptBR}
-                      />
-                      <div className="p-3 border-t border-border">
-                        <Label htmlFor="event-time" className="mb-2 block">Horário</Label>
-                        <Input 
-                          id="event-time"
-                          type="time"
-                          value={newEvent.date ? format(newEvent.date, "HH:mm") : "19:00"}
-                          onChange={(e) => {
-                            if (newEvent.date) {
-                              const [hours, minutes] = e.target.value.split(':');
-                              const newDate = new Date(newEvent.date);
-                              newDate.setHours(parseInt(hours, 10));
-                              newDate.setMinutes(parseInt(minutes, 10));
-                              setNewEvent({...newEvent, date: newDate});
-                            }
-                          }}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="event-type">Tipo de Evento *</Label>
-                  <Select
-                    value={newEvent.type}
-                    onValueChange={(value) => setNewEvent({...newEvent, type: value as "gira" | "festa" | "curso"})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo de evento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gira">Gira</SelectItem>
-                      <SelectItem value="festa">Festa</SelectItem>
-                      <SelectItem value="curso">Curso</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="text-muted-foreground text-sm mb-2">{event.descricao}</div>
+              <div className="text-xs text-gray-500 mb-2">Data: {new Date(event.data).toLocaleDateString('pt-BR')}</div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={() => { setEditEvent(event); setForm({ titulo: event.titulo, descricao: event.descricao, data: event.data, tipo: event.tipo }); setDialogOpen(true); }}><Edit className="w-4 h-4" /></Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(event.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="event-description">Descrição *</Label>
-                <Textarea
-                  id="event-description"
-                  placeholder="Descreva detalhadamente este evento, incluindo informações importantes para os participantes"
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                  rows={5}
-                />
-              </div>
+            </Card>
+          ))}
+        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editEvent ? 'Editar Evento' : 'Novo Evento'}</DialogTitle>
+              <DialogDescription>Preencha os dados do evento</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="titulo">Título</Label>
+              <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} />
+              <Label htmlFor="descricao">Descrição</Label>
+              <Textarea id="descricao" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+              <Label htmlFor="data">Data</Label>
+              <Input id="data" type="date" value={form.data} onChange={e => setForm(f => ({ ...f, data: e.target.value }))} />
+              <Label htmlFor="tipo">Tipo</Label>
+              <Select value={form.tipo} onValueChange={v => setForm(f => ({ ...f, tipo: v as "gira" | "festa" | "curso" }))}>
+                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gira">Gira</SelectItem>
+                  <SelectItem value="festa">Festa</SelectItem>
+                  <SelectItem value="curso">Curso</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
-              setShowForm(false);
-              setSelectedEvent(null);
-              setNewEvent({
-                title: "",
-                subtitle: "",
-                description: "",
-                date: new Date(),
-                type: "gira",
-              });
-            }}>
-              Cancelar
-            </Button>
-            {selectedEvent && (
-              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
-                Excluir
-              </Button>
-            )}
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={selectedEvent ? handleUpdateEvent : handleAddEvent}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar exclusão</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir o evento "{selectedEvent?.title}"? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>Excluir</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button onClick={editEvent ? handleEdit : handleCreate}>{editEvent ? 'Salvar' : 'Criar'}</Button>
+              <Button variant="secondary" onClick={() => { setDialogOpen(false); setEditEvent(null); setForm({ titulo: '', descricao: '', data: '', tipo: 'gira' }); }}>Cancelar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AdminLayout>
   );
 };

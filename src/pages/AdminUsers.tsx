@@ -18,6 +18,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/components/AdminLayout";
 import { getAllUsers, isAdmin, isAuthenticated, User } from "@/lib/authService";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
 
 const AdminUsers = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const AdminUsers = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-  
+
   useEffect(() => {
     // Verificar se o usuário está autenticado e é admin
     if (!isAuthenticated()) {
@@ -49,35 +50,43 @@ const AdminUsers = () => {
       });
       return;
     }
-    
+
     // Carregar usuários
     loadUsers();
-    
+
+    // Real-time updates
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      const terreiroId = user.terreiroId;
+      if (terreiroId) {
+        const socket = connectSocket(terreiroId);
+        socket.on('userCreated', (user: User) => setUsers(prev => [...prev, user]));
+        socket.on('userUpdated', (user: User) => setUsers(prev => prev.map(u => u.id === user.id ? user : u)));
+        socket.on('userDeleted', ({ id }: { id: string }) => setUsers(prev => prev.filter(u => u.id !== id)));
+        return () => {
+          socket.off('userCreated');
+          socket.off('userUpdated');
+          socket.off('userDeleted');
+          disconnectSocket();
+        };
+      }
+    }
+
     // Detectar tamanho da tela para responsividade
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [navigate, toast]);
 
-  const loadUsers = async () => {
+  async function loadUsers() {
     setLoading(true);
-    try {
-      const usersList = await getAllUsers();
-      setUsers(usersList);
-    } catch (error) {
-      console.error("Erro ao carregar usuários:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de usuários",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    const users = await getAllUsers();
+    setUsers(users);
+    setLoading(false);
+  }
 
   const getStatusBadge = (isActive: boolean) => {
     return isActive 

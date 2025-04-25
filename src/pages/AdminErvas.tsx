@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Leaf, PlusCircle, Edit, ArrowLeftCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Leaf, PlusCircle, Edit, ArrowLeftCircle, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -8,269 +8,206 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import MobileNav from "@/components/MobileNav";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
+import { Badge } from "@/components/ui/badge";
 
 interface Erva {
-  id: number;
-  titulo: string;
-  subtitulo: string;
+  id: string;
+  nome: string;
+  nomeCientifico: string;
+  propriedades: string[];
+  usos: string[];
   descricao: string;
-  propriedades: string;
-  usos: string;
-  orixaAssociado: string;
+  orixas: string[];
+  imagem?: string;
+  terreiroId: string;
 }
 
-// Exemplo de ervas
-const ervasData: Erva[] = [
-  {
-    id: 1,
-    titulo: "Arruda",
-    subtitulo: "Ruta graveolens",
-    descricao: "Erva muito utilizada para proteção espiritual e afastamento de energias negativas. Seu aroma forte é característico.",
-    propriedades: "Proteção, Limpeza",
-    usos: "Banhos, Defumação, Amacis",
-    orixaAssociado: "Ogum, Oxóssi",
-  },
-  {
-    id: 2,
-    titulo: "Guiné",
-    subtitulo: "Petiveria alliacea",
-    descricao: "Utilizada para afastar energias negativas e fortalecer o campo espiritual.",
-    propriedades: "Proteção, Fortalecimento",
-    usos: "Banhos, Defumação",
-    orixaAssociado: "Oxóssi, Ogum",
-  },
-  {
-    id: 3,
-    titulo: "Alecrim",
-    subtitulo: "Rosmarinus officinalis",
-    descricao: "Erva de alegria, clareza mental e proteção.",
-    propriedades: "Alegria, Clareza mental, Proteção",
-    usos: "Banhos, Chás, Defumação",
-    orixaAssociado: "Oxóssi, Iemanjá",
-  },
-];
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
 
 const AdminErvas = () => {
   const { toast } = useToast();
-  const [ervas, setErvas] = useState<Erva[]>(ervasData);
+  const [ervas, setErvas] = useState<Erva[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedErva, setSelectedErva] = useState<Erva | null>(null);
-  const [newErva, setNewErva] = useState<Partial<Erva>>({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
+  const [editErva, setEditErva] = useState<Erva | null>(null);
+  const [form, setForm] = useState<{ nome: string; nomeCientifico: string; propriedades: string; usos: string; descricao: string; orixas: string; imagem?: string }>({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' });
 
-  const handleAddErva = () => {
-    if (!newErva.titulo || !newErva.descricao) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const newId = Math.max(...ervas.map(e => e.id), 0) + 1;
-    const ervaToAdd: Erva = {
-      id: newId,
-      titulo: newErva.titulo!,
-      subtitulo: newErva.subtitulo || "",
-      descricao: newErva.descricao!,
-      propriedades: newErva.propriedades || "",
-      usos: newErva.usos || "",
-      orixaAssociado: newErva.orixaAssociado || "",
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+
+    fetch(`${API_URL}/ervas?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => setErvas(data));
+
+    const socket = connectSocket(terreiroId);
+    socket.on('ervaCreated', (erva: Erva) => setErvas(prev => [...prev, erva]));
+    socket.on('ervaUpdated', (erva: Erva) => setErvas(prev => prev.map(e => e.id === erva.id ? erva : e)));
+    socket.on('ervaDeleted', ({ id }: { id: string }) => setErvas(prev => prev.filter(e => e.id !== id)));
+    return () => {
+      socket.off('ervaCreated');
+      socket.off('ervaUpdated');
+      socket.off('ervaDeleted');
+      disconnectSocket();
     };
-    setErvas([...ervas, ervaToAdd]);
-    setNewErva({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
-    setShowForm(false);
-    toast({ title: "Erva adicionada", description: `A erva "${ervaToAdd.titulo}" foi adicionada com sucesso.` });
-  };
+  }, []);
 
-  const handleEditErva = (erva: Erva) => {
-    setSelectedErva(erva);
-    setNewErva({ ...erva });
-    setShowForm(true);
-  };
-
-  const handleUpdateErva = () => {
-    if (!selectedErva) return;
-    if (!newErva.titulo || !newErva.descricao) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
-      return;
+  const handleCreate = async () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!form.nome || !form.nomeCientifico || !form.descricao || !terreiroId) return;
+    const res = await fetch(`${API_URL}/ervas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        nome: form.nome,
+        nomeCientifico: form.nomeCientifico,
+        propriedades: form.propriedades.split(',').map(p => p.trim()),
+        usos: form.usos.split(',').map(u => u.trim()),
+        descricao: form.descricao,
+        orixas: form.orixas.split(',').map(o => o.trim()),
+        imagem: form.imagem,
+        terreiroId
+      })
+    });
+    if (res.ok) {
+      toast({ title: 'Erva criada com sucesso!' });
+      setShowForm(false);
+      setForm({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' });
+    } else {
+      toast({ title: 'Erro ao criar erva', variant: 'destructive' });
     }
-    const updatedErvas = ervas.map(e =>
-      e.id === selectedErva.id
-        ? { ...e, ...newErva }
-        : e
-    );
-    setErvas(updatedErvas);
-    setSelectedErva(null);
-    setNewErva({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
-    setShowForm(false);
-    toast({ title: "Erva atualizada", description: `A erva "${newErva.titulo}" foi atualizada com sucesso.` });
   };
 
-  const handleConfirmDelete = () => {
-    if (!selectedErva) return;
-    const updatedErvas = ervas.filter(e => e.id !== selectedErva.id);
-    setErvas(updatedErvas);
-    setShowDeleteDialog(false);
-    setSelectedErva(null);
-    toast({ title: "Erva excluída", description: `A erva "${selectedErva.titulo}" foi excluída com sucesso.` });
+  const handleEdit = async () => {
+    if (!editErva) return;
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/ervas/${editErva.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        nome: form.nome,
+        nomeCientifico: form.nomeCientifico,
+        propriedades: form.propriedades.split(',').map(p => p.trim()),
+        usos: form.usos.split(',').map(u => u.trim()),
+        descricao: form.descricao,
+        orixas: form.orixas.split(',').map(o => o.trim()),
+        imagem: form.imagem,
+        terreiroId
+      })
+    });
+    if (res.ok) {
+      toast({ title: 'Erva atualizada com sucesso!' });
+      setShowForm(false);
+      setEditErva(null);
+      setForm({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' });
+    } else {
+      toast({ title: 'Erro ao atualizar erva', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    const res = await fetch(`${API_URL}/ervas/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      body: JSON.stringify({ terreiroId })
+    });
+    if (res.ok) {
+      toast({ title: 'Erva removida com sucesso!' });
+    } else {
+      toast({ title: 'Erro ao remover erva', variant: 'destructive' });
+    }
   };
 
   return (
-    <AdminLayout pageTitle="Ervas" pageDescription="Gerencie o catálogo de ervas sagradas do terreiro.">
-      {!showForm ? (
-        <>
-          <div className="mb-6 flex flex-col items-start gap-2">
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={() => setShowForm(true)}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 max-w-5xl">
-            {ervas.map(erva => (
-              <Card
-                key={erva.id}
-                className="bg-white border border-gray-100 rounded-[12px] aspect-square hover:shadow-sm cursor-pointer transition-shadow w-[95px] h-[95px]"
-                onClick={() => handleEditErva(erva)}
-              >
-                <div className="flex flex-col h-full p-2 relative">
-                  {/* Ícone de erva no canto superior esquerdo */}
-                  <div className="absolute top-2 left-2">
-                    <Leaf className="h-4 w-4 text-primary" />
-                  </div>
-                  {/* Nome da erva centralizado */}
-                  <div className="flex-1 flex items-center justify-center">
-                    <h3 className="text-[11px] font-medium text-gray-900 text-center line-clamp-2">{erva.titulo}</h3>
-                  </div>
-                  {/* Link de editar no canto inferior esquerdo */}
-                  <div className="absolute bottom-2 left-2 flex items-center text-[10px] text-blue-600"
-                    onClick={e => { e.stopPropagation(); handleEditErva(erva); }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <span>Editar</span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {ervas.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-10">
-              <Leaf className="h-16 w-16 text-primary mb-4" />
-              <p className="text-xl font-medium text-center">Nenhuma erva cadastrada</p>
-              <p className="text-muted-foreground mt-2 text-center">
-                Não existem ervas cadastradas. Clique em "Nova Erva" para adicionar.
-              </p>
-            </div>
-          )}
-        </>
-      ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{selectedErva ? 'Editar' : 'Nova'} Erva</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => {
-                setShowForm(false);
-                setSelectedErva(null);
-                setNewErva({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
-              }}>
-                <ArrowLeftCircle className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="erva-titulo">Título *</Label>
-                <Input
-                  id="erva-titulo"
-                  value={newErva.titulo}
-                  onChange={e => setNewErva({ ...newErva, titulo: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="erva-subtitulo">Subtítulo</Label>
-                <Input
-                  id="erva-subtitulo"
-                  value={newErva.subtitulo}
-                  onChange={e => setNewErva({ ...newErva, subtitulo: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="erva-descricao">Descrição *</Label>
-                <Textarea
-                  id="erva-descricao"
-                  value={newErva.descricao}
-                  onChange={e => setNewErva({ ...newErva, descricao: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="erva-propriedades">Propriedades</Label>
-                <Input
-                  id="erva-propriedades"
-                  placeholder="Proteção, Limpeza"
-                  value={newErva.propriedades}
-                  onChange={e => setNewErva({ ...newErva, propriedades: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="erva-usos">Usos</Label>
-                <Input
-                  id="erva-usos"
-                  placeholder="Banhos, Defumação, Amacis"
-                  value={newErva.usos}
-                  onChange={e => setNewErva({ ...newErva, usos: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="erva-orixa">Orixá Associado</Label>
-                <Input
-                  id="erva-orixa"
-                  placeholder="Ogum, Oxóssi"
-                  value={newErva.orixaAssociado}
-                  onChange={e => setNewErva({ ...newErva, orixaAssociado: e.target.value })}
-                />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" className="h-8 text-xs px-3" onClick={() => {
-              setShowForm(false);
-              setSelectedErva(null);
-              setNewErva({ titulo: "", subtitulo: "", descricao: "", propriedades: "", usos: "", orixaAssociado: "" });
-            }}>
-              Cancelar
-            </Button>
-            {selectedErva && (
-              <Button variant="destructive" className="h-8 text-xs px-3" onClick={() => setShowDeleteDialog(true)}>
-                Excluir
-              </Button>
-            )}
-            <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={selectedErva ? handleUpdateErva : handleAddErva}>
-              <span className="text-lg leading-none">+</span> Adicionar
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-      {/* Diálogo de confirmação de exclusão */}
-      {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
-            <h3 className="text-lg font-semibold mb-2">Confirmar exclusão</h3>
-            <p className="mb-4">Tem certeza que deseja excluir a erva "{selectedErva?.titulo}"? Esta ação não pode ser desfeita.</p>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancelar</Button>
-              <Button variant="destructive" onClick={handleConfirmDelete}>Excluir</Button>
-            </div>
-          </div>
+    <AdminLayout>
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Ervas</h1>
+          <Button onClick={() => { setShowForm(true); setEditErva(null); setForm({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' }); }}><PlusCircle className="mr-2" />Nova Erva</Button>
         </div>
-      )}
-      <MobileNav />
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {ervas.map(erva => (
+            <Card key={erva.id} className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Leaf className="text-green-600" />
+                <span className="font-bold">{erva.nome}</span>
+                <span className="text-xs italic text-gray-500">{erva.nomeCientifico}</span>
+              </div>
+              <div className="text-muted-foreground text-sm mb-2">{erva.descricao}</div>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Propriedades:</span>
+                {erva.propriedades.map(p => (
+                  <Badge key={p} className="ml-1" variant="secondary">{p}</Badge>
+                ))}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Usos:</span>
+                {erva.usos.map(u => (
+                  <Badge key={u} className="ml-1" variant="outline">{u}</Badge>
+                ))}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold text-xs">Orixás:</span>
+                {erva.orixas.map(o => (
+                  <Badge key={o} className="ml-1" variant="default">{o}</Badge>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={() => { setEditErva(erva); setForm({ nome: erva.nome, nomeCientifico: erva.nomeCientifico, propriedades: erva.propriedades.join(', '), usos: erva.usos.join(', '), descricao: erva.descricao, orixas: erva.orixas.join(', '), imagem: erva.imagem || '' }); setShowForm(true); }}><Edit className="w-4 h-4" /></Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(erva.id)}><Trash2 className="w-4 h-4" /></Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+        {showForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+            <div className="bg-white rounded-lg p-8 w-full max-w-lg shadow-xl">
+              <h2 className="text-xl font-semibold mb-4">{editErva ? 'Editar Erva' : 'Nova Erva'}</h2>
+              <div className="space-y-3">
+                <Label htmlFor="nome">Nome</Label>
+                <Input id="nome" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
+                <Label htmlFor="nomeCientifico">Nome Científico</Label>
+                <Input id="nomeCientifico" value={form.nomeCientifico} onChange={e => setForm(f => ({ ...f, nomeCientifico: e.target.value }))} />
+                <Label htmlFor="propriedades">Propriedades (separadas por vírgula)</Label>
+                <Input id="propriedades" value={form.propriedades} onChange={e => setForm(f => ({ ...f, propriedades: e.target.value }))} />
+                <Label htmlFor="usos">Usos (separados por vírgula)</Label>
+                <Input id="usos" value={form.usos} onChange={e => setForm(f => ({ ...f, usos: e.target.value }))} />
+                <Label htmlFor="descricao">Descrição</Label>
+                <Textarea id="descricao" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+                <Label htmlFor="orixas">Orixás (separados por vírgula)</Label>
+                <Input id="orixas" value={form.orixas} onChange={e => setForm(f => ({ ...f, orixas: e.target.value }))} />
+                <Label htmlFor="imagem">Imagem (URL opcional)</Label>
+                <Input id="imagem" value={form.imagem} onChange={e => setForm(f => ({ ...f, imagem: e.target.value }))} />
+              </div>
+              <div className="flex gap-2 mt-6 justify-end">
+                <Button onClick={editErva ? handleEdit : handleCreate}>{editErva ? 'Salvar' : 'Criar'}</Button>
+                <Button variant="secondary" onClick={() => { setShowForm(false); setEditErva(null); setForm({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' }); }}>Cancelar</Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </AdminLayout>
   );
 };

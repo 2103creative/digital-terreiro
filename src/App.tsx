@@ -60,7 +60,7 @@ function AppLayoutWrapper() {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   if (loading) return null;
-  if (!user) return <Login />;
+  if (!user) return <Navigate to="/login" replace />;
 
   const Layout = isAdmin
     ? isMobile

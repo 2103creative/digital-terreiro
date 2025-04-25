@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Leaf, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { connectSocket, disconnectSocket } from '@/lib/socket';
 
 interface Erva {
-  id: number;
+  id: string;
   nome: string;
   nomeCientifico: string;
   propriedades: string[];
@@ -13,74 +14,45 @@ interface Erva {
   descricao: string;
   orixas: string[];
   imagem?: string;
+  terreiroId: string;
 }
+
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000/api';
 
 const Ervas = () => {
   const [busca, setBusca] = useState('');
-  
-  // Lista mockada de ervas
-  const [ervas] = useState<Erva[]>([
-    {
-      id: 1,
-      nome: 'Arruda',
-      nomeCientifico: 'Ruta graveolens',
-      propriedades: ['Proteção', 'Limpeza'],
-      usos: ['Banhos', 'Defumação', 'Amacis'],
-      descricao: 'Erva muito utilizada para proteção espiritual e afastamento de energias negativas. Seu aroma forte é característico.',
-      orixas: ['Ogum', 'Oxóssi']
-    },
-    {
-      id: 2,
-      nome: 'Guiné',
-      nomeCientifico: 'Petiveria alliacea',
-      propriedades: ['Proteção', 'Descarrego'],
-      usos: ['Banhos', 'Defumação', 'Sacudimentos'],
-      descricao: 'Também conhecida como "tipi" ou "erva-de-tipi", é usada para afastar energias negativas e proteger contra magias.',
-      orixas: ['Oxóssi', 'Obaluaê']
-    },
-    {
-      id: 3,
-      nome: 'Alecrim',
-      nomeCientifico: 'Rosmarinus officinalis',
-      propriedades: ['Purificação', 'Limpeza', 'Amor'],
-      usos: ['Banhos', 'Chás', 'Defumação'],
-      descricao: 'Erva com forte aroma, usada para purificação de ambientes e abertura dos caminhos. Também associada ao amor.',
-      orixas: ['Oxalá', 'Iansã']
-    },
-    {
-      id: 4,
-      nome: 'Manjericão',
-      nomeCientifico: 'Ocimum basilicum',
-      propriedades: ['Prosperidade', 'Amor'],
-      usos: ['Banhos', 'Defumação'],
-      descricao: 'Erva usada para atrair prosperidade e amor. Seu aroma atrai energias positivas.',
-      orixas: ['Oxum', 'Logun Edé']
-    },
-    {
-      id: 5,
-      nome: 'Espada de São Jorge',
-      nomeCientifico: 'Sansevieria trifasciata',
-      propriedades: ['Proteção', 'Defesa'],
-      usos: ['Amacis', 'Proteção Residencial'],
-      descricao: 'Planta usada para proteção espiritual. Como o próprio nome indica, funciona como uma "espada" contra energias negativas.',
-      orixas: ['Ogum', 'Obaluaê']
-    },
-    {
-      id: 6,
-      nome: 'Alfazema',
-      nomeCientifico: 'Lavandula angustifolia',
-      propriedades: ['Harmonização', 'Paz', 'Tranquilidade'],
-      usos: ['Banhos', 'Defumação'],
-      descricao: 'Erva aromática usada para trazer paz e tranquilidade. Muito utilizada em banhos ritualísticos.',
-      orixas: ['Oxalá', 'Iemanjá']
-    }
-  ]);
+  const [ervas, setErvas] = useState<Erva[]>([]);
 
-  // Filtrar ervas baseado na busca
-  const ervasFiltradas = ervas.filter(erva => 
-    erva.nome.toLowerCase().includes(busca.toLowerCase()) ||
-    erva.nomeCientifico.toLowerCase().includes(busca.toLowerCase()) ||
-    erva.orixas.some(orixa => orixa.toLowerCase().includes(busca.toLowerCase()))
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+
+    fetch(`${API_URL}/ervas?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => setErvas(data));
+
+    const socket = connectSocket(terreiroId);
+    socket.on('ervaCreated', (erva: Erva) => setErvas(prev => [...prev, erva]));
+    socket.on('ervaUpdated', (erva: Erva) => setErvas(prev => prev.map(e => e.id === erva.id ? erva : e)));
+    socket.on('ervaDeleted', ({ id }: { id: string }) => setErvas(prev => prev.filter(e => e.id !== id)));
+    return () => {
+      socket.off('ervaCreated');
+      socket.off('ervaUpdated');
+      socket.off('ervaDeleted');
+      disconnectSocket();
+    };
+  }, []);
+
+  const ervasFiltradas = ervas.filter(
+    (erva) =>
+      erva.nome.toLowerCase().includes(busca.toLowerCase()) ||
+      erva.nomeCientifico.toLowerCase().includes(busca.toLowerCase()) ||
+      erva.orixas.some(o => o.toLowerCase().includes(busca.toLowerCase()))
   );
 
   return (

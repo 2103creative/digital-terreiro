@@ -1,73 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layers, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { connectSocket, getSocket, disconnectSocket } from "@/lib/socket";
 
-// Interface para o modelo Frente (replicada para consistência)
 interface Frente {
-  id: number;
-  title: string;
-  description: string;
-  subtitle?: string;
-  imageUrl?: string;
-  type: "umbanda" | "nacao";
-  views: number;
+  id: string;
+  nome: string;
+  descricao: string;
+  terreiroId: string;
+  tipo: "umbanda" | "nacao";
+  visualizacoes: number;
 }
 
-// Dados de exemplo das frentes (pode ser substituído por fetch futuramente)
-const frentesData: Frente[] = [
-  {
-    id: 1,
-    title: "Caboclos",
-    subtitle: "Energia de proteção e cura",
-    description: "Energia de proteção e cura da natureza. Os caboclos são espíritos que representam os nativos brasileiros e trabalham com as forças da natureza para cura e orientação espiritual.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 128,
-  },
-  {
-    id: 2,
-    title: "Pretos Velhos",
-    subtitle: "Sabedoria ancestral",
-    description: "Sabedoria ancestral e acolhimento. Os pretos velhos são espíritos de antigos escravos que viveram no Brasil e trazem consigo conhecimento, caridade e paciência.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 156,
-  },
-  {
-    id: 3,
-    title: "Crianças",
-    subtitle: "Energia de pureza",
-    description: "Energia de pureza e alegria. As crianças na umbanda representam a pureza, a inocência e a alegria, trazendo leveza aos trabalhos espirituais.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 97,
-  },
-  {
-    id: 4,
-    title: "Exus e Pombagiras",
-    subtitle: "Guardiões e orientadores",
-    description: "Guardiões e orientadores dos caminhos. Trabalham na quebra de demandas, proteção espiritual e remoção de obstáculos da vida dos médiuns e consulentes.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "umbanda",
-    views: 214,
-  },
-  {
-    id: 5,
-    title: "Xangô",
-    subtitle: "Orixá da justiça",
-    description: "Orixá da justiça, equilíbrio e força. Xangô é conhecido por sua imparcialidade, poder e domínio sobre os raios e trovões.",
-    imageUrl: "/placeholder-frente.jpg",
-    type: "nacao",
-    views: 180,
-  },
-];
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
 
 const UserFrentes = () => {
+  const [frentes, setFrentes] = useState<Frente[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"umbanda" | "nacao">("umbanda");
   const [selectedFrente, setSelectedFrente] = useState<Frente | null>(null);
 
-  const filteredFrentes = frentesData.filter(frente => frente.type === activeTab);
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    const terreiroId = user.terreiroId;
+    if (!terreiroId) return;
+
+    // Fetch frentes do backend
+    fetch(`${API_URL}/frentes?terreiroId=${terreiroId}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setFrentes(data);
+        setLoading(false);
+      });
+
+    // Real-time updates
+    const socket = connectSocket(terreiroId);
+    socket.on('frenteCreated', (frente: Frente) => {
+      setFrentes(prev => [...prev, frente]);
+    });
+    socket.on('frenteUpdated', (frente: Frente) => {
+      setFrentes(prev => prev.map(f => f.id === frente.id ? frente : f));
+    });
+    socket.on('frenteDeleted', ({ id }: { id: string }) => {
+      setFrentes(prev => prev.filter(f => f.id !== id));
+    });
+    return () => {
+      socket.off('frenteCreated');
+      socket.off('frenteUpdated');
+      socket.off('frenteDeleted');
+      disconnectSocket();
+    };
+  }, []);
+
+  if (loading) return <div className="p-8 text-center">Carregando frentes...</div>;
+
+  const filteredFrentes = frentes.filter(frente => frente.tipo === activeTab);
 
   return (
     <div className="p-2 md:p-6">
@@ -86,24 +78,23 @@ const UserFrentes = () => {
               <div>
                 <div className="flex items-start justify-between mb-1">
                   <div>
-                    <h2 className="font-bold text-lg leading-tight mb-0.5">{frente.title}</h2>
-                    {frente.subtitle && <p className="text-xs italic text-gray-500 mb-2">{frente.subtitle}</p>}
+                    <h2 className="font-bold text-lg leading-tight mb-0.5">{frente.nome}</h2>
                   </div>
                   <Layers className="h-5 w-5 text-primary mt-1" />
                 </div>
-                <p className="text-sm text-gray-700 mb-3">{frente.description}</p>
+                <p className="text-sm text-gray-700 mb-3">{frente.descricao}</p>
                 <div className="mb-2">
                   <span className="font-semibold text-xs">Tipo:</span>
                   <span className="ml-1">
                     <span className="inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 font-normal rounded-full">
-                      {frente.type === 'umbanda' ? 'Umbanda' : 'Nação'}
+                      {frente.tipo === 'umbanda' ? 'Umbanda' : 'Nação'}
                     </span>
                   </span>
                 </div>
                 <div className="mb-2">
                   <span className="font-semibold text-xs">Visualizações:</span>
                   <span className="ml-1">
-                    <span className="inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{frente.views}</span>
+                    <span className="inline-block mr-1 mb-1 px-2 py-0.5 text-xs bg-black text-white font-semibold rounded-full">{frente.visualizacoes}</span>
                   </span>
                 </div>
               </div>
@@ -124,17 +115,8 @@ const UserFrentes = () => {
           >
             <ArrowRight className="h-3 w-3 rotate-180" /> Voltar
           </button>
-          <h2 className="text-lg md:text-xl font-semibold mb-2">{selectedFrente.title}</h2>
-          {selectedFrente.subtitle && <h3 className="text-sm text-gray-700 mb-2">{selectedFrente.subtitle}</h3>}
-          <p className="text-gray-700 mb-4 whitespace-pre-line">{selectedFrente.description}</p>
-          {selectedFrente.imageUrl && (
-            <img
-              src={selectedFrente.imageUrl}
-              alt={selectedFrente.title}
-              className="w-full rounded-lg border object-cover max-h-64"
-              onError={e => { (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Frente'; }}
-            />
-          )}
+          <h2 className="text-lg md:text-xl font-semibold mb-2">{selectedFrente.nome}</h2>
+          <p className="text-gray-700 mb-4 whitespace-pre-line">{selectedFrente.descricao}</p>
         </div>
       )}
     </div>
