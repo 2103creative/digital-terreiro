@@ -196,14 +196,18 @@ const FrentesContent = () => {
             </div>
             
             <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
-              <img 
-                src={selectedFrente.imageUrl || "/placeholder-frente.jpg"}
-                alt={selectedFrente.title}
-                className="object-cover w-full h-full"
-                onError={(e) => {
-                  e.currentTarget.src = "https://via.placeholder.com/800x450?text=Frente+Espiritual";
-                }}
-              />
+              <picture>
+                <source srcSet={selectedFrente.imageUrl ? selectedFrente.imageUrl.replace(/\.(jpg|jpeg|png)$/i, '.webp') : '/placeholder-frente.webp'} type="image/webp" />
+                <img 
+                  src={selectedFrente.imageUrl || "/placeholder-frente.jpg"}
+                  alt={selectedFrente.title}
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://via.placeholder.com/800x450?text=Frente+Espiritual";
+                  }}
+                />
+              </picture>
             </div>
           </CardHeader>
           

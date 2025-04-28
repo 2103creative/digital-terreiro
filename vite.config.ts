@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -21,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         name: 'Ylê Axé Xangô & Oxum',
         short_name: 'Ylê Axé',
         description: 'Seu terreiro na palma da mão',
-        theme_color: '#ffffff',
+        theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
@@ -29,14 +28,20 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         icons: [
           {
-            src: '/icons/icon-192.png',
-            sizes: '192x192',
+            src: '/icons/icon-144.png',
+            sizes: '144x144',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/icons/icon-512.png',
-            sizes: '512x512',
+            src: '/icons/icon-384.png',
+            sizes: '384x384',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/icons/icon-48.png',
+            sizes: '48x48',
             type: 'image/png',
             purpose: 'any maskable'
           }

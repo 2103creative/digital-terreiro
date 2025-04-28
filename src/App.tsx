@@ -19,7 +19,7 @@ import UserMobileLayout from "@/layouts/UserMobileLayout";
 
 // Páginas principais
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+// import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -41,6 +41,7 @@ import ListaCompras from "./pages/ListaCompras";
 import AdminErvas from "./pages/AdminErvas";
 import Ervas from "./pages/Ervas";
 import AdminUsersView from "./pages/AdminUsersView"; // Import the new component
+import LoginRedirectIfAuthenticated from "./pages/LoginRedirectIfAuthenticated";
 
 // Lazy pages
 const AdminEvents = lazy(() => import("./pages/AdminEvents"));
@@ -86,33 +87,21 @@ const App = () => (
             <Routes>
               {/* Rotas públicas */}
               <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<LoginRedirectIfAuthenticated />} />
 
               {/* Rotas protegidas */}
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <AppLayoutWrapper />
-                  </ProtectedRoute>
-                }
-              >
-                {/* Rotas comuns */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/frentes" element={<Frentes />} />
-                <Route path="/eventos" element={<Events />} />
-                <Route path="/leitura" element={<Reading />} />
-                <Route path="/mensagens" element={<Messages />} />
-                <Route path="/limpeza" element={<Limpeza />} />
-                <Route path="/compras" element={<ListaCompras />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/ervas" element={<Ervas />} />
-                <Route path="/favoritos" element={<Favoritos />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/userform" element={<UserFormPage />} />
-
-                {/* Rotas administrativas */}
+              <Route element={<AppLayoutWrapper />}>
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/frentes" element={<ProtectedRoute><Frentes /></ProtectedRoute>} />
+                <Route path="/ervas" element={<ProtectedRoute><Ervas /></ProtectedRoute>} />
+                <Route path="/compras" element={<ProtectedRoute><ListaCompras /></ProtectedRoute>} />
+                <Route path="/eventos" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                <Route path="/leitura" element={<ProtectedRoute><Reading /></ProtectedRoute>} />
+                <Route path="/limpeza" element={<ProtectedRoute><Limpeza /></ProtectedRoute>} />
+                <Route path="/mensagens" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/admin/usuarios-view" element={<ProtectedRoute requireAdmin={true}><AdminUsersView /></ProtectedRoute>} />
                 <Route path="/admin/dashboard" element={<Dashboard />} />
                 <Route path="/admin/frentes" element={<Suspense fallback={<AdminLoading />}><AdminFrente /></Suspense>} />
                 <Route path="/admin/ervas" element={<AdminErvas />} />
@@ -124,7 +113,6 @@ const App = () => (
                 <Route path="/admin/usuarios" element={<AdminUsers />} />
                 <Route path="/admin/usuarios/novo" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
                 <Route path="/admin/usuarios/editar/:userId" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
-                <Route path="/admin/usuarios-view" element={<AdminUsersView />} />
                 <Route path="/admin/cleaning-generator" element={<CleaningGenerator />} />
               </Route>
 

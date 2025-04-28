@@ -25,8 +25,7 @@ export async function authenticate(email: string, password: string): Promise<Use
   const data = await response.json();
   if (data.token && data.user) {
     localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    return {
+    const adaptedUser = {
       id: data.user.id,
       name: data.user.nome || data.user.name,
       email: data.user.email,
@@ -34,6 +33,8 @@ export async function authenticate(email: string, password: string): Promise<Use
       isActive: true,
       terreiroId: data.user.terreiroId
     };
+    localStorage.setItem('user', JSON.stringify(adaptedUser));
+    return adaptedUser;
   }
   return null;
 }
@@ -98,8 +99,7 @@ export async function registerUser(nome: string, email: string, senha: string, t
   if (!response.ok) return null;
   const data = await response.json();
   if (data.user) {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    return {
+    const adaptedUser = {
       id: data.user.id,
       name: data.user.nome || data.user.name,
       email: data.user.email,
@@ -107,6 +107,8 @@ export async function registerUser(nome: string, email: string, senha: string, t
       isActive: true,
       terreiroId: data.user.terreiroId
     };
+    localStorage.setItem('user', JSON.stringify(adaptedUser));
+    return adaptedUser;
   }
   return null;
 }

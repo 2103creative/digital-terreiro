@@ -32,6 +32,23 @@ const AdminErvas = () => {
   const [editErva, setEditErva] = useState<Erva | null>(null);
   const [form, setForm] = useState<{ nome: string; nomeCientifico: string; propriedades: string; usos: string; descricao: string; orixas: string; imagem?: string }>({ nome: '', nomeCientifico: '', propriedades: '', usos: '', descricao: '', orixas: '', imagem: '' });
 
+  // Função para buscar ervas (mock)
+  function fetchErvasMock() {
+    return Promise.resolve([
+      {
+        id: "1",
+        nome: "Arruda",
+        nomeCientifico: "Ruta graveolens",
+        propriedades: ["Proteção", "Limpeza"],
+        usos: ["Banhos", "Defumações"],
+        descricao: "Erva muito utilizada para proteção espiritual.",
+        orixas: ["Oxalá", "Ogum"],
+        imagem: "",
+        terreiroId: "1"
+      }
+    ]);
+  }
+
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return;
@@ -39,11 +56,15 @@ const AdminErvas = () => {
     const terreiroId = user.terreiroId;
     if (!terreiroId) return;
 
-    fetch(`${API_URL}/ervas?terreiroId=${terreiroId}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(res => res.json())
-      .then(data => setErvas(data));
+    fetchErvasMock()
+      .then(setErvas)
+      .catch(() => {
+        toast({
+          title: "Erro ao carregar ervas",
+          description: "Não foi possível carregar os dados. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      });
 
     const socket = connectSocket(terreiroId);
     socket.on('ervaCreated', (erva: Erva) => setErvas(prev => [...prev, erva]));

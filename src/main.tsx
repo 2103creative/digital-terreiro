@@ -1,4 +1,3 @@
-
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -13,41 +12,39 @@ declare global {
   }
 }
 
-// Renderiza a aplicação React
+// === EVITA SW COM CACHE ANTIGO EM DEV ===
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+  caches.keys().then(keys => {
+    keys.forEach(key => caches.delete(key));
+  });
+}
+
+// === RENDERIZA APP ===
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Registra service worker para suporte a PWA
+// === REGISTRA SERVICE WORKER ===
 register({
   onSuccess: () => console.log('PWA disponível para uso offline'),
   onUpdate: (registration) => {
     console.log('Nova versão disponível');
-    // Notifica o usuário sobre atualizações
     window.dispatchEvent(new CustomEvent('swUpdate', { detail: registration }));
   },
 });
-
-// Ativa a escuta de atualizações
 listenForUpdates();
 
-// Detector de instalação PWA
+// === EVENTOS DE INSTALAÇÃO PWA ===
 const pwaInstallEventName = 'pwaInstallAvailable';
 
-// Intercepta o evento de instalação
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Previne que o Chrome mostre automaticamente o prompt
   e.preventDefault();
-  
-  // Armazena o evento para uso posterior
   window.deferredPromptEvent = e;
-  
-  // Notifica a aplicação que o app pode ser instalado
   window.dispatchEvent(new CustomEvent(pwaInstallEventName));
-  
-  // Registra um callback para verificar se o usuário aceita ou rejeita a instalação
   window.deferredPromptEvent.userChoice.then((choiceResult: { outcome: string }) => {
     if (choiceResult.outcome === 'accepted') {
       console.log('Usuário aceitou a instalação da PWA');
-      // Limpa o prompt pois já foi usado
       window.deferredPromptEvent = undefined;
     } else {
       console.log('Usuário rejeitou a instalação da PWA');
@@ -55,26 +52,19 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
-// Hook para verificar se o app já está instalado
 window.addEventListener('appinstalled', () => {
   console.log('PWA foi instalada pelo usuário');
-  // Limpa o prompt
   window.deferredPromptEvent = undefined;
 });
 
-// Exporta a função para instalar o PWA
 window.installPWA = () => {
   if (window.deferredPromptEvent) {
-    // Mostrar o prompt
     window.deferredPromptEvent.prompt();
-    
-    // Retornar a promise para o resultado da escolha do usuário
     return window.deferredPromptEvent.userChoice;
   }
   return Promise.reject('Não foi possível instalar o aplicativo agora.');
 };
 
-// Detecta se o aplicativo já está sendo executado no modo instalado
 window.isPWAInstalled = () => {
   return window.matchMedia('(display-mode: standalone)').matches || 
          document.referrer.includes('android-app://');

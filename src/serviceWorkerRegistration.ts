@@ -1,4 +1,3 @@
-
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
@@ -116,13 +115,32 @@ export function unregister() {
   }
 }
 
+// Adiciona controle de atualização do SW para não atualizar durante autenticação
 export function listenForUpdates() {
   if ('serviceWorker' in navigator) {
-    // Listen for updates from the service worker
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
-        // Dispatch an event to notify the application
-        window.dispatchEvent(new CustomEvent('swUpdate', { detail: event.data }));
+        // Não realizar atualizações automáticas durante processos críticos
+        const isAuthProcess = sessionStorage.getItem('authInProgress');
+        if (!isAuthProcess) {
+          window.dispatchEvent(new CustomEvent('swUpdate', { detail: event.data }));
+        } else {
+          console.log('Atualização disponível, mas adiada durante autenticação');
+        }
+      }
+    });
+  }
+}
+
+// Função utilitária para informar o SW após login
+export function notifyLoginSuccess() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((registration) => {
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'LOGIN_SUCCESS',
+          timestamp: new Date().getTime()
+        });
       }
     });
   }

@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,26 +14,32 @@ const LoginForm = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
   const auth = useAuth();
-  const { login } = auth;
+  const { login, isAuthenticated } = auth;
   const navigate = useNavigate();
+
+  // Removido o useEffect de redirecionamento automático para evitar loop
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setLoginError(null);
+    console.log('Tentando login para:', email);
 
     try {
       const success = await login(email, password);
       if (success) {
-        window.location.replace("/dashboard");
+        console.log('Login bem-sucedido, navegando para dashboard');
+        navigate("/dashboard");
       } else {
         setLoginError("Credenciais inválidas. Tente novamente.");
+        console.log('Falha no login para:', email);
       }
     } catch (error) {
       setLoginError("Ocorreu um erro. Tente novamente mais tarde.");
       console.error("Erro no handleSubmit:", error);
     } finally {
       setIsSubmitting(false);
+      console.log('Login finalizado');
     }
   };
 
@@ -42,7 +48,7 @@ const LoginForm = () => {
       <CardContent>
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold mb-1">Ylê Axé Xangô & Oxum</h1>
-          <p className="text-sm text-muted-foreground mb-6">Seu terreiro na palma da mão</p>
+          {/* <p className="text-sm text-muted-foreground mb-6">Seu terreiro na palma da mão</p> */}
           <h2 className="text-xl font-bold">Entrar</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -94,15 +100,7 @@ const LoginForm = () => {
           </Button>
         </form>
         <div className="text-center text-sm text-muted-foreground">
-          Não tem uma conta?{" "}
-          <Button 
-            variant="link" 
-            className="p-0 h-auto"
-            type="button"
-            onClick={() => navigate("/register")}
-          >
-            Cadastre-se
-          </Button>
+          {/* Cadastre-se */}
         </div>
       </CardContent>
     </Card>

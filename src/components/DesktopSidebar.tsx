@@ -261,7 +261,7 @@ const DesktopSidebar = () => {
           </li>
         </ul>
         <div className="flex flex-col items-center mt-6 mb-2">
-          <img src="/canoa.png" alt="Canoa" className="w-32 h-auto opacity-80" />
+          {/* Imagem removida conforme solicitado para otimização e limpeza visual */}
         </div>
       </div>
     </aside>

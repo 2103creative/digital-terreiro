@@ -68,6 +68,29 @@ Bem-vindo ao sistema digital do terreiro Ylê Axé Xangô & Oxum! Este projeto v
 
 ---
 
+## 🚦 Otimização e Performance
+
+### Imagens WebP
+- Todas as imagens principais usam `<picture>` com fallback para WebP e PNG/JPG.
+- Para converter PNG/JPG para WebP, instale o utilitário [Google WebP](https://developers.google.com/speed/webp/download) e execute:
+  ```powershell
+  ./scripts/convert-images-webp.ps1
+  ```
+- Certifique-se de que o executável `cwebp` está no PATH do sistema.
+
+### Fontes e Scripts
+- Fontes Google otimizadas com `display=swap` e `preconnect`.
+- Scripts principais usam `defer` para não bloquear o carregamento.
+
+### Checklist de Deploy
+- [ ] Execute o script de imagens WebP após adicionar novas imagens.
+- [ ] Rode Lighthouse para validar desempenho.
+- [ ] Garanta HTTPS e headers de segurança em produção.
+- [ ] Teste acessibilidade (contraste, navegação por teclado, ARIA).
+- [ ] Teste offline (PWA) e instale no dispositivo.
+
+---
+
 ## 🛠️ Como Rodar Localmente
 
 1. **Clone o repositório:**
@@ -93,6 +116,7 @@ Bem-vindo ao sistema digital do terreiro Ylê Axé Xangô & Oxum! Este projeto v
 - `npm run build` — Gera a build de produção
 - `npm run preview` — Visualiza a build de produção localmente
 - `npm run lint` — Verifica padrões de código
+- `scripts/convert-images-webp.ps1`: Converte PNG/JPG para WebP em `/public`.
 
 ---
 

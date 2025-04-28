@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Heart, BookOpen, Compass } from "lucide-react";

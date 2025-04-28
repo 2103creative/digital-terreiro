@@ -14,6 +14,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
+  // LOG para depuração
+  console.log('ProtectedRoute', { isAuthenticated, loading, isAdmin });
+
   // Mostrar tela de carregamento enquanto verifica autenticação
   if (loading) {
     return <LoadingScreen />;

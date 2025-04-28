@@ -101,29 +101,45 @@ const AdminMantimentos = () => {
     estoqueMinimo: 1,
   });
   
+  // Função para buscar mantimentos (mock)
+  function fetchMantimentosMock() {
+    return Promise.resolve([
+      {
+        id: 1,
+        nome: "Arroz",
+        quantidade: 10,
+        unidade: "kg",
+        categoria: "Alimentos",
+        dataValidade: "2025-12-31",
+        dataCompra: "2025-01-01",
+        estoqueMinimo: 2
+      },
+      {
+        id: 2,
+        nome: "Sabão em pó",
+        quantidade: 5,
+        unidade: "kg",
+        categoria: "Limpeza",
+        dataValidade: "2025-10-10",
+        dataCompra: "2025-01-15",
+        estoqueMinimo: 1
+      }
+    ]);
+  }
+
   // Carregar dados
   useEffect(() => {
-    loadMantimentos();
-    
-    // Carregar lista de compras do localStorage
-    const savedItems = localStorage.getItem('listaCompras');
-    if (savedItems && user?.name) {
-      try {
-        const parsedItems = JSON.parse(savedItems);
-        // Filtrar para mostrar apenas os itens do usuário atual
-        const userItems = parsedItems.filter((item: ItemCompra) => item.usuario === user.name);
-        if (userItems.length > 0) {
-          setItemsParaComprar(userItems);
-          toast({
-            title: "Lista de compras carregada",
-            description: `${userItems.length} item(s) na sua lista de compras.`
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao carregar lista de compras:", error);
-      }
-    }
-  }, [user]);
+    fetchMantimentosMock()
+      .then(setMantimentos)
+      .catch(() => {
+        toast({
+          title: "Erro ao carregar mantimentos",
+          description: "Não foi possível carregar os dados. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      });
+    setIsLoading(false);
+  }, []);
   
   useEffect(() => {
     // Verificar se há itens zerados e alertar
@@ -146,68 +162,6 @@ const AdminMantimentos = () => {
       localStorage.removeItem('listaCompras');
     }
   }, [itemsParaComprar]);
-  
-  const loadMantimentos = () => {
-    setIsLoading(true);
-    
-    // Em um app real, isso seria uma requisição para uma API
-    setTimeout(() => {
-      const dadosExemplo: Mantimento[] = [
-        {
-          id: 1,
-          nome: "Arroz",
-          quantidade: 5,
-          unidade: "kg",
-          categoria: "Alimentos",
-          dataValidade: "2024-12-31",
-          dataCompra: "2023-06-15",
-          estoqueMinimo: 2,
-        },
-        {
-          id: 2,
-          nome: "Feijão Preto",
-          quantidade: 0,
-          unidade: "kg",
-          categoria: "Alimentos",
-          dataValidade: "2024-10-20",
-          dataCompra: "2023-06-15",
-          estoqueMinimo: 2
-        },
-        {
-          id: 3,
-          nome: "Velas Brancas",
-          quantidade: 20,
-          unidade: "un",
-          categoria: "Rituais",
-          dataCompra: "2023-07-01",
-          estoqueMinimo: 10
-        },
-        {
-          id: 4,
-          nome: "Água Sanitária",
-          quantidade: 0,
-          unidade: "L",
-          categoria: "Limpeza",
-          dataValidade: "2024-05-20",
-          dataCompra: "2023-05-20",
-          estoqueMinimo: 1
-        },
-        {
-          id: 5,
-          nome: "Refrigerante",
-          quantidade: 1,
-          unidade: "L",
-          categoria: "Bebidas",
-          dataValidade: "2023-11-15",
-          dataCompra: "2023-09-01",
-          estoqueMinimo: 2,
-        }
-      ];
-      
-      setMantimentos(dadosExemplo);
-      setIsLoading(false);
-    }, 1000);
-  };
   
   // Filtros
   const mantimentosFiltrados = mantimentos.filter(item => {

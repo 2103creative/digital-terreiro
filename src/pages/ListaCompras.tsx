@@ -63,6 +63,34 @@ const ListaCompras = () => {
   const [itemsParaComprar, setItemsParaComprar] = useState<ItemCompra[]>([]);
   const [quantidadeComprar, setQuantidadeComprar] = useState<Record<string, number>>({});
   
+  // Função para buscar mantimentos (mock)
+  function fetchMantimentosMock() {
+    return Promise.resolve([
+      {
+        id: "1",
+        nome: "Arroz",
+        quantidade: 10,
+        unidade: "kg",
+        categoria: "Alimentos",
+        dataValidade: "2025-12-31",
+        dataCompra: "2025-01-01",
+        estoqueMinimo: 2,
+        terreiroId: "1"
+      },
+      {
+        id: "2",
+        nome: "Sabão em pó",
+        quantidade: 5,
+        unidade: "kg",
+        categoria: "Limpeza",
+        dataValidade: "2025-10-10",
+        dataCompra: "2025-01-15",
+        estoqueMinimo: 1,
+        terreiroId: "1"
+      }
+    ]);
+  }
+
   // Verificar autenticação
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
@@ -82,24 +110,16 @@ const ListaCompras = () => {
     const user = JSON.parse(userStr);
     const terreiroId = user.terreiroId;
     if (!terreiroId) return;
-    fetch(`${API_URL}/mantimentos?terreiroId=${terreiroId}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setMantimentos(data);
-        setIsLoading(false);
+    fetchMantimentosMock()
+      .then(setMantimentos)
+      .catch(() => {
+        toast({
+          title: "Erro ao carregar mantimentos",
+          description: "Não foi possível carregar os dados. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
       });
-    const socket = connectSocket(terreiroId);
-    socket.on('mantimentoCreated', (m: Mantimento) => setMantimentos(prev => [...prev, m]));
-    socket.on('mantimentoUpdated', (m: Mantimento) => setMantimentos(prev => prev.map(e => e.id === m.id ? m : e)));
-    socket.on('mantimentoDeleted', ({ id }: { id: string }) => setMantimentos(prev => prev.filter(e => e.id !== id)));
-    return () => {
-      socket.off('mantimentoCreated');
-      socket.off('mantimentoUpdated');
-      socket.off('mantimentoDeleted');
-      disconnectSocket();
-    };
+    setIsLoading(false);
   }, [user]);
 
   // Carregar lista de compras do localStorage
