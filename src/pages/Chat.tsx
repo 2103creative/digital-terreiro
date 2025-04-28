@@ -4,10 +4,12 @@ import ChatComunitario from '@/components/ChatComunitario';
 import MobileNav from '@/components/MobileNav';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Chat = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAuthenticated, loading } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
 
   // Detectar se é um dispositivo móvel
@@ -37,9 +39,7 @@ const Chat = () => {
   }, [isMobile]);
 
   useEffect(() => {
-    // Verificar se o usuário está autenticado
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       navigate('/login');
       toast({
         title: "Acesso negado",
@@ -47,7 +47,10 @@ const Chat = () => {
         variant: "destructive",
       });
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, isAuthenticated, loading]);
+
+  if (loading) return null;
+  if (!isAuthenticated) return null;
 
   // Layout para dispositivos móveis
   if (isMobile) {

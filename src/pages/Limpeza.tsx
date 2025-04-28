@@ -57,12 +57,22 @@ Agradeço a compreensão de todos!`,
 const Limpeza = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [cleaningItems, setCleaningItems] = useState<CleaningItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewSettings, setViewSettings] = useState<ViewSettings>(DEFAULT_VIEW_SETTINGS);
   
   useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/login");
+      toast({
+        title: "Acesso negado",
+        description: "Por favor, faça login para acessar esta página.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!user) return;
     loadCleaningData();
     loadViewSettings();
   }, []);
@@ -153,6 +163,9 @@ const Limpeza = () => {
     acc[item.month].push(item);
     return acc;
   }, {});
+
+  if (loading) return null;
+  if (!isAuthenticated) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4">

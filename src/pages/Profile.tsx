@@ -2,15 +2,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileContent from "@/components/ProfileContent";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAuthenticated, loading } = useAuth();
   
   useEffect(() => {
-    // Check if user is authenticated
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       navigate("/login");
       toast({
         title: "Acesso negado",
@@ -18,7 +18,10 @@ const Profile = () => {
         variant: "destructive",
       });
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, isAuthenticated, loading]);
+
+  if (loading) return null;
+  if (!isAuthenticated) return null;
 
   return (
     <div className="flex-1">

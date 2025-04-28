@@ -23,8 +23,8 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
-import Reading from "./pages/Reading";
-import Messages from "./pages/Messages";
+import Leitura from "./pages/Leitura";
+import Mensagens from "./pages/Mensagens";
 import Frentes from "./pages/Frentes";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -96,9 +96,9 @@ const App = () => (
                 <Route path="/ervas" element={<ProtectedRoute><Ervas /></ProtectedRoute>} />
                 <Route path="/compras" element={<ProtectedRoute><ListaCompras /></ProtectedRoute>} />
                 <Route path="/eventos" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-                <Route path="/leitura" element={<ProtectedRoute><Reading /></ProtectedRoute>} />
+                <Route path="/leitura" element={<ProtectedRoute><Leitura /></ProtectedRoute>} />
+                <Route path="/mensagens" element={<ProtectedRoute><Mensagens /></ProtectedRoute>} />
                 <Route path="/limpeza" element={<ProtectedRoute><Limpeza /></ProtectedRoute>} />
-                <Route path="/mensagens" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                 <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/admin/usuarios-view" element={<ProtectedRoute requireAdmin={true}><AdminUsersView /></ProtectedRoute>} />

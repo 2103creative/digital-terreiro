@@ -55,7 +55,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api";
 const ListaCompras = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [mantimentos, setMantimentos] = useState<Mantimento[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,23 +91,17 @@ const ListaCompras = () => {
     ]);
   }
 
-  // Verificar autenticação
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       navigate("/login");
       toast({
         title: "Acesso negado",
-        description: "Por favor, faça login para acessar esta página",
+        description: "Por favor, faça login para acessar esta página.",
         variant: "destructive",
       });
+      return;
     }
-  }, [navigate, toast]);
-  
-  useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (!userStr) return;
-    const user = JSON.parse(userStr);
+    if (!user) return;
     const terreiroId = user.terreiroId;
     if (!terreiroId) return;
     fetchMantimentosMock()
@@ -120,7 +114,7 @@ const ListaCompras = () => {
         });
       });
     setIsLoading(false);
-  }, [user]);
+  }, [user, loading]);
 
   // Carregar lista de compras do localStorage
   useEffect(() => {
@@ -304,6 +298,9 @@ const ListaCompras = () => {
     });
   };
   
+  if (loading || isLoading) return null;
+  if (!isAuthenticated) return null;
+
   return (
     <div className="flex-1">
       <main className="container mx-auto px-4 py-6">
