@@ -63,14 +63,24 @@ function AppLayoutWrapper() {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
 
-  const Layout = isAdmin
-    ? isMobile
-      ? AdminMobileLayout
-      : AdminDesktopLayout
-    : isMobile
+  const Layout = isMobile
     ? UserMobileLayout
     : UserDesktopLayout;
 
+  return <Layout><Outlet /></Layout>;
+}
+
+function AdminLayoutWrapper() {
+  const { user, isAdmin, loading } = useAuth();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  // LOG para depuração
+  console.log('AdminLayoutWrapper', { user, isAdmin, loading });
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
+
+  const Layout = isMobile ? AdminMobileLayout : AdminDesktopLayout;
   return <Layout><Outlet /></Layout>;
 }
 
@@ -89,7 +99,7 @@ const App = () => (
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginRedirectIfAuthenticated />} />
 
-              {/* Rotas protegidas */}
+              {/* Rotas protegidas de usuário */}
               <Route element={<AppLayoutWrapper />}>
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/frentes" element={<ProtectedRoute><Frentes /></ProtectedRoute>} />
@@ -101,19 +111,23 @@ const App = () => (
                 <Route path="/limpeza" element={<ProtectedRoute><Limpeza /></ProtectedRoute>} />
                 <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              </Route>
+
+              {/* Rotas protegidas de admin */}
+              <Route element={<AdminLayoutWrapper />}>
+                <Route path="/admin/dashboard" element={<ProtectedRoute requireAdmin={true}><Dashboard /></ProtectedRoute>} />
+                <Route path="/admin/frentes" element={<ProtectedRoute requireAdmin={true}><Suspense fallback={<AdminLoading />}><AdminFrente /></Suspense></ProtectedRoute>} />
+                <Route path="/admin/ervas" element={<ProtectedRoute requireAdmin={true}><AdminErvas /></ProtectedRoute>} />
+                <Route path="/admin/compras" element={<ProtectedRoute requireAdmin={true}><AdminMantimentos /></ProtectedRoute>} />
+                <Route path="/admin/eventos" element={<ProtectedRoute requireAdmin={true}><Suspense fallback={<AdminLoading />}><AdminEvents /></Suspense></ProtectedRoute>} />
+                <Route path="/admin/leitura" element={<ProtectedRoute requireAdmin={true}><Suspense fallback={<AdminLoading />}><AdminReading /></Suspense></ProtectedRoute>} />
+                <Route path="/admin/limpeza" element={<ProtectedRoute requireAdmin={true}><AdminLimpeza /></ProtectedRoute>} />
+                <Route path="/admin/mensagens" element={<ProtectedRoute requireAdmin={true}><AdminMessages /></ProtectedRoute>} />
+                <Route path="/admin/usuarios" element={<ProtectedRoute requireAdmin={true}><AdminUsers /></ProtectedRoute>} />
                 <Route path="/admin/usuarios-view" element={<ProtectedRoute requireAdmin={true}><AdminUsersView /></ProtectedRoute>} />
-                <Route path="/admin/dashboard" element={<Dashboard />} />
-                <Route path="/admin/frentes" element={<Suspense fallback={<AdminLoading />}><AdminFrente /></Suspense>} />
-                <Route path="/admin/ervas" element={<AdminErvas />} />
-                <Route path="/admin/compras" element={<AdminMantimentos />} />
-                <Route path="/admin/eventos" element={<Suspense fallback={<AdminLoading />}><AdminEvents /></Suspense>} />
-                <Route path="/admin/leitura" element={<Suspense fallback={<AdminLoading />}><AdminReading /></Suspense>} />
-                <Route path="/admin/limpeza" element={<AdminLimpeza />} />
-                <Route path="/admin/mensagens" element={<AdminMessages />} />
-                <Route path="/admin/usuarios" element={<AdminUsers />} />
                 <Route path="/admin/usuarios/novo" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
                 <Route path="/admin/usuarios/editar/:userId" element={<ProtectedRoute requireAdmin={true}><UserFormPage /></ProtectedRoute>} />
-                <Route path="/admin/cleaning-generator" element={<CleaningGenerator />} />
+                <Route path="/admin/cleaning-generator" element={<ProtectedRoute requireAdmin={true}><CleaningGenerator /></ProtectedRoute>} />
               </Route>
 
               {/* 404 - página não encontrada */}

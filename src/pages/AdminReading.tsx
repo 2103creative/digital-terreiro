@@ -331,7 +331,7 @@ const AdminReading = () => {
   const filteredMaterials = materials.filter(material => material.category === activeCategory);
 
   return (
-    <AdminLayout pageTitle="Leitura" pageDescription="Gerencie os materiais de leitura e doutrina do terreiro.">
+    <>
       {!showForm ? (
         <>
           {/* Botão Novo Material logo abaixo do título/subtítulo */}
@@ -580,7 +580,7 @@ const AdminReading = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

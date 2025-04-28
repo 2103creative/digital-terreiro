@@ -264,7 +264,7 @@ const AdminMessages = () => {
   const sortedMessages = [...messages].sort((a, b) => ensureDate(b.date).getTime() - ensureDate(a.date).getTime());
 
   return (
-    <AdminLayout pageTitle="Mensagens" pageDescription="Gerencie as mensagens enviadas para a comunidade.">
+    <>
       {!showForm ? (
         <>
           <div className="mb-6 flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
@@ -413,7 +413,7 @@ const AdminMessages = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

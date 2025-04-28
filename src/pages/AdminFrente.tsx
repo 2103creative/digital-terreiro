@@ -144,7 +144,7 @@ const AdminFrente = () => {
   if (loading) return <div className="p-8 text-center">Carregando frentes...</div>;
 
   return (
-    <AdminLayout>
+    <>
       <div className="flex flex-col gap-4 p-4">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Frentes</h1>
@@ -192,7 +192,7 @@ const AdminFrente = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
+    </>
   );
 };
 

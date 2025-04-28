@@ -385,7 +385,7 @@ Agradeço a compreensão de todos!`,
   };
   
   return (
-    <AdminLayout pageTitle="Limpeza" pageDescription="Gerencie as listas de limpeza e as datas dos Dias D do terreiro.">
+    <>
       {/* Botão Adicionar logo abaixo do título/subtítulo, antes das abas */}
       <div className="flex flex-col items-start gap-2 mb-4">
         <Button 
@@ -840,7 +840,7 @@ Agradeço a compreensão de todos!`,
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

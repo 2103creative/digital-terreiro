@@ -61,21 +61,52 @@ const AdminEvents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<Event | null>(null);
   const [form, setForm] = useState<{ titulo: string; descricao: string; data: string; tipo: "gira" | "festa" | "curso" }>({ titulo: '', descricao: '', data: '', tipo: 'gira' });
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
-    if (!userStr) return;
+    if (!userStr) {
+      setFetchError('Usuário não encontrado. Faça login novamente.');
+      setLoading(false);
+      return;
+    }
     const user = JSON.parse(userStr);
     const terreiroId = user.terreiroId;
-    if (!terreiroId) return;
+    if (!terreiroId) {
+      setFetchError('ID do terreiro não encontrado no usuário.');
+      setLoading(false);
+      return;
+    }
 
     fetch(`${API_URL}/eventos?terreiroId=${terreiroId}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Erro ao buscar eventos');
+        return res.json();
+      })
       .then(data => {
-        setEvents(data);
+        console.log('Eventos carregados:', data);
+        // Se não vier array, ou vier vazio, use mock para debug visual
+        if (!Array.isArray(data) || !data.length) {
+          setEvents([
+            { id: '1', titulo: 'Evento Teste', descricao: 'Descrição teste', data: new Date().toISOString(), tipo: 'gira', terreiroId },
+            { id: '2', titulo: 'Festa de Oxum', descricao: 'Festa tradicional', data: new Date().toISOString(), tipo: 'festa', terreiroId }
+          ]);
+        } else {
+          setEvents(data);
+        }
         setLoading(false);
+      })
+      .catch(err => {
+        setFetchError('Erro ao carregar eventos. (Verifique o backend e o terreiroId)');
+        setLoading(false);
+        console.error(err);
+        // Mostra eventos mockados para debug visual
+        setEvents([
+          { id: '1', titulo: 'Evento Teste', descricao: 'Descrição teste', data: new Date().toISOString(), tipo: 'gira', terreiroId: terreiroId || 'mock' },
+          { id: '2', titulo: 'Festa de Oxum', descricao: 'Festa tradicional', data: new Date().toISOString(), tipo: 'festa', terreiroId: terreiroId || 'mock' }
+        ]);
       });
 
     const socket = connectSocket(terreiroId);
@@ -157,14 +188,17 @@ const AdminEvents = () => {
   };
 
   if (loading) return <div className="p-8 text-center">Carregando eventos...</div>;
+  if (fetchError) return <div className="p-8 text-center text-red-600">{fetchError}</div>;
 
   return (
-    <AdminLayout>
-      <div className="flex flex-col gap-4 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Eventos</h1>
-          <Button onClick={() => setDialogOpen(true)}><PlusCircle className="mr-2" />Novo Evento</Button>
-        </div>
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Eventos do Terreiro</h1>
+        <Button onClick={() => setDialogOpen(true)}><PlusCircle className="mr-2" />Novo Evento</Button>
+      </div>
+      {events.length === 0 ? (
+        <div className="text-center text-gray-500">Nenhum evento cadastrado.</div>
+      ) : (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {events.map(event => (
             <Card key={event.id} className="p-4">
@@ -181,37 +215,37 @@ const AdminEvents = () => {
             </Card>
           ))}
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editEvent ? 'Editar Evento' : 'Novo Evento'}</DialogTitle>
-              <DialogDescription>Preencha os dados do evento</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-2">
-              <Label htmlFor="titulo">Título</Label>
-              <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} />
-              <Label htmlFor="descricao">Descrição</Label>
-              <Textarea id="descricao" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
-              <Label htmlFor="data">Data</Label>
-              <Input id="data" type="date" value={form.data} onChange={e => setForm(f => ({ ...f, data: e.target.value }))} />
-              <Label htmlFor="tipo">Tipo</Label>
-              <Select value={form.tipo} onValueChange={v => setForm(f => ({ ...f, tipo: v as "gira" | "festa" | "curso" }))}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gira">Gira</SelectItem>
-                  <SelectItem value="festa">Festa</SelectItem>
-                  <SelectItem value="curso">Curso</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <DialogFooter>
-              <Button onClick={editEvent ? handleEdit : handleCreate}>{editEvent ? 'Salvar' : 'Criar'}</Button>
-              <Button variant="secondary" onClick={() => { setDialogOpen(false); setEditEvent(null); setForm({ titulo: '', descricao: '', data: '', tipo: 'gira' }); }}>Cancelar</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </AdminLayout>
+      )}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editEvent ? 'Editar Evento' : 'Novo Evento'}</DialogTitle>
+            <DialogDescription>Preencha os dados do evento</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="titulo">Título</Label>
+            <Input id="titulo" value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} />
+            <Label htmlFor="descricao">Descrição</Label>
+            <Textarea id="descricao" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+            <Label htmlFor="data">Data</Label>
+            <Input id="data" type="date" value={form.data} onChange={e => setForm(f => ({ ...f, data: e.target.value }))} />
+            <Label htmlFor="tipo">Tipo</Label>
+            <Select value={form.tipo} onValueChange={v => setForm(f => ({ ...f, tipo: v as "gira" | "festa" | "curso" }))}>
+              <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gira">Gira</SelectItem>
+                <SelectItem value="festa">Festa</SelectItem>
+                <SelectItem value="curso">Curso</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button onClick={editEvent ? handleEdit : handleCreate}>{editEvent ? 'Salvar' : 'Criar'}</Button>
+            <Button variant="secondary" onClick={() => { setDialogOpen(false); setEditEvent(null); setForm({ titulo: '', descricao: '', data: '', tipo: 'gira' }); }}>Cancelar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

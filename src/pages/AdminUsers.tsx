@@ -16,7 +16,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import AdminLayout from "@/components/AdminLayout";
 import { getAllUsers, isAdmin, isAuthenticated, User } from "@/lib/authService";
 import { connectSocket, disconnectSocket } from "@/lib/socket";
 
@@ -132,7 +131,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <AdminLayout pageTitle="Usuários" pageDescription="Gerencie os usuários do sistema.">
+    <>
       <div className="flex justify-between items-center mb-6">
         <Button className="h-8 text-xs px-3 bg-black hover:bg-gray-900 text-white flex items-center gap-1" onClick={handleAddUser}>
           <span className="text-lg leading-none">+</span> Adicionar
@@ -193,7 +192,7 @@ const AdminUsers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </>
   );
 };
 

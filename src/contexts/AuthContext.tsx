@@ -27,7 +27,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
         return;
       }
-      // Tenta validar o token no backend (ou simula)
       try {
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000/api/users'}/validate-token`, {
           headers: { 'Authorization': `Bearer ${token}` },
@@ -40,19 +39,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUser(null);
           }
         } else {
-          // Token inválido
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setUser(null);
         }
       } catch {
-        // Falha na validação (offline ou erro de rede)
         setUser(null);
       } finally {
         setLoading(false);
       }
     }
     validateSession();
+
+    // OUVINTE para mudanças no localStorage (login/logout em outras abas)
+    function handleStorageChange(e: StorageEvent) {
+      if (e.key === 'user') {
+        const storedUser = localStorage.getItem('user');
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+      }
+      if (e.key === 'token' && !localStorage.getItem('token')) {
+        setUser(null);
+      }
+    }
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // LOGIN REAL
@@ -107,10 +117,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const isAuthenticated = !!user;
-  const isAdmin = user ? user.role === 'admin' : false;
+  const isAdmin = !!user && (user.role === 'admin' || user.isAdmin === true);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated, isAdmin, login: handleLogin, logout: handleLogout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        isAdmin,
+        login: handleLogin,
+        logout: handleLogout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

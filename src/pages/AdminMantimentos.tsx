@@ -18,7 +18,6 @@ import {
   Check
 } from "lucide-react";
 
-import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -517,7 +516,7 @@ const AdminMantimentos = () => {
   };
   
   return (
-    <AdminLayout pageTitle="Compras" pageDescription="Gerencie o estoque e as compras do terreiro.">
+    <>
       <div className="space-y-4">
         <div className="mb-2">
           <div className="mt-2">
@@ -1125,7 +1124,7 @@ const AdminMantimentos = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 
