@@ -42,6 +42,8 @@ import AdminErvas from "./pages/AdminErvas";
 import Ervas from "./pages/Ervas";
 import AdminUsersView from "./pages/AdminUsersView"; // Import the new component
 import LoginRedirectIfAuthenticated from "./pages/LoginRedirectIfAuthenticated";
+import Cadastro from "./pages/Cadastro";
+import EsqueciSenha from "./pages/EsqueciSenha";
 
 // Lazy pages
 const AdminEvents = lazy(() => import("./pages/AdminEvents"));
@@ -98,6 +100,8 @@ const App = () => (
               {/* Rotas públicas */}
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<LoginRedirectIfAuthenticated />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/esqueci-senha" element={<EsqueciSenha />} />
 
               {/* Rotas protegidas de usuário */}
               <Route element={<AppLayoutWrapper />}>
